@@ -17,7 +17,7 @@ const HomePage = () => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('npm install @runboxjs/core');
+    navigator.clipboard.writeText('npm install runboxjs');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -60,7 +60,7 @@ const HomePage = () => {
                 className="group relative flex items-center gap-3 text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner hover:bg-anthropic-dark/80 transition-colors cursor-pointer"
                 title="Copy to clipboard"
               >
-                <span>npm install @runboxjs/core</span>
+                <span>npm install runboxjs</span>
                 {copied ? (
                   <Check className="w-4 h-4 text-anthropic-green" />
                 ) : (
@@ -178,20 +178,17 @@ const HomePage = () => {
               <span className="text-xs font-mono text-anthropic-mid-gray">app.js</span>
             </div>
             <pre className="p-8 text-sm md:text-base font-mono text-anthropic-light-gray overflow-x-auto leading-relaxed no-scrollbar selection:bg-anthropic-light-gray/20">
-<code className="text-anthropic-orange">import</code> {'{'} Runbox {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'@runboxjs/core'</code>;
+<code className="text-anthropic-orange">import</code> init, {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'runboxjs'</code>;
 <br/><br/>
-<code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">await</code> Runbox.<code className="text-anthropic-blue">boot</code>();
+<code className="text-anthropic-blue">await</code> <code className="text-anthropic-blue">init</code>();
+<br/>
+<code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">RunboxInstance</code>();
 <br/><br/>
-<code className="text-anthropic-orange">await</code> runbox.<code className="text-anthropic-blue">mount</code>({'{'}
-  <code className="text-anthropic-green">'server.js'</code>: <code className="text-anthropic-green">`
-    const http = require('http');
-    http.createServer((req, res) =&gt; {'{'}
-      res.end('Hello from Runboxjs');
-    {'}'}).listen(8080);
-  `</code>
-{'}'});
+<code className="text-anthropic-blue">const</code> content = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">TextEncoder</code>().<code className="text-anthropic-blue">encode</code>(<code className="text-anthropic-green">'console.log("Hello from browser!");'</code>);<br/>
+runbox.<code className="text-anthropic-blue">write_file</code>(<code className="text-anthropic-green">'/app.js'</code>, content);
 <br/><br/>
-<code className="text-anthropic-blue">const</code> process = <code className="text-anthropic-orange">await</code> runbox.<code className="text-anthropic-blue">spawn</code>(<code className="text-anthropic-green">'node'</code>, [<code className="text-anthropic-green">'server.js'</code>]);
+<code className="text-anthropic-blue">const</code> result = runbox.<code className="text-anthropic-blue">exec</code>(<code className="text-anthropic-green">'node /app.js'</code>);<br/>
+console.<code className="text-anthropic-blue">log</code>(JSON.<code className="text-anthropic-blue">parse</code>(result));
             </pre>
           </motion.div>
         </div>

@@ -17,6 +17,8 @@
     "p5": "^2.2.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-router-dom": "^7.14.0",
+    "runboxjs": "^0.2.2",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
