@@ -137,10 +137,10 @@ console.log('\\n[SUCCESS] Processing complete!');`;
       }
 
       setOutput(prev => [...prev, '']);
-      setOutput(prev => [...prev, '$ bun /index.js']);
+      setOutput(prev => [...prev, '$ bun run /index.js']);
 
-      // Execute with Bun - use absolute path
-      const execResult = JSON.parse(runbox.exec('bun /index.js'));
+      // Execute with Bun run subcommand
+      const execResult = JSON.parse(runbox.exec('bun run /index.js'));
 
       if (execResult.stdout) {
         execResult.stdout.split('\n').forEach(line => {
