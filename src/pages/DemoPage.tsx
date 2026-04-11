@@ -12,79 +12,59 @@ const DemoPage: React.FC = () => {
   const [activeFile, setActiveFile] = useState<'package.json' | 'index.js'>('index.js');
 
   const packageJson = `{
-  "name": "user-api-server",
+  "name": "data-processor",
   "version": "1.0.0",
-  "description": "Simple User Management REST API",
-  "type": "commonjs",
+  "description": "Data Processing Script",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.0",
-    "body-parser": "^1.20.0"
+    "start": "bun index.js",
+    "dev": "bun index.js"
   },
   "author": "RunBox Team",
   "license": "MIT"
 }`;
 
-  const indexJs = `// User Management REST API
-const express = require('express');
-const app = express();
-const port = 3000;
+  const indexJs = `// Data Processing Script with Bun
+// Edit this code and click 'Run' to execute it in RunBox WebAssembly
 
-// Middleware
-app.use(express.json());
+// Sample data
+const users = [
+  { id: 1, name: 'Alice Johnson', age: 28, department: 'Engineering' },
+  { id: 2, name: 'Bob Smith', age: 35, department: 'Sales' },
+  { id: 3, name: 'Carol White', age: 32, department: 'Engineering' },
+  { id: 4, name: 'David Brown', age: 41, department: 'Management' },
+  { id: 5, name: 'Emma Davis', age: 26, department: 'Sales' }
+];
 
-// Mock database
-const users = {
-  1: { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'admin' },
-  2: { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'user' },
-  3: { id: 3, name: 'Carol White', email: 'carol@example.com', role: 'user' }
-};
+console.log('[INFO] User Processing Script');
+console.log('================================\\n');
 
-// GET all users
-app.get('/api/users', (req, res) => {
-  res.json({
-    success: true,
-    count: Object.keys(users).length,
-    data: Object.values(users)
-  });
+// Total users
+console.log(\`Total Users: \${users.length}\`);
+
+// Users by department
+console.log('\\nUsers by Department:');
+const byDept = users.reduce((acc, u) => {
+  acc[u.department] = (acc[u.department] || 0) + 1;
+  return acc;
+}, {});
+Object.entries(byDept).forEach(([dept, count]) => {
+  console.log(\`  \${dept}: \${count}\`);
 });
 
-// GET user by ID
-app.get('/api/users/:id', (req, res) => {
-  const user = users[req.params.id];
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      error: 'User not found'
-    });
-  }
-  res.json({ success: true, data: user });
+// Average age
+const avgAge = (users.reduce((sum, u) => sum + u.age, 0) / users.length).toFixed(1);
+console.log(\`\\nAverage Age: \${avgAge} years\`);
+
+// Engineers
+const engineers = users.filter(u => u.department === 'Engineering');
+console.log(\`\\nEngineering Team (\${engineers.length}):\`);
+engineers.forEach(u => {
+  console.log(\`  - \${u.name} (\${u.age})\`);
 });
 
-// POST create user
-app.post('/api/users', (req, res) => {
-  const newId = Math.max(...Object.keys(users).map(Number)) + 1;
-  const newUser = { id: newId, ...req.body };
-  users[newId] = newUser;
-  res.status(201).json({
-    success: true,
-    message: 'User created',
-    data: newUser
-  });
-});
-
-// Start server
-app.listen(port, () => {
-  console.log(\`✅ API Server running on http://localhost:\${port}\`);
-  console.log('📚 Available endpoints:');
-  console.log('  GET  /api/users        - List all users');
-  console.log('  GET  /api/users/:id    - Get user by ID');
-  console.log('  POST /api/users        - Create new user');
-});`;
+console.log('\\n[SUCCESS] Processing complete!');`;
 
   const [code, setCode] = useState(indexJs);
   const outputEndRef = useRef<HTMLDivElement>(null);
@@ -157,10 +137,10 @@ app.listen(port, () => {
       }
 
       setOutput(prev => [...prev, '']);
-      setOutput(prev => [...prev, '$ node index.js']);
+      setOutput(prev => [...prev, '$ bun index.js']);
 
-      // Execute the Node.js script
-      const execResult = JSON.parse(runbox.exec('node /index.js'));
+      // Execute with Bun
+      const execResult = JSON.parse(runbox.exec('bun index.js'));
 
       if (execResult.stdout) {
         execResult.stdout.split('\n').forEach(line => {
@@ -191,9 +171,9 @@ app.listen(port, () => {
     <div className="min-h-screen bg-anthropic-dark text-anthropic-light pt-32 pb-24 px-6 md:px-12 flex flex-col items-center">
       <div className="max-w-6xl w-full flex flex-col gap-12">
         <header className="flex flex-col gap-4 text-center items-center">
-          <h1 className="text-4xl md:text-6xl font-poppins font-medium tracking-tight">REST API Demo</h1>
+          <h1 className="text-4xl md:text-6xl font-poppins font-medium tracking-tight">RunBox Live Demo</h1>
           <p className="text-xl font-lora text-anthropic-mid-gray leading-relaxed max-w-2xl">
-            A fully functional Express.js REST API running entirely in your browser using RunBox WebAssembly. Edit the code and click Run to see it in action.
+            Execute real JavaScript code in your browser using Bun runtime inside RunBox WebAssembly. Edit the code, change package.json, and click Run to see actual execution results.
           </p>
         </header>
 
@@ -266,7 +246,7 @@ app.listen(port, () => {
             <div className="rounded-3xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl h-[400px]">
               <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50 gap-2">
                 <Code className="w-4 h-4 text-gray-500" />
-                <span className="text-xs font-mono text-gray-500">API Response Preview</span>
+                <span className="text-xs font-mono text-gray-500">Script Output & Info</span>
               </div>
               <div className="flex-1 p-6 text-black overflow-y-auto">
                 {previewHtml ? (
@@ -274,8 +254,8 @@ app.listen(port, () => {
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-400 font-poppins text-sm text-center">
                     <div>
-                      <p className="mb-2">Click "Run" to execute the API server</p>
-                      <p className="text-xs">The response will be displayed here</p>
+                      <p className="mb-2">Click "Run" to execute the script</p>
+                      <p className="text-xs">Output from your code will appear in the terminal</p>
                     </div>
                   </div>
                 )}
