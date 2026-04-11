@@ -1,5 +1,6 @@
+import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Terminal, Box, Zap, Globe, ArrowRight } from 'lucide-react';
+import { Terminal, Box, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
 import HeroBackground from './HeroBackground';
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -23,6 +24,13 @@ export default function App() {
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText('npm install @runboxjs/core');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500 selection:text-white font-sans">
@@ -73,12 +81,21 @@ export default function App() {
             </p>
             
             <div className="flex flex-wrap items-center gap-6">
-              <a href="#" className="flex items-center gap-2 bg-anthropic-light text-anthropic-dark px-8 py-4 rounded-full font-poppins font-medium hover:bg-anthropic-light-gray transition-colors shadow-[0_0_40px_rgba(217,119,87,0.15)]">
+              <a href="#documentation" className="flex items-center gap-2 bg-anthropic-light text-anthropic-dark px-8 py-4 rounded-full font-poppins font-medium hover:bg-anthropic-light-gray transition-colors shadow-[0_0_40px_rgba(217,119,87,0.15)]">
                 Get Started <ArrowRight className="w-4 h-4" />
               </a>
-              <code className="text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner">
-                npm install @runboxjs/core
-              </code>
+              <button 
+                onClick={handleCopy}
+                className="group relative flex items-center gap-3 text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner hover:bg-anthropic-dark/80 transition-colors cursor-pointer"
+                title="Copy to clipboard"
+              >
+                <span>npm install @runboxjs/core</span>
+                {copied ? (
+                  <Check className="w-4 h-4 text-anthropic-green" />
+                ) : (
+                  <Copy className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+                )}
+              </button>
             </div>
           </motion.div>
         </motion.div>
@@ -153,7 +170,7 @@ export default function App() {
       </section>
 
       {/* Detail Section */}
-      <section className="py-32 px-6 md:px-12 bg-[#1a1a19] border-y border-anthropic-light-gray/5">
+      <section id="documentation" className="py-32 px-6 md:px-12 bg-[#1a1a19] border-y border-anthropic-light-gray/5 scroll-mt-24">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div className="flex flex-col gap-8">
             <h2 className="text-4xl md:text-5xl font-poppins font-medium tracking-tight leading-tight text-anthropic-light">
