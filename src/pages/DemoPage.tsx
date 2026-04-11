@@ -135,58 +135,56 @@ app.listen(port, () => {
     if (!runbox || !isReady || isRunning) return;
 
     setIsRunning(true);
-    setOutput(prev => [...prev, '$ node index.js']);
-    setUserScrolledUp(false); // Reset scroll position when running
+    setUserScrolledUp(false);
+    setPreviewHtml('');
 
-    // Simulate API server startup
-    setTimeout(() => {
-      setOutput(prev => [...prev, '[INFO] API Server running on http://localhost:3000']);
-      setOutput(prev => [...prev, '[INFO] Available endpoints:']);
-      setOutput(prev => [...prev, '  GET  /api/users        - List all users']);
-      setOutput(prev => [...prev, '  GET  /api/users/:id    - Get user by ID']);
-      setOutput(prev => [...prev, '  POST /api/users        - Create new user']);
+    try {
+      // Write package.json to VFS
+      const pkgJsonBytes = new TextEncoder().encode(code === indexJs ? packageJson : code);
+      const indexJsBytes = new TextEncoder().encode(code === indexJs ? code : indexJs);
 
-      // Simulate making a curl request
-      setTimeout(() => {
-        setOutput(prev => [...prev, '']);
-        setOutput(prev => [...prev, '$ curl http://localhost:3000/api/users']);
+      runbox.write_file('/package.json', pkgJsonBytes);
+      runbox.write_file('/index.js', indexJsBytes);
 
-        setTimeout(() => {
-          const apiResponse = {
-            success: true,
-            count: 3,
-            data: [
-              { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'admin' },
-              { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'user' },
-              { id: 3, name: 'Carol White', email: 'carol@example.com', role: 'user' }
-            ]
-          };
+      setOutput(prev => [...prev, '$ npm install']);
 
-          setOutput(prev => [...prev, JSON.stringify(apiResponse, null, 2)]);
+      // Install dependencies
+      const installResult = JSON.parse(runbox.exec('npm install'));
+      if (installResult.stdout) {
+        installResult.stdout.split('\n').forEach(line => {
+          if (line.trim()) setOutput(prev => [...prev, line]);
+        });
+      }
 
-          // Show preview with formatted response
-          const preview = `
-            <div style="padding: 20px; font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; border-radius: 8px;">
-              <h2 style="margin: 0 0 12px 0; color: #333; font-size: 16px;">API Response - GET /api/users</h2>
-              <pre style="background: #fff; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; border: 1px solid #ddd;">${JSON.stringify(apiResponse, null, 2)}</pre>
-              <h3 style="margin: 16px 0 12px 0; color: #333; font-size: 14px;">Active Users:</h3>
-              <ul style="list-style: none; padding: 0; margin: 0;">
-                ${apiResponse.data.map(user => `
-                  <li style="padding: 12px; background: white; margin: 8px 0; border-radius: 6px; border-left: 4px solid #667eea; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <strong style="color: #333;">${user.name}</strong>
-                    <span style="color: #999; font-size: 12px; margin-left: 8px;">[${user.role.toUpperCase()}]</span><br/>
-                    <small style="color: #666;">${user.email}</small>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-          `;
+      setOutput(prev => [...prev, '']);
+      setOutput(prev => [...prev, '$ node index.js']);
 
-          setPreviewHtml(preview);
-          setIsRunning(false);
-        }, 1200);
-      }, 1500);
-    }, 800);
+      // Execute the Node.js script
+      const execResult = JSON.parse(runbox.exec('node /index.js'));
+
+      if (execResult.stdout) {
+        execResult.stdout.split('\n').forEach(line => {
+          if (line.trim()) setOutput(prev => [...prev, line]);
+        });
+      }
+
+      if (execResult.stderr) {
+        setOutput(prev => [...prev, `[ERROR] ${execResult.stderr}`]);
+      }
+
+      if (execResult.exit_code !== 0) {
+        setOutput(prev => [...prev, `[ERROR] Process exited with code ${execResult.exit_code}`]);
+        setIsRunning(false);
+        return;
+      }
+
+      setPreviewHtml('<div style="padding: 20px; text-align: center; color: #666;"><p>Check the terminal output above</p></div>');
+      setIsRunning(false);
+
+    } catch (err: any) {
+      setOutput(prev => [...prev, `[ERROR] ${err.message}`]);
+      setIsRunning(false);
+    }
   };
 
   return (
