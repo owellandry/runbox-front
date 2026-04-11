@@ -31,7 +31,7 @@ export default function App() {
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-md bg-anthropic-dark/40 border-b border-anthropic-light-gray/10">
         <div className="flex items-center gap-2 text-xl font-poppins font-medium tracking-tight text-anthropic-light">
           <Box className="w-5 h-5 text-anthropic-orange" />
-          <span>Runbox</span>
+          <span>Runboxjs</span>
         </div>
         <div className="flex items-center gap-6 text-sm font-poppins font-medium text-anthropic-light-gray">
           <a href="#" className="hover:text-anthropic-light transition-colors">Documentation</a>
@@ -57,7 +57,7 @@ export default function App() {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="text-[12vw] leading-[0.85] font-poppins font-medium tracking-tighter mb-8 text-anthropic-light"
           >
-            Runbox.
+            Runboxjs.
           </motion.h1>
           
           <motion.div
@@ -75,7 +75,7 @@ export default function App() {
                 Get Started <ArrowRight className="w-4 h-4" />
               </a>
               <code className="text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner">
-                npm install @runbox/core
+                npm install @runboxjs/core
               </code>
             </div>
           </motion.div>
@@ -95,7 +95,7 @@ export default function App() {
               <div className="w-3 h-3 rounded-full bg-anthropic-green" />
             </div>
             <div className="p-6 font-mono text-sm text-anthropic-green/90 flex flex-col gap-2">
-              <p><span className="text-anthropic-blue">~/project</span> $ npx create-runbox-app</p>
+              <p><span className="text-anthropic-blue">~/project</span> $ npx create-runboxjs-app</p>
               <p className="text-anthropic-light-gray/70">Booting environment...</p>
               <p className="text-anthropic-light-gray/70">Starting Node.js v18.16.0</p>
               <p className="text-anthropic-light-gray/70">Server ready on port 3000</p>
@@ -159,7 +159,7 @@ export default function App() {
               Interactive Docs.
             </h2>
             <p className="text-lg text-anthropic-mid-gray font-lora leading-relaxed max-w-md">
-              Integrate Runbox into your platform to provide interactive code examples, tutorials, or full-fledged development environments. It just works.
+              Integrate Runboxjs into your platform to provide interactive code examples, tutorials, or full-fledged development environments. It just works.
             </p>
             <ul className="flex flex-col gap-6 text-anthropic-light-gray font-lora">
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
@@ -188,7 +188,7 @@ export default function App() {
               <span className="text-xs font-mono text-anthropic-mid-gray">app.js</span>
             </div>
             <pre className="p-8 text-sm md:text-base font-mono text-anthropic-light-gray overflow-x-auto leading-relaxed">
-<code className="text-anthropic-orange">import</code> {'{'} Runbox {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'@runbox/core'</code>;
+<code className="text-anthropic-orange">import</code> {'{'} Runbox {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'@runboxjs/core'</code>;
 <br/><br/>
 <code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">await</code> Runbox.<code className="text-anthropic-blue">boot</code>();
 <br/><br/>
@@ -196,7 +196,7 @@ export default function App() {
   <code className="text-anthropic-green">'server.js'</code>: <code className="text-anthropic-green">`
     const http = require('http');
     http.createServer((req, res) =&gt; {'{'}
-      res.end('Hello from Runbox');
+      res.end('Hello from Runboxjs');
     {'}'}).listen(8080);
   `</code>
 {'}'});
@@ -213,7 +213,7 @@ export default function App() {
           Start building.
         </h2>
         <p className="text-xl font-lora text-anthropic-mid-gray max-w-lg mb-12 leading-relaxed">
-          Add Runbox to your project and experience the power of in-browser Node.js environments.
+          Add Runboxjs to your project and experience the power of in-browser Node.js environments.
         </p>
         <a href="#" className="bg-anthropic-orange text-anthropic-dark px-10 py-5 rounded-full font-poppins font-medium text-lg hover:bg-[#c76547] hover:scale-105 transition-all shadow-xl">
           Read the Documentation
@@ -221,12 +221,39 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 md:px-12 bg-anthropic-dark border-t border-anthropic-light-gray/10 flex flex-col md:flex-row items-center justify-between text-sm font-poppins text-anthropic-mid-gray gap-6">
-        <p>© 2026 Runbox. All rights reserved.</p>
-        <div className="flex gap-8">
-          <a href="#" className="hover:text-anthropic-light transition-colors">Twitter</a>
-          <a href="#" className="hover:text-anthropic-light transition-colors">GitHub</a>
-          <a href="#" className="hover:text-anthropic-light transition-colors">Discord</a>
+      <footer className="bg-anthropic-dark pt-24 pb-12 px-6 md:px-12 border-t border-anthropic-light-gray/5">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
+          <div className="col-span-1 md:col-span-2 flex flex-col gap-6">
+            <div className="flex items-center gap-2 text-2xl font-poppins font-medium tracking-tight text-anthropic-light">
+              <Box className="w-6 h-6 text-anthropic-orange" />
+              <span>Runboxjs</span>
+            </div>
+            <p className="text-anthropic-mid-gray font-lora max-w-sm leading-relaxed">
+              Bringing native Node.js environments directly to your browser tab. Fast, secure, and entirely local.
+            </p>
+          </div>
+          
+          <div className="flex flex-col gap-4">
+            <h4 className="font-poppins font-medium text-anthropic-light mb-2">Resources</h4>
+            <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Documentation</a>
+            <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">API Reference</a>
+            <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Blog</a>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <h4 className="font-poppins font-medium text-anthropic-light mb-2">Community</h4>
+            <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-blue transition-colors w-fit">GitHub</a>
+            <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-blue transition-colors w-fit">Discord</a>
+            <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-blue transition-colors w-fit">Twitter / X</a>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto pt-8 border-t border-anthropic-light-gray/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-poppins text-anthropic-mid-gray/70">
+          <p>© 2026 Runboxjs. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-anthropic-light transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-anthropic-light transition-colors">Terms of Service</a>
+          </div>
         </div>
       </footer>
     </div>
