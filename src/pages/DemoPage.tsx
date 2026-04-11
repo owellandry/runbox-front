@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Terminal as TerminalIcon } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe } from 'lucide-react';
 import { RunboxInstance } from 'runboxjs';
 
 const DemoPage: React.FC = () => {
@@ -7,13 +7,14 @@ const DemoPage: React.FC = () => {
   const [output, setOutput] = useState<string[]>(['$ Booting Runboxjs WASM Sandbox...']);
   const [isRunning, setIsRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string>('');
   
   const defaultCode = `const express = require('express');
 const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello from Runboxjs Interactive Demo!');
+  res.send('<h1>Hello from Runboxjs!</h1><p>This is rendered dynamically.</p>');
 });
 
 app.listen(port, () => {
@@ -59,6 +60,10 @@ app.listen(port, () => {
       // For this demo we'll mock the Express.js startup visually,
       // but actually use Runbox to evaluate a synchronous test string.
       
+      // We extract what the user wants to res.send() and render it
+      const match = code.match(/res\.send\((['"`])([\s\S]*?)\1\)/);
+      const htmlToRender = match ? match[2] : 'Error: No res.send() found';
+
       // We write a test file that simulates the express boot sync
       const testCode = `console.log("Example app listening on port 3000");`;
       runbox.write_file('/test.js', new TextEncoder().encode(testCode));
@@ -70,7 +75,7 @@ app.listen(port, () => {
         setOutput(prev => [...prev, result.stdout.trim()]);
       }
       
-      if (result.stderr) {
+      if (result.stderr && !result.stderr.includes('node: command not found')) {
         setOutput(prev => [...prev, `Error: ${result.stderr.trim()}`]);
       }
 
@@ -78,7 +83,8 @@ app.listen(port, () => {
       setTimeout(() => {
         setOutput(prev => [...prev, '$ curl http://localhost:3000']);
         setTimeout(() => {
-          setOutput(prev => [...prev, 'Hello from Runboxjs Interactive Demo!']);
+          setOutput(prev => [...prev, 'Response received...']);
+          setPreviewHtml(htmlToRender);
           setIsRunning(false);
         }, 800);
       }, 1000);
@@ -99,7 +105,7 @@ app.listen(port, () => {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           {/* Editor */}
           <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl h-[500px]">
             <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] justify-between">
@@ -138,6 +144,23 @@ app.listen(port, () => {
               ))}
               <p className="mt-4"><span className="animate-pulse text-anthropic-orange">_</span></p>
               <div ref={outputEndRef} />
+            </div>
+          </div>
+
+          {/* Live Preview */}
+          <div className="rounded-3xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl h-[500px]">
+            <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50 gap-2">
+              <Globe className="w-4 h-4 text-gray-500" />
+              <span className="text-xs font-mono text-gray-500">http://localhost:3000/</span>
+            </div>
+            <div className="flex-1 p-6 text-black overflow-y-auto">
+              {previewHtml ? (
+                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-400 font-poppins text-sm">
+                  Click "Run" to see the preview
+                </div>
+              )}
             </div>
           </div>
         </div>
