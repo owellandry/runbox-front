@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Terminal as TerminalIcon, Globe } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, Package, Code } from 'lucide-react';
 import { RunboxInstance } from 'runboxjs';
 
 const DemoPage: React.FC = () => {
@@ -210,26 +210,28 @@ app.listen(port, () => {
                       setActiveFile('package.json');
                       setCode(packageJson);
                     }}
-                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 ${
+                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 ${
                       activeFile === 'package.json'
                         ? 'border-anthropic-orange text-anthropic-orange'
                         : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
                     }`}
                   >
-                    📦 package.json
+                    <Package className="w-4 h-4" />
+                    package.json
                   </button>
                   <button
                     onClick={() => {
                       setActiveFile('index.js');
                       setCode(indexJs);
                     }}
-                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 ${
+                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 ${
                       activeFile === 'index.js'
                         ? 'border-anthropic-orange text-anthropic-orange'
                         : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
                     }`}
                   >
-                    ⚙️ index.js
+                    <Code className="w-4 h-4" />
+                    index.js
                   </button>
                 </div>
                 <button
@@ -264,7 +266,7 @@ app.listen(port, () => {
             {/* Live Preview */}
             <div className="rounded-3xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl h-[400px]">
               <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50 gap-2">
-                <Globe className="w-4 h-4 text-gray-500" />
+                <Code className="w-4 h-4 text-gray-500" />
                 <span className="text-xs font-mono text-gray-500">API Response Preview</span>
               </div>
               <div className="flex-1 p-6 text-black overflow-y-auto">
