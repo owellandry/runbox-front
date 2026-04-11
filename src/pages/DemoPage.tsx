@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Terminal as TerminalIcon, Globe } from 'lucide-react';
-import init, { RunboxInstance } from 'runboxjs';
+import { RunboxInstance } from 'runboxjs';
 
 const DemoPage: React.FC = () => {
   const [runbox, setRunbox] = useState<RunboxInstance | null>(null);
@@ -25,19 +25,15 @@ app.listen(port, () => {
   const outputEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize WASM
-    const initWasm = async () => {
-      try {
-        await init();
-        const instance = new RunboxInstance();
-        setRunbox(instance);
-        setIsReady(true);
-        setOutput(prev => [...prev, '✅ Sandbox Ready. WebAssembly module loaded.']);
-      } catch (err: any) {
-        setOutput(prev => [...prev, `❌ Error loading WASM: ${err.message}`]);
-      }
-    };
-    initWasm();
+    // Initialize RunBox instance (WASM auto-initializes on import)
+    try {
+      const instance = new RunboxInstance();
+      setRunbox(instance);
+      setIsReady(true);
+      setOutput(prev => [...prev, '✅ Sandbox Ready. WebAssembly module loaded.']);
+    } catch (err: any) {
+      setOutput(prev => [...prev, `❌ Error loading WASM: ${err.message}`]);
+    }
   }, []);
 
   useEffect(() => {
