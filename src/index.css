@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-anthropic-dark: #141413;
+  --color-anthropic-light: #faf9f5;
+  --color-anthropic-mid-gray: #b0aea5;
+  --color-anthropic-light-gray: #e8e6dc;
+  --color-anthropic-orange: #d97757;
+  --color-anthropic-blue: #6a9bcc;
+  --color-anthropic-green: #788c5d;
+
+  --font-poppins: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-lora: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+:root {
+  --background: var(--color-anthropic-dark);
+  --foreground: var(--color-anthropic-light);
+  --accent: var(--color-anthropic-orange);
+  --accent-secondary: var(--color-anthropic-blue);
+  --muted: var(--color-anthropic-mid-gray);
+  --border: #2a2a28; /* Slightly lighter than dark for borders */
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-lora); /* Default to Lora for body */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--accent-secondary);
+  color: var(--color-anthropic-dark);
+}
+
+/* Base heading styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-poppins);
+}
