@@ -187,7 +187,7 @@ export default function App() {
             <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d]">
               <span className="text-xs font-mono text-anthropic-mid-gray">app.js</span>
             </div>
-            <pre className="p-8 text-sm md:text-base font-mono text-anthropic-light-gray overflow-x-auto leading-relaxed">
+            <pre className="p-8 text-sm md:text-base font-mono text-anthropic-light-gray overflow-x-auto leading-relaxed no-scrollbar selection:bg-anthropic-light-gray/20">
 <code className="text-anthropic-orange">import</code> {'{'} Runbox {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'@runboxjs/core'</code>;
 <br/><br/>
 <code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">await</code> Runbox.<code className="text-anthropic-blue">boot</code>();
