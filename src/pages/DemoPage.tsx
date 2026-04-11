@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Terminal as TerminalIcon, Globe } from 'lucide-react';
-import { RunboxInstance } from 'runboxjs';
+import init, { RunboxInstance } from 'runboxjs';
 
 const DemoPage: React.FC = () => {
   const [runbox, setRunbox] = useState<RunboxInstance | null>(null);
@@ -26,58 +26,64 @@ app.listen(port, () => {
 
   useEffect(() => {
     // Initialize WASM
-    const initWasm = () => {
+    const initWasm = async () => {
       try {
+        await init();
         const instance = new RunboxInstance();
         setRunbox(instance);
         setIsReady(true);
-        setOutput(prev => [...prev, '$ Sandbox Ready. WebAssembly module loaded.']);
+        setOutput(prev => [...prev, '✅ Sandbox Ready. WebAssembly module loaded.']);
       } catch (err: any) {
-        setOutput(prev => [...prev, `$ Error loading WASM: ${err.message}`]);
+        setOutput(prev => [...prev, `❌ Error loading WASM: ${err.message}`]);
       }
     };
     initWasm();
   }, []);
 
   useEffect(() => {
-    if (outputEndRef.current) {
-      outputEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Solo hacer scroll si el usuario está cerca del final
+    const terminal = outputEndRef.current?.parentElement;
+    if (terminal) {
+      const isNearBottom = terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 50;
+      if (isNearBottom) {
+        outputEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   }, [output]);
 
   const handleRun = async () => {
     if (!runbox || !isReady || isRunning) return;
-    
+
     setIsRunning(true);
     setOutput(prev => [...prev, '$ node index.js']);
-    
+
     try {
-      // Write the file to the virtual filesystem
+      // Write the user's code to the virtual filesystem
       const contentBytes = new TextEncoder().encode(code);
       runbox.write_file('/index.js', contentBytes);
-      
-      // In a real environment we would spawn a long running process.
-      // For this demo we'll mock the Express.js startup visually,
-      // but actually use Runbox to evaluate a synchronous test string.
-      
-      // We extract what the user wants to res.send() and render it
-      const match = code.match(/res\.send\((['"`])([\s\S]*?)\1\)/);
-      const htmlToRender = match ? match[2] : 'Error: No res.send() found';
 
-      // We write a test file that simulates the express boot sync
-      const testCode = `console.log("Example app listening on port 3000");`;
-      runbox.write_file('/test.js', new TextEncoder().encode(testCode));
-      
-      const resultJson = runbox.exec('node /test.js');
+      // Execute the user's code
+      const resultJson = runbox.exec('node /index.js');
       const result = JSON.parse(resultJson);
-      
+
+      // Check if execution was successful
+      if (result.exit_code !== 0) {
+        // Show error output
+        if (result.stderr) {
+          setOutput(prev => [...prev, `❌ ${result.stderr.trim()}`]);
+        }
+        setIsRunning(false);
+        return;
+      }
+
+      // Show successful output
       if (result.stdout) {
         setOutput(prev => [...prev, result.stdout.trim()]);
       }
-      
-      if (result.stderr && !result.stderr.includes('node: command not found')) {
-        setOutput(prev => [...prev, `Error: ${result.stderr.trim()}`]);
-      }
+
+      // Extract HTML from res.send() for preview
+      const match = code.match(/res\.send\((['"`])([\s\S]*?)\1\)/);
+      const htmlToRender = match ? match[2] : '<p>No preview available</p>';
 
       // Simulate the curl request for the demo visual
       setTimeout(() => {
@@ -88,9 +94,9 @@ app.listen(port, () => {
           setIsRunning(false);
         }, 800);
       }, 1000);
-      
+
     } catch (err: any) {
-      setOutput(prev => [...prev, `Execution Error: ${err.message}`]);
+      setOutput(prev => [...prev, `❌ Execution Error: ${err.message}`]);
       setIsRunning(false);
     }
   };
