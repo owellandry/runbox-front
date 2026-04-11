@@ -9,8 +9,27 @@ const DemoPage: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const [activeFile, setActiveFile] = useState<'package.json' | 'index.js'>('index.js');
 
-  const defaultCode = `// Simple REST API with Express.js
+  const packageJson = `{
+  "name": "user-api-server",
+  "version": "1.0.0",
+  "description": "Simple User Management REST API",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "body-parser": "^1.20.0"
+  },
+  "author": "RunBox Team",
+  "license": "MIT"
+}`;
+
+  const indexJs = `// User Management REST API
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -67,7 +86,7 @@ app.listen(port, () => {
   console.log('  POST /api/users        - Create new user');
 });`;
 
-  const [code, setCode] = useState(defaultCode);
+  const [code, setCode] = useState(indexJs);
   const outputEndRef = useRef<HTMLDivElement>(null);
   const terminalDivRef = useRef<HTMLDivElement>(null);
   const initDoneRef = useRef(false);
@@ -181,27 +200,63 @@ app.listen(port, () => {
 
         <div className="flex flex-col gap-8 mt-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Editor */}
+            {/* Editor with File Tabs */}
             <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl h-[400px]">
-              <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-anthropic-mid-gray">index.js - REST API</span>
+              {/* File Tabs */}
+              <div className="flex items-center justify-between bg-[#15151a] border-b border-anthropic-light-gray/10 px-4 py-0">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setActiveFile('package.json');
+                      setCode(packageJson);
+                    }}
+                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 ${
+                      activeFile === 'package.json'
+                        ? 'border-anthropic-orange text-anthropic-orange'
+                        : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
+                    }`}
+                  >
+                    📦 package.json
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveFile('index.js');
+                      setCode(indexJs);
+                    }}
+                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 ${
+                      activeFile === 'index.js'
+                        ? 'border-anthropic-orange text-anthropic-orange'
+                        : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
+                    }`}
+                  >
+                    ⚙️ index.js
+                  </button>
                 </div>
-                <button 
+                <button
                   onClick={handleRun}
                   disabled={!isReady || isRunning}
-                  className="flex items-center gap-2 text-xs font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 text-xs font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-4 py-2 rounded-lg hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed m-2"
                 >
                   <Play className="w-3 h-3" /> {isRunning ? 'Running...' : 'Run'}
                 </button>
               </div>
-              <div className="flex-1">
+
+              {/* Code Editor */}
+              <div className="flex-1 relative overflow-hidden">
+                {/* Line numbers (decorative) */}
+                <div className="absolute top-0 left-0 w-12 bg-[#0f0f14] border-r border-anthropic-light-gray/10 pt-6 pointer-events-none text-right pr-3 h-full overflow-hidden">
+                  <div className="text-xs text-anthropic-mid-gray/40 font-mono leading-relaxed">
+                    {code.split('\n').map((_, i) => (
+                      <div key={i}>{i + 1}</div>
+                    ))}
+                  </div>
+                </div>
                 <textarea
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   spellCheck="false"
-                  placeholder="Edit the Express.js API code and click 'Run' to see it execute..."
-                  className="w-full h-full p-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar placeholder:text-anthropic-mid-gray/50"
+                  placeholder="Edit the code and click 'Run' to execute..."
+                  className="w-full h-full pl-14 pr-6 pt-6 pb-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar placeholder:text-anthropic-mid-gray/50"
                 />
               </div>
             </div>
