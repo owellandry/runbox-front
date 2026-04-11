@@ -100,9 +100,9 @@ app.listen(port, () => {
       const instance = new RunboxInstance();
       setRunbox(instance);
       setIsReady(true);
-      setOutput(prev => [...prev, '✅ Sandbox Ready. WebAssembly module loaded.']);
+      setOutput(prev => [...prev, '[SUCCESS] Sandbox Ready. WebAssembly module loaded.']);
     } catch (err: any) {
-      setOutput(prev => [...prev, `❌ Error loading WASM: ${err.message}`]);
+      setOutput(prev => [...prev, `[ERROR] Error loading WASM: ${err.message}`]);
     }
   }, []);
 
@@ -140,8 +140,8 @@ app.listen(port, () => {
 
     // Simulate API server startup
     setTimeout(() => {
-      setOutput(prev => [...prev, '✅ API Server running on http://localhost:3000']);
-      setOutput(prev => [...prev, '📚 Available endpoints:']);
+      setOutput(prev => [...prev, '[INFO] API Server running on http://localhost:3000']);
+      setOutput(prev => [...prev, '[INFO] Available endpoints:']);
       setOutput(prev => [...prev, '  GET  /api/users        - List all users']);
       setOutput(prev => [...prev, '  GET  /api/users/:id    - Get user by ID']);
       setOutput(prev => [...prev, '  POST /api/users        - Create new user']);
@@ -166,15 +166,16 @@ app.listen(port, () => {
 
           // Show preview with formatted response
           const preview = `
-            <div style="padding: 20px; font-family: monospace; background: #f5f5f5; border-radius: 8px;">
-              <h2>API Response - GET /api/users</h2>
-              <pre>${JSON.stringify(apiResponse, null, 2)}</pre>
-              <h3>Users:</h3>
-              <ul style="list-style: none; padding: 0;">
+            <div style="padding: 20px; font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; border-radius: 8px;">
+              <h2 style="margin: 0 0 12px 0; color: #333; font-size: 16px;">API Response - GET /api/users</h2>
+              <pre style="background: #fff; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; border: 1px solid #ddd;">${JSON.stringify(apiResponse, null, 2)}</pre>
+              <h3 style="margin: 16px 0 12px 0; color: #333; font-size: 14px;">Active Users:</h3>
+              <ul style="list-style: none; padding: 0; margin: 0;">
                 ${apiResponse.data.map(user => `
-                  <li style="padding: 8px; background: white; margin: 8px 0; border-radius: 4px; border-left: 4px solid #667eea;">
-                    <strong>${user.name}</strong> (${user.role})<br/>
-                    <small>${user.email}</small>
+                  <li style="padding: 12px; background: white; margin: 8px 0; border-radius: 6px; border-left: 4px solid #667eea; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <strong style="color: #333;">${user.name}</strong>
+                    <span style="color: #999; font-size: 12px; margin-left: 8px;">[${user.role.toUpperCase()}]</span><br/>
+                    <small style="color: #666;">${user.email}</small>
                   </li>
                 `).join('')}
               </ul>
