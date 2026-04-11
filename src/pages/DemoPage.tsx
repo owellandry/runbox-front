@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Terminal as TerminalIcon } from 'lucide-react';
-import init, { RunboxInstance } from 'runboxjs';
+import { RunboxInstance } from 'runboxjs';
 
 const DemoPage: React.FC = () => {
   const [runbox, setRunbox] = useState<RunboxInstance | null>(null);
@@ -25,9 +25,8 @@ app.listen(port, () => {
 
   useEffect(() => {
     // Initialize WASM
-    const initWasm = async () => {
+    const initWasm = () => {
       try {
-        await init();
         const instance = new RunboxInstance();
         setRunbox(instance);
         setIsReady(true);

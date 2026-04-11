@@ -178,10 +178,8 @@ const HomePage = () => {
               <span className="text-xs font-mono text-anthropic-mid-gray">app.js</span>
             </div>
             <pre className="p-8 text-sm md:text-base font-mono text-anthropic-light-gray overflow-x-auto leading-relaxed no-scrollbar selection:bg-anthropic-light-gray/20">
-<code className="text-anthropic-orange">import</code> init, {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'runboxjs'</code>;
+<code className="text-anthropic-orange">import</code> {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'runboxjs'</code>;
 <br/><br/>
-<code className="text-anthropic-blue">await</code> <code className="text-anthropic-blue">init</code>();
-<br/>
 <code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">RunboxInstance</code>();
 <br/><br/>
 <code className="text-anthropic-blue">const</code> content = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">TextEncoder</code>().<code className="text-anthropic-blue">encode</code>(<code className="text-anthropic-green">'console.log("Hello from browser!");'</code>);<br/>

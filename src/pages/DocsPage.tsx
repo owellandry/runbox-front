@@ -40,21 +40,18 @@ const DocsPage: React.FC = () => {
 
         <section className="flex flex-col gap-6">
           <h2 className="text-2xl font-poppins font-medium border-b border-anthropic-light-gray/10 pb-4">Quick Start</h2>
-          <p className="font-lora text-anthropic-mid-gray">Initialize the WebAssembly module, create a RunboxInstance, write files, and execute commands:</p>
+          <p className="font-lora text-anthropic-mid-gray">Create a RunboxInstance, write files, and execute commands. The WebAssembly module initializes automatically on import:</p>
           <pre className="p-6 rounded-xl bg-[#1a1a19] border border-anthropic-light-gray/10 font-mono text-sm overflow-x-auto no-scrollbar selection:bg-anthropic-light-gray/20">
-<code className="text-anthropic-orange">import</code> init, {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'runboxjs'</code>;
+<code className="text-anthropic-orange">import</code> {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'runboxjs'</code>;
 <br/><br/>
-<span className="text-anthropic-mid-gray/50">// 1. Initialize the WASM module</span><br/>
-<code className="text-anthropic-orange">await</code> <code className="text-anthropic-blue">init</code>();
-<br/><br/>
-<span className="text-anthropic-mid-gray/50">// 2. Create a RunBox isolated sandbox</span><br/>
+<span className="text-anthropic-mid-gray/50">// 1. Create a RunBox isolated sandbox</span><br/>
 <code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">RunboxInstance</code>();
 <br/><br/>
-<span className="text-anthropic-mid-gray/50">// 3. Write a file using the Virtual Filesystem</span><br/>
+<span className="text-anthropic-mid-gray/50">// 2. Write a file using the Virtual Filesystem</span><br/>
 <code className="text-anthropic-blue">const</code> fileContent = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">TextEncoder</code>().<code className="text-anthropic-blue">encode</code>(<code className="text-anthropic-green">'console.log("Hello from WASM!");'</code>);<br/>
 runbox.<code className="text-anthropic-blue">write_file</code>(<code className="text-anthropic-green">'/app.js'</code>, fileContent);
 <br/><br/>
-<span className="text-anthropic-mid-gray/50">// 4. Execute a command synchronously</span><br/>
+<span className="text-anthropic-mid-gray/50">// 3. Execute a command synchronously</span><br/>
 <code className="text-anthropic-blue">const</code> result = runbox.<code className="text-anthropic-blue">exec</code>(<code className="text-anthropic-green">'node /app.js'</code>);<br/>
 <code className="text-anthropic-blue">const</code> output = JSON.<code className="text-anthropic-blue">parse</code>(result);
 <br/><br/>
