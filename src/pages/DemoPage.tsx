@@ -18,8 +18,8 @@ const DemoPage: React.FC = () => {
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "bun index.js",
-    "dev": "bun index.js"
+    "start": "bun /index.js",
+    "dev": "bun /index.js"
   },
   "author": "RunBox Team",
   "license": "MIT"
@@ -137,10 +137,10 @@ console.log('\\n[SUCCESS] Processing complete!');`;
       }
 
       setOutput(prev => [...prev, '']);
-      setOutput(prev => [...prev, '$ bun index.js']);
+      setOutput(prev => [...prev, '$ bun /index.js']);
 
-      // Execute with Bun
-      const execResult = JSON.parse(runbox.exec('bun index.js'));
+      // Execute with Bun - use absolute path
+      const execResult = JSON.parse(runbox.exec('bun /index.js'));
 
       if (execResult.stdout) {
         execResult.stdout.split('\n').forEach(line => {
