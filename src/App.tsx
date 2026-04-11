@@ -28,20 +28,22 @@ export default function App() {
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500 selection:text-white font-sans">
       
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-md bg-anthropic-dark/40 border-b border-anthropic-light-gray/10">
-        <div className="flex items-center gap-2 text-xl font-poppins font-medium tracking-tight text-anthropic-light">
-          <Box className="w-5 h-5 text-anthropic-orange" />
-          <span>Runboxjs</span>
-        </div>
-        <div className="flex items-center gap-6 text-sm font-poppins font-medium text-anthropic-light-gray">
-          <a href="#" className="hover:text-anthropic-light transition-colors">Documentation</a>
-          <a href="#" className="hover:text-anthropic-light transition-colors">Enterprise</a>
-          <a href="#" className="flex items-center gap-2 hover:text-anthropic-light transition-colors">
-            <GithubIcon className="w-4 h-4" />
-            <span>GitHub</span>
-          </a>
-        </div>
-      </nav>
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        <nav className="flex items-center justify-between px-6 py-4 backdrop-blur-xl bg-anthropic-dark/60 border border-anthropic-light-gray/10 rounded-full w-full max-w-4xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] pointer-events-auto">
+          <div className="flex items-center gap-2 text-lg font-poppins font-medium tracking-tight text-anthropic-light">
+            <Box className="w-5 h-5 text-anthropic-orange" />
+            <span>Runboxjs</span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-poppins font-medium text-anthropic-light-gray">
+            <a href="#" className="hover:text-anthropic-light transition-colors">Documentation</a>
+            <a href="#" className="hover:text-anthropic-light transition-colors">Enterprise</a>
+            <a href="#" className="flex items-center gap-2 hover:text-anthropic-light transition-colors bg-anthropic-light/5 hover:bg-anthropic-light/10 px-4 py-2 rounded-full border border-anthropic-light-gray/5">
+              <GithubIcon className="w-4 h-4" />
+              <span>GitHub</span>
+            </a>
+          </div>
+        </nav>
+      </div>
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 pt-24 overflow-hidden bg-[#141413]">
