@@ -10,17 +10,7 @@ const DemoPage: React.FC = () => {
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
 
-  const defaultCode = `const express = require('express');
-const app = express();
-const port = 3000;
-
-app.get('/', (req, res) => {
-  res.send('<h1>Hello from Runboxjs!</h1><p>This is rendered dynamically.</p>');
-});
-
-app.listen(port, () => {
-  console.log(\`Example app listening on port \${port}\`);
-});`;
+  const defaultCode = `echo '<h1>Hello from Runboxjs!</h1><p>WebAssembly Sandbox Demo</p>'`;
 
   const [code, setCode] = useState(defaultCode);
   const outputEndRef = useRef<HTMLDivElement>(null);
@@ -71,15 +61,12 @@ app.listen(port, () => {
     if (!runbox || !isReady || isRunning) return;
 
     setIsRunning(true);
-    setOutput(prev => [...prev, '$ node index.js']);
+    setOutput(prev => [...prev, `$ ${code}`]);
+    setUserScrolledUp(false); // Reset scroll position when running
 
     try {
-      // Write the user's code to the virtual filesystem
-      const contentBytes = new TextEncoder().encode(code);
-      runbox.write_file('/index.js', contentBytes);
-
-      // Execute the user's code
-      const resultJson = runbox.exec('node /index.js');
+      // Execute the command
+      const resultJson = runbox.exec(code);
       const result = JSON.parse(resultJson);
 
       // Check if execution was successful
@@ -97,15 +84,15 @@ app.listen(port, () => {
         setOutput(prev => [...prev, result.stdout.trim()]);
       }
 
-      // Extract HTML from res.send() for preview
-      const match = code.match(/res\.send\((['"`])([\s\S]*?)\1\)/);
-      const htmlToRender = match ? match[2] : '<p>No preview available</p>';
+      // Extract HTML from the output (everything in quotes after echo)
+      const match = code.match(/echo\s+['"`]?([\s\S]*?)['"`]?$/);
+      const htmlToRender = match ? match[1] : result.stdout || '<p>Command executed</p>';
 
-      // Simulate the curl request for the demo visual
+      // Simulate the HTTP request for the demo visual
       setTimeout(() => {
         setOutput(prev => [...prev, '$ curl http://localhost:3000']);
         setTimeout(() => {
-          setOutput(prev => [...prev, 'Response received...']);
+          setOutput(prev => [...prev, 'Response: 200 OK']);
           setPreviewHtml(htmlToRender);
           setIsRunning(false);
         }, 800);
@@ -121,9 +108,9 @@ app.listen(port, () => {
     <div className="min-h-screen bg-anthropic-dark text-anthropic-light pt-32 pb-24 px-6 md:px-12 flex flex-col items-center">
       <div className="max-w-6xl w-full flex flex-col gap-12">
         <header className="flex flex-col gap-4 text-center items-center">
-          <h1 className="text-4xl md:text-6xl font-poppins font-medium tracking-tight">Interactive Demo</h1>
+          <h1 className="text-4xl md:text-6xl font-poppins font-medium tracking-tight">RunBox Interactive Demo</h1>
           <p className="text-xl font-lora text-anthropic-mid-gray leading-relaxed max-w-2xl">
-            Experience Runboxjs directly in your browser. This uses the real WebAssembly module to execute JS entirely on the client side.
+            Execute shell commands in the browser using RunBox WebAssembly sandbox. Try: <code className="text-anthropic-orange">echo &apos;&lt;h1&gt;Hello&lt;/h1&gt;&apos;</code>, <code className="text-anthropic-orange">ls</code>, or <code className="text-anthropic-orange">cat filename</code>
           </p>
         </header>
 
@@ -133,7 +120,7 @@ app.listen(port, () => {
             <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl h-[400px]">
               <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-anthropic-mid-gray">index.js</span>
+                  <span className="text-xs font-mono text-anthropic-mid-gray">runbox command</span>
                 </div>
                 <button 
                   onClick={handleRun}
@@ -148,7 +135,8 @@ app.listen(port, () => {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   spellCheck="false"
-                  className="w-full h-full p-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar"
+                  placeholder="Try: echo '<h1>Hello</h1>' or ls or cat filename"
+                  className="w-full h-full p-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar placeholder:text-anthropic-mid-gray/50"
                 />
               </div>
             </div>
