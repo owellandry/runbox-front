@@ -105,33 +105,52 @@ app.listen(port, () => {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          {/* Editor */}
-          <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl h-[500px]">
-            <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-mono text-anthropic-mid-gray">index.js</span>
+        <div className="flex flex-col gap-8 mt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Editor */}
+            <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl h-[400px]">
+              <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-mono text-anthropic-mid-gray">index.js</span>
+                </div>
+                <button 
+                  onClick={handleRun}
+                  disabled={!isReady || isRunning}
+                  className="flex items-center gap-2 text-xs font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Play className="w-3 h-3" /> {isRunning ? 'Running...' : 'Run'}
+                </button>
               </div>
-              <button 
-                onClick={handleRun}
-                disabled={!isReady || isRunning}
-                className="flex items-center gap-2 text-xs font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Play className="w-3 h-3" /> {isRunning ? 'Running...' : 'Run'}
-              </button>
+              <div className="flex-1">
+                <textarea
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  spellCheck="false"
+                  className="w-full h-full p-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar"
+                />
+              </div>
             </div>
-            <div className="flex-1">
-              <textarea
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                spellCheck="false"
-                className="w-full h-full p-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar"
-              />
+
+            {/* Live Preview */}
+            <div className="rounded-3xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl h-[400px]">
+              <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50 gap-2">
+                <Globe className="w-4 h-4 text-gray-500" />
+                <span className="text-xs font-mono text-gray-500">http://localhost:3000/</span>
+              </div>
+              <div className="flex-1 p-6 text-black overflow-y-auto">
+                {previewHtml ? (
+                  <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-400 font-poppins text-sm">
+                    Click "Run" to see the preview
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Terminal / Output */}
-          <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-[500px]">
+          <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-[250px]">
             <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] gap-2">
               <TerminalIcon className="w-4 h-4 text-anthropic-mid-gray" />
               <span className="text-xs font-mono text-anthropic-mid-gray">Terminal Output</span>
@@ -144,23 +163,6 @@ app.listen(port, () => {
               ))}
               <p className="mt-4"><span className="animate-pulse text-anthropic-orange">_</span></p>
               <div ref={outputEndRef} />
-            </div>
-          </div>
-
-          {/* Live Preview */}
-          <div className="rounded-3xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl h-[500px]">
-            <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50 gap-2">
-              <Globe className="w-4 h-4 text-gray-500" />
-              <span className="text-xs font-mono text-gray-500">http://localhost:3000/</span>
-            </div>
-            <div className="flex-1 p-6 text-black overflow-y-auto">
-              {previewHtml ? (
-                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
-              ) : (
-                <div className="h-full flex items-center justify-center text-gray-400 font-poppins text-sm">
-                  Click "Run" to see the preview
-                </div>
-              )}
             </div>
           </div>
         </div>
