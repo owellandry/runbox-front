@@ -8,7 +8,8 @@ const DemoPage: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
-  
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
+
   const defaultCode = `const express = require('express');
 const app = express();
 const port = 3000;
@@ -23,9 +24,14 @@ app.listen(port, () => {
 
   const [code, setCode] = useState(defaultCode);
   const outputEndRef = useRef<HTMLDivElement>(null);
+  const terminalDivRef = useRef<HTMLDivElement>(null);
+  const initDoneRef = useRef(false);
 
   useEffect(() => {
-    // Initialize RunBox instance (WASM auto-initializes on import)
+    // Initialize RunBox instance ONLY ONCE (WASM auto-initializes on import)
+    if (initDoneRef.current) return;
+    initDoneRef.current = true;
+
     try {
       const instance = new RunboxInstance();
       setRunbox(instance);
@@ -36,16 +42,30 @@ app.listen(port, () => {
     }
   }, []);
 
+  // Handle scroll behavior - only auto-scroll if user hasn't scrolled up
   useEffect(() => {
-    // Solo hacer scroll si el usuario está cerca del final
-    const terminal = outputEndRef.current?.parentElement;
-    if (terminal) {
-      const isNearBottom = terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 50;
-      if (isNearBottom) {
-        outputEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }
+    if (!terminalDivRef.current) return;
+
+    const terminal = terminalDivRef.current;
+
+    // Check if we're at the bottom
+    const isAtBottom = terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 10;
+
+    // Only auto-scroll if user hasn't scrolled up AND we're at bottom
+    if (!userScrolledUp && isAtBottom) {
+      outputEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [output]);
+  }, [output, userScrolledUp]);
+
+  const handleTerminalScroll = () => {
+    if (!terminalDivRef.current) return;
+
+    const terminal = terminalDivRef.current;
+    const isAtBottom = terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 10;
+
+    // Mark as scrolled up if not at bottom
+    setUserScrolledUp(!isAtBottom);
+  };
 
   const handleRun = async () => {
     if (!runbox || !isReady || isRunning) return;
@@ -157,7 +177,11 @@ app.listen(port, () => {
               <TerminalIcon className="w-4 h-4 text-anthropic-mid-gray" />
               <span className="text-xs font-mono text-anthropic-mid-gray">Terminal Output</span>
             </div>
-            <div className="flex-1 p-6 font-mono text-sm text-anthropic-light-gray overflow-y-auto no-scrollbar">
+            <div
+              ref={terminalDivRef}
+              onScroll={handleTerminalScroll}
+              className="flex-1 p-6 font-mono text-sm text-anthropic-light-gray overflow-y-auto no-scrollbar"
+            >
               {output.map((line, i) => (
                 <p key={i} className={`mb-2 ${line.startsWith('$') ? 'text-anthropic-mid-gray' : line.startsWith('Error:') ? 'text-red-400' : 'text-anthropic-green'}`}>
                   {line}
