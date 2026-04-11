@@ -13,14 +13,7 @@ const HeroBackground: React.FC = () => {
       const noiseScale = 0.003;
       const zOffsetSpeed = 0.0005;
       let zOffset = 0;
-
-      const colors = [
-        p.color('#d97757'), // Anthropic Orange
-        p.color('#6a9bcc'), // Anthropic Blue
-        p.color('#788c5d'), // Anthropic Green
-        p.color('#b0aea5'), // Anthropic Mid Gray
-        p.color('#faf9f5')  // Anthropic Light
-      ];
+      let colors: p5.Color[] = [];
 
       class Particle {
         pos: p5.Vector;
@@ -106,6 +99,16 @@ const HeroBackground: React.FC = () => {
         if (container) {
           p.createCanvas(container.offsetWidth, container.offsetHeight);
           p.background('#141413'); 
+
+          // Initialize colors in setup so p.color is ready
+          colors = [
+            p.color('#d97757'), // Anthropic Orange
+            p.color('#6a9bcc'), // Anthropic Blue
+            p.color('#788c5d'), // Anthropic Green
+            p.color('#b0aea5'), // Anthropic Mid Gray
+            p.color('#faf9f5')  // Anthropic Light
+          ];
+
           for (let i = 0; i < numParticles; i++) {
             particles.push(new Particle());
           }
