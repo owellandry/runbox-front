@@ -1,6 +1,7 @@
 import React from 'react';
 import { Terminal as TerminalIcon, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface TopBarProps {
   activeView: 'code' | 'preview';
@@ -25,10 +26,10 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   return (
     <header className="flex justify-between items-center px-4 py-3 border-b border-[#b0aea5]/10 shrink-0 bg-[#141413]">
-      <div className="flex items-center gap-2 w-1/3">
+      <Link to="/" className="flex items-center gap-2 w-1/3 cursor-pointer hover:opacity-80 transition-opacity">
         <TerminalIcon className="w-5 h-5 text-[#d97757]" />
         <h1 className="text-lg font-poppins font-medium tracking-tight">RunBox IDE</h1>
-      </div>
+      </Link>
 
       <div className="flex items-center justify-center w-1/3">
         <div className="flex bg-[#1e1e1d] p-1 rounded-full border border-[#b0aea5]/10 relative">

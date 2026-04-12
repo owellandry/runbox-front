@@ -514,6 +514,8 @@ const DemoPage: React.FC = () => {
         setServerPort(port); setBrowserUrl('/');
         const resp = JSON.parse(activeRunbox.http_handle_request(JSON.stringify({ port, method: 'GET', path: '/', headers: {}, body: null })));
         setPreviewHtml(injectNavScript(resp.body || ''));
+        setHistoryStack(['/']);
+        setHistoryIndex(0);
         setOutput((prev) => [...prev, 'Server ready - navigate using the browser above']);
         setActiveView('preview');
       } else {
@@ -532,13 +534,45 @@ const DemoPage: React.FC = () => {
     return html + s;
   };
 
-  const handleNavigate = React.useCallback((path: string) => {
+  const [historyStack, setHistoryStack] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+
+  const handleNavigate = React.useCallback((path: string, replace = false) => {
     const activeRunbox = runboxRef.current;
     if (!activeRunbox || !serverPort) return;
     setBrowserUrl(path);
     const resp = JSON.parse(activeRunbox.http_handle_request(JSON.stringify({ port: serverPort, method: 'GET', path, headers: {}, body: null })));
     setPreviewHtml(injectNavScript(resp.body || ''));
-  }, [serverPort]);
+    
+    if (!replace) {
+      setHistoryStack(prev => {
+        const newStack = prev.slice(0, historyIndex + 1);
+        newStack.push(path);
+        setHistoryIndex(newStack.length - 1);
+        return newStack;
+      });
+    }
+  }, [serverPort, historyIndex]);
+
+  const handleReload = () => {
+    handleNavigate(browserUrl, true);
+  };
+
+  const handleGoBack = () => {
+    if (historyIndex > 0) {
+      const prevPath = historyStack[historyIndex - 1];
+      setHistoryIndex(historyIndex - 1);
+      handleNavigate(prevPath, true);
+    }
+  };
+
+  const handleGoForward = () => {
+    if (historyIndex < historyStack.length - 1) {
+      const nextPath = historyStack[historyIndex + 1];
+      setHistoryIndex(historyIndex + 1);
+      handleNavigate(nextPath, true);
+    }
+  };
 
   useEffect(() => {
     const handler = (e: MessageEvent) => { if (e.data?.type === '__runbox_navigate') handleNavigate(e.data.href); };
@@ -615,6 +649,11 @@ const DemoPage: React.FC = () => {
                   setBrowserUrl={setBrowserUrl}
                   handleNavigate={handleNavigate}
                   previewHtml={previewHtml}
+                  handleReload={handleReload}
+                  handleGoBack={handleGoBack}
+                  handleGoForward={handleGoForward}
+                  canGoBack={historyIndex > 0}
+                  canGoForward={historyIndex < historyStack.length - 1}
                 />
               )}
             </AnimatePresence>
