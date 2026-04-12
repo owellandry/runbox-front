@@ -852,23 +852,33 @@ const DemoPage: React.FC = () => {
         </div>
 
         <div className="flex items-center justify-center w-1/3">
-          <div className="flex bg-[#1e1e1d] p-1 rounded-full border border-[#b0aea5]/10">
-            {(['preview', 'code'] as const).map(view => (
-              <button
-                key={view}
-                onClick={() => setActiveView(view)}
-                className={`relative px-4 py-1 text-xs font-poppins rounded-full transition-colors capitalize ${activeView === view ? 'text-[#141413] font-medium' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
-              >
-                {activeView === view && (
-                  <motion.span
-                    layoutId="view-pill"
-                    className="absolute inset-0 bg-[#d97757] rounded-full -z-10"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-                {view.charAt(0).toUpperCase() + view.slice(1)}
-              </button>
-            ))}
+          <div className="flex bg-[#1e1e1d] p-1 rounded-full border border-[#b0aea5]/10 relative">
+            <button
+              onClick={() => setActiveView('preview')}
+              className={`relative px-4 py-1 text-xs font-poppins rounded-full transition-colors capitalize cursor-pointer ${activeView === 'preview' ? 'text-[#faf9f5] font-medium' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
+            >
+              {activeView === 'preview' && (
+                <motion.span
+                  layoutId="activeViewBubble"
+                  className="absolute inset-0 bg-[#d97757] rounded-full -z-10"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              Preview
+            </button>
+            <button
+              onClick={() => setActiveView('code')}
+              className={`relative px-4 py-1 text-xs font-poppins rounded-full transition-colors capitalize cursor-pointer ${activeView === 'code' ? 'text-[#faf9f5] font-medium' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
+            >
+              {activeView === 'code' && (
+                <motion.span
+                  layoutId="activeViewBubble"
+                  className="absolute inset-0 bg-[#d97757] rounded-full -z-10"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              Code
+            </button>
           </div>
         </div>
 
@@ -886,15 +896,15 @@ const DemoPage: React.FC = () => {
             transition={{ repeat: isReady ? 0 : Infinity, duration: 1.5 }}
             className={`w-2 h-2 rounded-full ${isReady ? 'bg-[#788c5d]' : 'bg-[#d97757]'}`}
           />
-          <motion.button
+          <motion.button 
+            whileHover={isReady && !isRunning ? { scale: 1.05 } : {}}
+            whileTap={isReady && !isRunning ? { scale: 0.95 } : {}}
             onClick={handleRun}
             disabled={!isReady || isRunning}
-            whileTap={isReady && !isRunning ? { scale: 0.95 } : {}}
-            whileHover={isReady && !isRunning ? { scale: 1.05 } : {}}
-            className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#141413] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#faf9f5] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Play className="w-3 h-3 fill-current" />
-            {isRunning ? 'Running…' : 'Run'}
+            {isRunning ? 'Running' : 'Run'}
           </motion.button>
         </div>
       </header>
