@@ -11,14 +11,152 @@ import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { Terminal } from './components/Terminal';
 import { TemplatesSidebar } from './components/TemplatesSidebar';
-import { useFileSystem } from './hooks/useFileSystem';
+import { ConfirmModal } from './components/ConfirmModal';
+import { useFileSystem, type ConfirmRequestOptions } from './hooks/useFileSystem';
+import { dumpEditorConsoleToBrowser } from './tempBrowserConsoleDump';
 
 (globalThis as unknown as Record<string, unknown>).__runbox_react = React;
 (globalThis as unknown as Record<string, unknown>).__runbox_reactdom = ReactDOM;
 (globalThis as unknown as Record<string, unknown>).__runbox_reactdom_server = ReactDOMServer;
 
+type DemoPackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
+
+interface DemoRunboxConfig {
+  packageManager?: DemoPackageManager;
+  install?: boolean;
+  command?: string;
+  preRun?: string[];
+}
+
+interface DemoPackageJson {
+  scripts?: Record<string, string>;
+  runbox?: DemoRunboxConfig;
+}
+
+interface ExecResult {
+  stdout?: string;
+  stderr?: string;
+  exit_code: number;
+}
+
+interface PyodideRuntime {
+  FS: {
+    analyzePath: (path: string) => { exists: boolean };
+    mkdirTree: (path: string) => void;
+    writeFile: (path: string, data: string) => void;
+  };
+  globals: {
+    set: (name: string, value: unknown) => void;
+    delete: (name: string) => void;
+  };
+  runPythonAsync: (code: string) => Promise<unknown>;
+  setStdout: (options: { batched: (text: string) => void }) => void;
+  setStderr: (options: { batched: (text: string) => void }) => void;
+}
+
+let pyodideRuntimePromise: Promise<PyodideRuntime> | null = null;
+
+function detectPackageManager(files: Record<string, string>, hint?: DemoPackageManager): DemoPackageManager {
+  if (hint) return hint;
+  if (files['/pnpm-lock.yaml']) return 'pnpm';
+  if (files['/yarn.lock']) return 'yarn';
+  if (files['/bun.lock']) return 'bun';
+  return 'npm';
+}
+
+function parsePythonScriptPath(command: string): string | null {
+  const parts = command.trim().split(/\s+/);
+  if (parts.length < 2) return null;
+  if (parts[0] !== 'python' && parts[0] !== 'python3') return null;
+  const candidate = parts[1];
+  if (!candidate || candidate.startsWith('-')) return null;
+  return candidate.startsWith('/') ? candidate : `/${candidate}`;
+}
+
+async function loadPyodideRuntime(): Promise<PyodideRuntime> {
+  if (!pyodideRuntimePromise) {
+    pyodideRuntimePromise = (async () => {
+      const version = '0.27.7';
+      const indexURL = `https://cdn.jsdelivr.net/pyodide/v${version}/full/`;
+      const pyodideModule = await import(/* @vite-ignore */ `${indexURL}pyodide.mjs`);
+      const runtime = await pyodideModule.loadPyodide({ indexURL });
+      return runtime as PyodideRuntime;
+    })();
+  }
+  return pyodideRuntimePromise;
+}
+
+async function runPythonScriptWithPyodide(
+  command: string,
+  files: Record<string, string>
+): Promise<ExecResult | null> {
+  const scriptPath = parsePythonScriptPath(command);
+  if (!scriptPath) return null;
+
+  const scriptCode = files[scriptPath];
+  if (typeof scriptCode !== 'string') {
+    return {
+      stdout: '',
+      stderr: `File not found: ${scriptPath}`,
+      exit_code: 1
+    };
+  }
+
+  const runtime = await loadPyodideRuntime();
+  const stdoutChunks: string[] = [];
+  const stderrChunks: string[] = [];
+
+  runtime.setStdout({ batched: (text: string) => stdoutChunks.push(text) });
+  runtime.setStderr({ batched: (text: string) => stderrChunks.push(text) });
+
+  if (!runtime.FS.analyzePath('/workspace').exists) {
+    runtime.FS.mkdirTree('/workspace');
+  }
+
+  for (const [path, content] of Object.entries(files)) {
+    if (!path.endsWith('.py')) continue;
+    const relPath = path.replace(/^\/+/, '');
+    const targetPath = `/workspace/${relPath}`;
+    const lastSlash = relPath.lastIndexOf('/');
+    if (lastSlash > 0) {
+      const dirPath = `/workspace/${relPath.slice(0, lastSlash)}`;
+      if (!runtime.FS.analyzePath(dirPath).exists) {
+        runtime.FS.mkdirTree(dirPath);
+      }
+    }
+    runtime.FS.writeFile(targetPath, content);
+  }
+
+  const targetScript = `/workspace/${scriptPath.replace(/^\/+/, '')}`;
+
+  try {
+    runtime.globals.set('__runbox_script_path', targetScript);
+    await runtime.runPythonAsync(`
+import runpy
+import sys
+workspace = "/workspace"
+if workspace not in sys.path:
+    sys.path.insert(0, workspace)
+runpy.run_path(__runbox_script_path, run_name="__main__")
+`);
+    runtime.globals.delete('__runbox_script_path');
+    return {
+      stdout: stdoutChunks.join('\n').trim(),
+      stderr: stderrChunks.join('\n').trim(),
+      exit_code: 0
+    };
+  } catch (error) {
+    runtime.globals.delete('__runbox_script_path');
+    stderrChunks.push((error as Error).message || String(error));
+    return {
+      stdout: stdoutChunks.join('\n').trim(),
+      stderr: stderrChunks.join('\n').trim(),
+      exit_code: 1
+    };
+  }
+}
+
 const DemoPage: React.FC = () => {
-  const [runbox, setRunbox] = useState<RunboxInstance | null>(null);
   const [output, setOutput] = useState<string[]>(['$ Booting Runboxjs WASM Sandbox...']);
   const [isRunning, setIsRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -30,12 +168,64 @@ const DemoPage: React.FC = () => {
   const [activeView, setActiveView] = useState<'code' | 'preview'>('code');
   const [showTerminal, setShowTerminal] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState<'explorer' | 'templates'>('explorer');
+  const [loadedTemplateName, setLoadedTemplateName] = useState('React Dashboard');
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmRequestOptions | null>(null);
 
-  const fileSystem = useFileSystem();
+  const confirmResolverRef = useRef<((confirmed: boolean) => void) | null>(null);
+
+  const requestConfirm = React.useCallback((options: ConfirmRequestOptions) => {
+    if (confirmResolverRef.current) {
+      confirmResolverRef.current(false);
+      confirmResolverRef.current = null;
+    }
+
+    return new Promise<boolean>((resolve) => {
+      confirmResolverRef.current = resolve;
+      setConfirmDialog(options);
+    });
+  }, []);
+
+  const closeConfirm = React.useCallback((confirmed: boolean) => {
+    if (confirmResolverRef.current) {
+      confirmResolverRef.current(confirmed);
+      confirmResolverRef.current = null;
+    }
+    setConfirmDialog(null);
+  }, []);
+
+  const fileSystem = useFileSystem(requestConfirm);
 
   const outputEndRef = useRef<HTMLDivElement>(null);
   const terminalDivRef = useRef<HTMLDivElement>(null);
   const initDoneRef = useRef(false);
+  const runboxRef = useRef<RunboxInstance | null>(null);
+  const lastConsoleDumpKeyRef = useRef<string>('');
+
+  useEffect(() => {
+    return () => {
+      if (confirmResolverRef.current) {
+        confirmResolverRef.current(false);
+        confirmResolverRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isRunning) return;
+    if (output.length === 0) return;
+
+    const outputText = output.join('\n').trim();
+    if (!outputText) return;
+
+    const dumpKey = `${loadedTemplateName}::${outputText}`;
+    if (lastConsoleDumpKeyRef.current === dumpKey) return;
+    lastConsoleDumpKeyRef.current = dumpKey;
+
+    dumpEditorConsoleToBrowser({
+      templateName: loadedTemplateName,
+      lines: output
+    });
+  }, [isRunning, loadedTemplateName, output]);
 
   // ── Init WASM ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -43,7 +233,7 @@ const DemoPage: React.FC = () => {
     initDoneRef.current = true;
     try {
       const instance = new RunboxInstance();
-      setRunbox(instance);
+      runboxRef.current = instance;
       setIsReady(true);
       setOutput(prev => [...prev, '[SUCCESS] Sandbox Ready. WebAssembly module loaded.']);
     } catch (err) {
@@ -67,50 +257,103 @@ const DemoPage: React.FC = () => {
 
   // ── Run ────────────────────────────────────────────────────────────────────
   const handleRun = async () => {
-    if (!runbox || !isReady || isRunning) return;
+    if (!isReady || isRunning) return;
     setIsRunning(true); setUserScrolledUp(false);
     setPreviewHtml(''); setServerPort(null); setBrowserUrl('/');
 
     try {
+      const activeRunbox = new RunboxInstance();
+      runboxRef.current = activeRunbox;
+
       for (const [path, content] of Object.entries(fileSystem.files)) {
         const dir = path.substring(0, path.lastIndexOf('/'));
-        if (dir) runbox.exec(`mkdir -p ${dir}`);
-        runbox.write_file(path, new TextEncoder().encode(content));
+        if (dir) activeRunbox.exec(`mkdir -p ${dir}`);
+        activeRunbox.write_file(path, new TextEncoder().encode(content));
       }
 
-      setOutput(prev => [...prev, '$ npm install']);
-      const needed: Array<{ name: string; version: string }> = JSON.parse(runbox.npm_packages_needed());
-      if (needed.length > 0) {
-        for (const pkg of needed) {
-          setOutput(prev => [...prev, `  ↓ ${pkg.name}@${pkg.version}`]);
-          try {
-            const meta = await fetch(`https://registry.npmjs.org/${pkg.name}/${pkg.version}`).then(r => r.json());
-            const tarball = await fetch(meta.dist.tarball).then(r => r.arrayBuffer());
-            const result = JSON.parse(runbox.npm_process_tarball(pkg.name, pkg.version, new Uint8Array(tarball)));
-            if (!result.ok) setOutput(prev => [...prev, `  ✗ ${pkg.name}: ${result.error}`]);
-          } catch (e) { setOutput(prev => [...prev, `  ✗ ${pkg.name}: ${(e as Error).message}`]); }
-        }
-        setOutput(prev => [...prev, `  added ${needed.length} packages`]);
-      } else {
-        setOutput(prev => [...prev, '  up to date']);
-      }
-
-      let cmdToRun = 'bun run /index.js';
+      let packageJson: DemoPackageJson | null = null;
       if (fileSystem.files['/package.json']) {
         try {
-          const pkg = JSON.parse(fileSystem.files['/package.json']);
-          if (pkg.scripts?.start) cmdToRun = 'npm run start';
-        } catch { /* ignore */ }
+          packageJson = JSON.parse(fileSystem.files['/package.json']);
+        } catch {
+          packageJson = null;
+        }
       }
 
-      setOutput(prev => [...prev, '', `$ ${cmdToRun}`]);
-      const execResult = JSON.parse(runbox.exec(cmdToRun));
+      const runboxConfig = packageJson?.runbox ?? {};
+      const packageManager = detectPackageManager(fileSystem.files, runboxConfig.packageManager);
+      const shouldInstall = runboxConfig.install ?? !!fileSystem.files['/package.json'];
+      const preRunCommands = Array.isArray(runboxConfig.preRun)
+        ? runboxConfig.preRun.filter((cmd) => typeof cmd === 'string' && cmd.trim().length > 0)
+        : [];
 
-      if (execResult.stdout) execResult.stdout.split('\n').forEach((l: string) => { if (l.trim()) setOutput(p => [...p, l]); });
-      if (execResult.stderr) setOutput(prev => [...prev, `[ERROR] ${execResult.stderr}`]);
+      const appendExecOutput = (result: ExecResult) => {
+        if (result.stdout) {
+          result.stdout.split('\n').forEach((line) => {
+            if (line.trim()) setOutput((prev) => [...prev, line]);
+          });
+        }
+        const stderr = result.stderr?.trim();
+        if (stderr) {
+          setOutput((prev) => [...prev, `[ERROR] ${stderr}`]);
+        }
+      };
+
+      const executeCommand = async (command: string): Promise<ExecResult> => {
+        const pyodideResult = await runPythonScriptWithPyodide(command, fileSystem.files).catch(() => null);
+        if (pyodideResult) return pyodideResult;
+        return JSON.parse(activeRunbox.exec(command)) as ExecResult;
+      };
+
+      if (shouldInstall) {
+        setOutput((prev) => [...prev, `$ ${packageManager} install`]);
+        const needed: Array<{ name: string; version: string }> = JSON.parse(activeRunbox.npm_packages_needed());
+        if (needed.length > 0) {
+          for (const pkg of needed) {
+            setOutput((prev) => [...prev, `  -> ${pkg.name}@${pkg.version}`]);
+            try {
+              const meta = await fetch(`https://registry.npmjs.org/${pkg.name}/${pkg.version}`).then(r => r.json());
+              const tarball = await fetch(meta.dist.tarball).then(r => r.arrayBuffer());
+              const result = JSON.parse(activeRunbox.npm_process_tarball(pkg.name, pkg.version, new Uint8Array(tarball)));
+              if (!result.ok) setOutput((prev) => [...prev, `  x ${pkg.name}: ${result.error}`]);
+            } catch (e) {
+              setOutput((prev) => [...prev, `  x ${pkg.name}: ${(e as Error).message}`]);
+            }
+          }
+          setOutput((prev) => [...prev, `  added ${needed.length} packages`]);
+        } else {
+          setOutput((prev) => [...prev, '  up to date']);
+        }
+      }
+
+      for (const command of preRunCommands) {
+        setOutput((prev) => [...prev, '', `$ ${command}`]);
+        const preRunResult = await executeCommand(command);
+        appendExecOutput(preRunResult);
+        if (preRunResult.exit_code !== 0) {
+          setOutput((prev) => [...prev, `[ERROR] Process exited with code ${preRunResult.exit_code}`]);
+          setIsRunning(false);
+          return;
+        }
+      }
+
+      let cmdToRun = runboxConfig.command?.trim();
+      if (!cmdToRun) {
+        if (packageJson?.scripts?.start) {
+          cmdToRun = `${packageManager} run start`;
+        } else {
+          cmdToRun = 'bun run /index.js';
+        }
+      }
+
+      setOutput((prev) => [...prev, '', `$ ${cmdToRun}`]);
+      const execResult = await executeCommand(cmdToRun);
+      appendExecOutput(execResult);
+
       if (execResult.exit_code !== 0) {
-        setOutput(prev => [...prev, `[ERROR] Process exited with code ${execResult.exit_code}`]);
-        setIsRunning(false); return;
+        setOutput((prev) => [...prev, `[ERROR] Process exited with code ${execResult.exit_code}`]);
+        setIsRunning(false);
+        return;
       }
 
       const serverMatch = execResult.stdout?.match(/(?:localhost:(\d+)|(?:port|PORT)\s+(\d+)|[^:]:(\d{4,5})\b)/);
@@ -118,20 +361,19 @@ const DemoPage: React.FC = () => {
       if (detectedPort) {
         const port = detectedPort;
         setServerPort(port); setBrowserUrl('/');
-        const resp = JSON.parse(runbox.http_handle_request(JSON.stringify({ port, method: 'GET', path: '/', headers: {}, body: null })));
+        const resp = JSON.parse(activeRunbox.http_handle_request(JSON.stringify({ port, method: 'GET', path: '/', headers: {}, body: null })));
         setPreviewHtml(injectNavScript(resp.body || ''));
-        setOutput(prev => [...prev, '✓ Server ready — navigate using the browser above']);
+        setOutput((prev) => [...prev, 'Server ready - navigate using the browser above']);
         setActiveView('preview');
       } else {
         setShowTerminal(true);
         setPreviewHtml('<div style="padding:20px;text-align:center;color:#666"><p>Check the terminal output</p></div>');
       }
     } catch (err) {
-      setOutput(prev => [...prev, `[ERROR] ${(err as Error).message}`]);
+      setOutput((prev) => [...prev, `[ERROR] ${(err as Error).message}`]);
     }
     setIsRunning(false);
   };
-
   const injectNavScript = (html: string) => {
     const s = `<script>document.addEventListener('click',function(e){const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;if(a){e.preventDefault();window.parent.postMessage({type:'__runbox_navigate',href:a.getAttribute('href')},'*');}});</script>`;
     if (html.includes('</body>')) return html.replace('</body>', s + '</body>');
@@ -140,11 +382,12 @@ const DemoPage: React.FC = () => {
   };
 
   const handleNavigate = React.useCallback((path: string) => {
-    if (!runbox || !serverPort) return;
+    const activeRunbox = runboxRef.current;
+    if (!activeRunbox || !serverPort) return;
     setBrowserUrl(path);
-    const resp = JSON.parse(runbox.http_handle_request(JSON.stringify({ port: serverPort, method: 'GET', path, headers: {}, body: null })));
+    const resp = JSON.parse(activeRunbox.http_handle_request(JSON.stringify({ port: serverPort, method: 'GET', path, headers: {}, body: null })));
     setPreviewHtml(injectNavScript(resp.body || ''));
-  }, [runbox, serverPort]);
+  }, [serverPort]);
 
   useEffect(() => {
     const handler = (e: MessageEvent) => { if (e.data?.type === '__runbox_navigate') handleNavigate(e.data.href); };
@@ -152,8 +395,11 @@ const DemoPage: React.FC = () => {
     return () => window.removeEventListener('message', handler);
   }, [handleNavigate]);
 
-  const handleReset = () => {
-    fileSystem.handleReset();
+  const handleReset = async () => {
+    const didReset = await fileSystem.handleReset();
+    if (!didReset) return;
+
+    setLoadedTemplateName('React Dashboard');
     setPreviewHtml(''); setServerPort(null);
     setOutput(['$ Workspace reset to default template.']);
   };
@@ -180,7 +426,17 @@ const DemoPage: React.FC = () => {
           <Explorer {...fileSystem} />
         ) : (
           <TemplatesSidebar 
-            onSelectTemplate={(files) => {
+            onConfirmTemplateLoad={(templateName) =>
+              requestConfirm({
+                title: `Load ${templateName}?`,
+                message: 'Current changes will be lost.',
+                confirmLabel: 'Load template',
+                cancelLabel: 'Cancel',
+                tone: 'danger'
+              })
+            }
+            onSelectTemplate={(templateName, files) => {
+              setLoadedTemplateName(templateName);
               fileSystem.setFiles(files);
               fileSystem.setActiveFile(Object.keys(files).find(k => !k.endsWith('/')) || '');
               setActiveSidebar('explorer');
@@ -223,8 +479,20 @@ const DemoPage: React.FC = () => {
           />
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!confirmDialog}
+        title={confirmDialog?.title ?? ''}
+        message={confirmDialog?.message ?? ''}
+        confirmLabel={confirmDialog?.confirmLabel ?? 'Confirm'}
+        cancelLabel={confirmDialog?.cancelLabel ?? 'Cancel'}
+        tone={confirmDialog?.tone ?? 'default'}
+        onCancel={() => closeConfirm(false)}
+        onConfirm={() => closeConfirm(true)}
+      />
     </div>
   );
 };
 
 export default DemoPage;
+

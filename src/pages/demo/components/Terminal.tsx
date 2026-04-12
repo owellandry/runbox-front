@@ -6,9 +6,9 @@ interface TerminalProps {
   showTerminal: boolean;
   output: string[];
   setOutput: React.Dispatch<React.SetStateAction<string[]>>;
-  terminalDivRef: React.RefObject<HTMLDivElement>;
+  terminalDivRef: React.RefObject<HTMLDivElement | null>;
   handleTerminalScroll: () => void;
-  outputEndRef: React.RefObject<HTMLDivElement>;
+  outputEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const Terminal: React.FC<TerminalProps> = ({

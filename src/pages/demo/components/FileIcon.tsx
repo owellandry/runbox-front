@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   SiJavascript, SiTypescript, SiReact, SiCss, SiHtml5,
   SiPython, SiMarkdown, SiRust, SiGnubash, SiSass,

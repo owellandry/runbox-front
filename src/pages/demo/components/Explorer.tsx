@@ -30,7 +30,7 @@ interface ExplorerProps {
 }
 
 export const Explorer: React.FC<ExplorerProps> = ({
-  files,
+  files: _files,
   activeFile,
   setActiveFile,
   creatingFile,

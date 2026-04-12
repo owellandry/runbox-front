@@ -6,7 +6,6 @@ export const defaultFiles: Record<string, string> = {
   "version": "1.0.0",
   "dependencies": {
     "dayjs": "^1.11.10",
-    "clsx": "^2.1.1",
     "react-icons": "^5.4.0"
   },
   "scripts": {
@@ -114,7 +113,6 @@ const activity = [
 module.exports = { users, stats, activity, dayjs };`,
 
   '/components/Sidebar.js': `const React = require('react');
-const clsx  = require('clsx');
 const { surface, border, accent, muted, text } = require('../lib/tokens.js');
 
 let Fi = {};

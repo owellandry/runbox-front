@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY, defaultFiles } from '../constants/defaultFiles';
 
-export function useFileSystem() {
+export type ConfirmTone = 'default' | 'danger';
+
+export interface ConfirmRequestOptions {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  tone?: ConfirmTone;
+}
+
+export type ConfirmRequestHandler = (options: ConfirmRequestOptions) => Promise<boolean>;
+
+export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
   const [files, setFiles] = useState<Record<string, string>>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -73,9 +85,20 @@ export function useFileSystem() {
     }
   };
 
-  const handleDeleteFile = (path: string, e: React.MouseEvent) => {
+  const handleDeleteFile = async (path: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm(`Delete ${path}?`)) return;
+
+    const isFolder = path.endsWith('/');
+    const confirmDelete = await requestConfirm({
+      title: isFolder ? 'Delete Folder' : 'Delete File',
+      message: `${path}\nThis action cannot be undone.`,
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+      tone: 'danger'
+    });
+
+    if (!confirmDelete) return;
+
     const newFiles = { ...files };
     
     if (path.endsWith('/')) {
@@ -162,10 +185,20 @@ export function useFileSystem() {
     }));
   };
 
-  const handleReset = () => {
-    if (!window.confirm('Reset the workspace? All local changes will be lost.')) return;
+  const handleReset = async () => {
+    const confirmReset = await requestConfirm({
+      title: 'Reset Workspace',
+      message: 'All local changes will be lost.',
+      confirmLabel: 'Reset',
+      cancelLabel: 'Cancel',
+      tone: 'danger'
+    });
+
+    if (!confirmReset) return false;
+
     setFiles(defaultFiles); 
     setActiveFile('/index.js');
+    return true;
   };
 
   // Helper to build a file tree from flat paths
