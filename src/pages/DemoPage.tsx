@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
-import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, Trash2, Edit2, Box, Folder, Puzzle, Settings } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, Trash2, Edit2, Folder, Puzzle, Settings } from 'lucide-react';
 import { RunboxInstance } from 'runboxjs';
+import Editor from 'react-simple-code-editor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-css';
+import 'prismjs/themes/prism-tomorrow.css';
 
 // Exponer React en globalThis para el sandbox RunBox
 (globalThis as unknown as Record<string, unknown>).__runbox_react = React;
@@ -337,12 +343,20 @@ const DemoPage: React.FC = () => {
     }
   };
 
+  // Determine Prism language based on file extension
+  const getLanguage = (path: string) => {
+    if (path.endsWith('.js') || path.endsWith('.jsx')) return 'javascript';
+    if (path.endsWith('.json')) return 'json';
+    if (path.endsWith('.css')) return 'css';
+    return 'javascript';
+  };
+
   return (
     <div className="h-screen w-full bg-[#141413] text-[#faf9f5] flex flex-col font-sans overflow-hidden">
       {/* Top Bar */}
       <header className="flex justify-between items-center px-4 py-3 border-b border-[#b0aea5]/10 shrink-0 bg-[#141413]">
         <div className="flex items-center gap-2 w-1/3">
-          <Box className="w-5 h-5 text-[#d97757]" />
+          <TerminalIcon className="w-5 h-5 text-[#d97757]" />
           <h1 className="text-lg font-poppins font-medium tracking-tight">RunBox IDE</h1>
         </div>
         
@@ -489,34 +503,41 @@ const DemoPage: React.FC = () => {
                     </button>
                   ))}
                 </div>
-                {/* Textarea Editor */}
-                <div className="flex-1 relative overflow-hidden bg-[#0a0a09]">
-                  <div 
-                    ref={editorLineNumbersRef}
-                    className="absolute top-0 left-0 w-12 bg-[#141413] border-r border-[#b0aea5]/10 pt-6 pb-6 pointer-events-none text-right pr-3 h-full overflow-hidden"
-                  >
-                    <div className="text-[13px] text-[#b0aea5]/40 font-mono leading-relaxed">
-                      {activeFile && files[activeFile] ? files[activeFile].split('\n').map((_, i) => (
-                        <div key={i} className="h-[21px]">{i + 1}</div>
-                      )) : <div className="h-[21px]">1</div>}
+                  <div className="flex-1 relative overflow-auto bg-[#0a0a09] no-scrollbar">
+                    <div className="flex min-h-full">
+                      <div 
+                        className="w-12 bg-[#141413] border-r border-[#b0aea5]/10 pt-6 pb-6 text-right pr-3 shrink-0"
+                      >
+                        <div className="text-[13px] text-[#b0aea5]/40 font-mono leading-relaxed">
+                          {activeFile && files[activeFile] ? files[activeFile].split('\n').map((_, i) => (
+                            <div key={i} className="h-[21px]">{i + 1}</div>
+                          )) : <div className="h-[21px]">1</div>}
+                        </div>
+                      </div>
+                      <div className="flex-1 pt-6 pb-6 min-w-0">
+                        {activeFile && files[activeFile] !== undefined ? (
+                          <Editor
+                            value={files[activeFile]}
+                            onValueChange={code => setFiles({ ...files, [activeFile]: code })}
+                            highlight={code => Prism.highlight(code, Prism.languages[getLanguage(activeFile)], getLanguage(activeFile))}
+                            padding={{ top: 0, right: 24, bottom: 0, left: 16 }}
+                            style={{
+                              fontFamily: 'monospace',
+                              fontSize: 13,
+                              lineHeight: '21px',
+                              minHeight: '100%',
+                              backgroundColor: 'transparent',
+                            }}
+                            className="w-full text-[#faf9f5] focus:outline-none"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#b0aea5] font-mono text-sm">
+                            Select or create a file to edit
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  {activeFile && files[activeFile] !== undefined ? (
-                    <textarea
-                      value={files[activeFile]}
-                      onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
-                      onScroll={handleEditorScroll}
-                      spellCheck="false"
-                      style={{ lineHeight: '21px', fontSize: '13px' }}
-                      className="w-full h-full pl-16 pr-6 pt-6 pb-6 font-mono text-[#faf9f5] bg-transparent resize-none focus:outline-none focus:ring-0 no-scrollbar whitespace-pre"
-                      wrap="off"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#b0aea5] font-mono text-sm">
-                      Select or create a file to edit
-                    </div>
-                  )}
-                </div>
               </div>
             ) : (
               <div className="flex-1 flex flex-col min-h-0 bg-white">
