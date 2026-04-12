@@ -53,24 +53,67 @@ const LOCAL_STORAGE_KEY = 'runbox_demo_workspace';
 const defaultFiles: Record<string, string> = {
   '/package.json': `{
   "name": "runbox-demo",
-  "type": "module",
-  "dependencies": {
-    "express": "^4.18.2"
-  },
+  "version": "1.0.0",
   "scripts": {
     "start": "bun run /index.js"
   }
 }`,
-  '/index.js': `const express = require('express');
-const app = express();
-const port = 3000;
+  '/index.js': `const http = require('http');
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello from Runboxjs IDE!</h1><p>Edit this file and click Run.</p>');
+const routes = {
+  '/': \`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RunBox App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+    h1   { color: #d97757; }
+    a    { color: #6a9bcc; }
+    code { background: #f0ede6; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Hello from RunBox!</h1>
+  <p>Edit <code>index.js</code> and click <strong>Run</strong>.</p>
+  <p><a href="/about">About</a></p>
+</body>
+</html>\`,
+
+  '/about': \`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About — RunBox</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+    h1   { color: #6a9bcc; }
+    a    { color: #d97757; }
+  </style>
+</head>
+<body>
+  <h1>About</h1>
+  <p>Powered by <strong>RunBox</strong> — a WebAssembly sandbox runtime.</p>
+  <p><a href="/">← Back home</a></p>
+</body>
+</html>\`,
+};
+
+const server = http.createServer((req, res) => {
+  const url = (req.url || '/').split('?')[0];
+  const body = routes[url];
+
+  if (body) {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(body);
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('404 Not Found');
+  }
 });
 
-app.listen(port, () => {
-  console.log(\`Server running at http://localhost:\${port}\`);
+server.listen(3000, () => {
+  console.log('Server running at http://localhost:3000');
 });`,
 };
 
