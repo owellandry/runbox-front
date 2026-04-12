@@ -23,11 +23,11 @@ const server = http.createServer((req, res) => {
   const html = Server.renderToString(React.createElement(App, { path }));
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
   res.end(\`<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Acme HQ</title>
+  <title>Sede Acme</title>
   <style>*,*::before,*::after{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif}a{text-decoration:none}</style>
 </head>
 <body>\${html}</body>
@@ -35,7 +35,7 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(3000, () => {
-  console.log('Server running at http://localhost:3000');
+  console.log('Servidor corriendo en http://localhost:3000');
 });`,
 
   '/app.js': `const React = require('react');
@@ -55,8 +55,8 @@ function NotFound() {
   const { muted, accent } = require('./lib/tokens.js');
   return e('div', { style: { textAlign: 'center', padding: '80px 24px', color: muted } },
     e('div', { style: { fontSize: 48, marginBottom: 12 } }, '404'),
-    e('p', null, 'Page not found'),
-    e('a', { href: '/', style: { color: accent } }, '← Back to dashboard')
+    e('p', null, 'Página no encontrada'),
+    e('a', { href: '/', style: { color: accent } }, '← Volver al inicio')
   );
 }
 
@@ -96,18 +96,18 @@ const users = [
 ];
 
 const stats = [
-  { label: 'Total Users',     value: '2,841',  delta: '+12%',  up: true  },
-  { label: 'Monthly Revenue', value: '$48,290', delta: '+8.2%', up: true  },
-  { label: 'Active Projects', value: '134',     delta: '-3%',   up: false },
-  { label: 'Uptime',          value: '99.97%', delta: '+0.1%', up: true  },
+  { label: 'Usuarios Totales',     value: '2,841',  delta: '+12%',  up: true  },
+  { label: 'Ingresos Mensuales', value: '$48,290', delta: '+8.2%', up: true  },
+  { label: 'Proyectos Activos', value: '134',     delta: '-3%',   up: false },
+  { label: 'Tiempo Activo',          value: '99.97%', delta: '+0.1%', up: true  },
 ];
 
 const activity = [
-  { text: 'Ana García deployed v2.4.1',     time: '2 min ago',  type: 'success' },
-  { text: 'Luis Torres updated /api/users', time: '14 min ago', type: 'info'    },
-  { text: 'Build failed on staging',        time: '1 hr ago',   type: 'error'   },
-  { text: 'Sara Kim joined the workspace',  time: '3 hr ago',   type: 'warning' },
-  { text: 'Database backup completed',      time: '6 hr ago',   type: 'success' },
+  { text: 'Ana García desplegó v2.4.1',             time: 'hace 2 min',  type: 'success' },
+  { text: 'Luis Torres actualizó /api/users',       time: 'hace 14 min', type: 'info'    },
+  { text: 'Fallo en compilación de staging',        time: 'hace 1 h',    type: 'error'   },
+  { text: 'Sara Kim se unió al espacio de trabajo', time: 'hace 3 h',    type: 'warning' },
+  { text: 'Respaldo de base de datos completado',   time: 'hace 6 h',    type: 'success' },
 ];
 
 module.exports = { users, stats, activity, dayjs };`,
@@ -122,9 +122,9 @@ const Icon = (name, fb) => Fi[name] ? React.createElement(Fi[name], { size: 16 }
 const e = React.createElement;
 
 const NAV = [
-  { href: '/',         label: 'Dashboard', icon: 'FiGrid',    fb: '⊞' },
-  { href: '/users',    label: 'Users',     icon: 'FiUsers',   fb: '👥' },
-  { href: '/settings', label: 'Settings',  icon: 'FiSettings',fb: '⚙' },
+  { href: '/',         label: 'Panel', icon: 'FiGrid',    fb: '⊞' },
+  { href: '/users',    label: 'Usuarios',     icon: 'FiUsers',   fb: '👥' },
+  { href: '/settings', label: 'Ajustes',  icon: 'FiSettings',fb: '⚙' },
 ];
 
 function Sidebar({ path }) {
@@ -232,8 +232,8 @@ function Dashboard() {
       // Activity feed
       e('div', { style: { background: surface, border: '1px solid ' + border, borderRadius: 12, padding: 20 } },
         e('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: 16 } },
-          e('span', { style: { fontWeight: 600, fontSize: 14 } }, 'Recent Activity'),
-          e('a', { href: '/users', style: { fontSize: 12, color: accent, textDecoration: 'none' } }, 'View all')
+          e('span', { style: { fontWeight: 600, fontSize: 14 } }, 'Actividad Reciente'),
+          e('a', { href: '/users', style: { fontSize: 12, color: accent, textDecoration: 'none' } }, 'Ver todo')
         ),
         e('ul', { style: { listStyle: 'none', margin: 0, padding: 0 } },
           ...activity.map((item, i) =>
@@ -249,13 +249,13 @@ function Dashboard() {
       ),
       // Progress bars
       e('div', { style: { background: surface, border: '1px solid ' + border, borderRadius: 12, padding: 20 } },
-        e('div', { style: { fontWeight: 600, fontSize: 14, marginBottom: 20 } }, 'System Health'),
+        e('div', { style: { fontWeight: 600, fontSize: 14, marginBottom: 20 } }, 'Estado del Sistema'),
         e('div', { style: { display: 'flex', flexDirection: 'column', gap: 18 } },
           ...[
-            { label: 'API uptime',      value: 99, color: green  },
-            { label: 'Storage used',    value: 62, color: yellow },
-            { label: 'CI/CD success',   value: 88, color: accent },
-            { label: 'Error rate',      value: 3,  color: red    },
+            { label: 'Tiempo activo API',      value: 99, color: green  },
+            { label: 'Almacenamiento usado',    value: 62, color: yellow },
+            { label: 'Éxito CI/CD',   value: 88, color: accent },
+            { label: 'Tasa de error',      value: 3,  color: red    },
           ].map(({ label, value, color }) =>
             e('div', { key: label },
               e('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: 12, color: muted, marginBottom: 6 } },
@@ -287,16 +287,16 @@ const Icon = (name, fb) => Fi[name] ? React.createElement(Fi[name], { size: 14 }
 function Users() {
   return e('div', null,
     e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 } },
-      e('h1', { style: { fontSize: 22, fontWeight: 700, margin: 0 } }, 'Users'),
+      e('h1', { style: { fontSize: 22, fontWeight: 700, margin: 0 } }, 'Usuarios'),
       e('button', { style: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: accent, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600 } },
-        Icon('FiUserPlus', '+'), 'Invite User'
+        Icon('FiUserPlus', '+'), 'Invitar Usuario'
       )
     ),
     e('div', { style: { background: surface, border: '1px solid ' + border, borderRadius: 12, overflow: 'hidden' } },
       e('table', { style: { width: '100%', borderCollapse: 'collapse' } },
         e('thead', null,
           e('tr', null,
-            ...['Name', 'Email', 'Role', 'Status', 'Joined'].map(h =>
+            ...['Nombre', 'Correo', 'Rol', 'Estado', 'Ingresó'].map(h =>
               e('th', { key: h, style: { textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 600, color: muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid ' + border } }, h)
             )
           )
@@ -337,16 +337,16 @@ try { Fi = require('react-icons/fi'); } catch(_) {}
 const Icon = (name, fb) => Fi[name] ? React.createElement(Fi[name], { size: 16 }) : React.createElement('span', null, fb);
 
 const SECTIONS = [
-  { icon: 'FiUser',    fb: '👤', title: 'Profile',      desc: 'Update your name, avatar, and contact info.' },
-  { icon: 'FiLock',    fb: '🔒', title: 'Security',     desc: 'Two-factor auth, password, and active sessions.' },
-  { icon: 'FiBell',    fb: '🔔', title: 'Notifications', desc: 'Email, push, and in-app notification preferences.' },
-  { icon: 'FiGlobe',   fb: '🌐', title: 'Integrations', desc: 'Connect GitHub, Slack, and third-party services.' },
-  { icon: 'FiCreditCard', fb: '💳', title: 'Billing',   desc: 'Manage subscription, invoices, and payment methods.' },
+  { icon: 'FiUser',    fb: '👤', title: 'Perfil',      desc: 'Actualiza tu nombre, avatar e información de contacto.' },
+  { icon: 'FiLock',    fb: '🔒', title: 'Seguridad',     desc: 'Autenticación de dos pasos, contraseña y sesiones activas.' },
+  { icon: 'FiBell',    fb: '🔔', title: 'Notificaciones', desc: 'Preferencias de correo, push y dentro de la app.' },
+  { icon: 'FiGlobe',   fb: '🌐', title: 'Integraciones', desc: 'Conecta GitHub, Slack y servicios de terceros.' },
+  { icon: 'FiCreditCard', fb: '💳', title: 'Facturación',   desc: 'Gestiona tu suscripción, facturas y métodos de pago.' },
 ];
 
 function Settings() {
   return e('div', null,
-    e('h1', { style: { fontSize: 22, fontWeight: 700, margin: '0 0 28px' } }, 'Settings'),
+    e('h1', { style: { fontSize: 22, fontWeight: 700, margin: '0 0 28px' } }, 'Ajustes'),
     e('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
       ...SECTIONS.map(({ icon, fb, title, desc }) =>
         e('div', { key: title, style: { background: surface, border: '1px solid ' + border, borderRadius: 12, padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },

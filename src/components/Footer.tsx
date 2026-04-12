@@ -12,19 +12,19 @@ const Footer: React.FC = () => {
             <span>Runboxjs</span>
           </Link>
           <p className="text-anthropic-mid-gray font-lora max-w-sm leading-relaxed">
-            Bringing native Node.js environments directly to your browser tab. Fast, secure, and entirely local.
+            Llevando entornos nativos de Node.js directamente a la pestaña de tu navegador. Rápido, seguro y completamente local.
           </p>
         </div>
         
         <div className="flex flex-col gap-4">
-          <h4 className="font-poppins font-medium text-anthropic-light mb-2">Resources</h4>
-          <Link to="/docs" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Documentation</Link>
-          <Link to="/demo" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Interactive Demo</Link>
+          <h4 className="font-poppins font-medium text-anthropic-light mb-2">Recursos</h4>
+          <Link to="/docs" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Documentación</Link>
+          <Link to="/demo" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Demo Interactiva</Link>
           <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-orange transition-colors w-fit">Blog</a>
         </div>
 
         <div className="flex flex-col gap-4">
-          <h4 className="font-poppins font-medium text-anthropic-light mb-2">Community</h4>
+          <h4 className="font-poppins font-medium text-anthropic-light mb-2">Comunidad</h4>
           <a href="https://github.com/owellandry/runbox-front" target="_blank" rel="noopener noreferrer" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-blue transition-colors w-fit">GitHub</a>
           <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-blue transition-colors w-fit">Discord</a>
           <a href="#" className="text-sm font-poppins text-anthropic-mid-gray hover:text-anthropic-blue transition-colors w-fit">Twitter / X</a>
@@ -32,10 +32,10 @@ const Footer: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto pt-8 border-t border-anthropic-light-gray/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-poppins text-anthropic-mid-gray/70">
-        <p>© 2026 Runboxjs. All rights reserved.</p>
+        <p>© 2026 Runboxjs. Todos los derechos reservados.</p>
         <div className="flex gap-6">
-          <Link to="/privacy" className="hover:text-anthropic-light transition-colors">Privacy Policy</Link>
-          <Link to="/terms" className="hover:text-anthropic-light transition-colors">Terms of Service</Link>
+          <Link to="/privacy" className="hover:text-anthropic-light transition-colors">Política de Privacidad</Link>
+          <Link to="/terms" className="hover:text-anthropic-light transition-colors">Términos de Servicio</Link>
         </div>
       </div>
     </footer>

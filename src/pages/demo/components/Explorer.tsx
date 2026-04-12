@@ -140,12 +140,12 @@ export const Explorer: React.FC<ExplorerProps> = ({
   return (
     <div className="w-64 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col">
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-xs font-poppins font-medium text-[#faf9f5]">Explorer</span>
+        <span className="text-xs font-poppins font-medium text-[#faf9f5]">Explorador</span>
         <div className="flex gap-2">
-          <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="New File">
+          <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="Nuevo Archivo">
             <FilePlus className="w-3.5 h-3.5" />
           </button>
-          <button onClick={() => setCreatingFolder(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="New Folder">
+          <button onClick={() => setCreatingFolder(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="Nueva Carpeta">
             <FolderPlus className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -163,7 +163,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
               onChange={e => setNewFileName(e.target.value)}
               onKeyDown={handleCreateFile}
               onBlur={() => setCreatingFile(false)}
-              placeholder="filename.js"
+              placeholder="archivo.js"
               className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
             />
           </div>
@@ -178,7 +178,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
               onChange={e => setNewFolderName(e.target.value)}
               onKeyDown={handleCreateFolder}
               onBlur={() => setCreatingFolder(false)}
-              placeholder="folder_name"
+              placeholder="nombre_carpeta"
               className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#d97757] px-1 py-0.5 outline-none"
             />
           </div>

@@ -75,7 +75,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ files, setFiles, activeF
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-[#b0aea5] font-mono text-sm">
-                Select or create a file to edit
+                Selecciona o crea un archivo para editar
               </div>
             )}
           </div>

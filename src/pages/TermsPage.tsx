@@ -5,42 +5,42 @@ const TermsPage: React.FC = () => {
     <div className="min-h-screen bg-anthropic-dark text-anthropic-light pt-32 pb-24 px-6 md:px-12">
       <div className="max-w-3xl mx-auto flex flex-col gap-12">
         <header className="flex flex-col gap-4 border-b border-anthropic-light-gray/10 pb-8">
-          <h1 className="text-4xl md:text-5xl font-poppins font-medium tracking-tight">Terms of Service</h1>
-          <p className="text-lg font-lora text-anthropic-mid-gray">Last updated: April 11, 2026</p>
+          <h1 className="text-4xl md:text-5xl font-poppins font-medium tracking-tight">Términos de Servicio</h1>
+          <p className="text-lg font-lora text-anthropic-mid-gray">Última actualización: 11 de Abril, 2026</p>
         </header>
 
         <section className="flex flex-col gap-6 font-lora text-anthropic-light-gray leading-relaxed">
-          <h2 className="text-2xl font-poppins font-medium text-anthropic-light">1. Agreement to Terms</h2>
+          <h2 className="text-2xl font-poppins font-medium text-anthropic-light">1. Aceptación de los Términos</h2>
           <p>
-            By accessing or using Runboxjs, you agree to be bound by these Terms. 
-            If you disagree with any part of the terms, you may not access the service.
+            Al acceder o usar Runboxjs, aceptas estar sujeto a estos Términos. 
+            Si no estás de acuerdo con alguna parte de los términos, no podrás acceder al servicio.
           </p>
 
-          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">2. Use of Service</h2>
+          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">2. Uso del Servicio</h2>
           <p>
-            Runboxjs provides an in-browser Node.js runtime environment. The service is provided 
-            "as is" and "as available". We do not guarantee that the service will be uninterrupted, 
-            secure, or error-free.
+            Runboxjs proporciona un entorno de ejecución de Node.js en el navegador. El servicio se proporciona 
+            "tal cual" y "según disponibilidad". No garantizamos que el servicio será ininterrumpido, 
+            seguro o libre de errores.
           </p>
 
-          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">3. Acceptable Use</h2>
+          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">3. Uso Aceptable</h2>
           <p>
-            You agree not to use Runboxjs to execute malicious code, distribute malware, or 
-            engage in any activity that violates local, national, or international law. Even though 
-            execution happens locally, using our tools for illegal purposes is strictly prohibited.
+            Aceptas no usar Runboxjs para ejecutar código malicioso, distribuir malware o 
+            participar en cualquier actividad que viole la ley local, nacional o internacional. Aunque 
+            la ejecución ocurre localmente, el uso de nuestras herramientas para fines ilegales está estrictamente prohibido.
           </p>
 
-          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">4. Open Source License</h2>
+          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">4. Licencia de Código Abierto</h2>
           <p>
-            The core Runboxjs library is open-source and subject to the terms of the MIT License. 
-            Your use, modification, and distribution of the library itself are governed by that license.
+            La biblioteca principal de Runboxjs es de código abierto y está sujeta a los términos de la Licencia MIT. 
+            Tu uso, modificación y distribución de la biblioteca misma están regidos por esa licencia.
           </p>
           
-          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">5. Limitation of Liability</h2>
+          <h2 className="text-2xl font-poppins font-medium text-anthropic-light mt-8">5. Limitación de Responsabilidad</h2>
           <p>
-            In no event shall Runboxjs or its contributors be liable for any direct, indirect, 
-            incidental, special, consequential, or punitive damages arising out of your access 
-            to or use of or inability to access or use the service.
+            En ningún caso Runboxjs o sus contribuyentes serán responsables de ningún daño directo, indirecto, 
+            incidental, especial, consecuente o punitivo que surja de tu acceso 
+            a o uso o incapacidad de acceder o usar el servicio.
           </p>
         </section>
       </div>

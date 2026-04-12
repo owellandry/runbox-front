@@ -14,14 +14,14 @@ export const templates: DemoTemplate[] = [
   {
     id: 'react-dashboard',
     name: 'React Dashboard',
-    description: 'SSR React app with routes, reusable components, and npm deps.',
+    description: 'Aplicación React con rutas (SSR), componentes reutilizables y dependencias npm.',
     icon: <SiReact className="text-[#61dafb] w-5 h-5" />,
     files: defaultFiles
   },
   {
     id: 'vanilla-js',
-    name: 'Vanilla JS App',
-    description: 'Simple HTTP app powered by bun runtime and local modules.',
+    name: 'App Vanilla JS',
+    description: 'Aplicación HTTP sencilla ejecutada por bun y módulos locales.',
     icon: <SiJavascript className="text-[#f0db4f] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -38,21 +38,21 @@ const server = http.createServer((req, res) => {
   res.end(renderHome(req.url || '/'));
 });
 
-server.listen(3000, () => console.log('Server running on port 3000'));`,
+server.listen(3000, () => console.log('Servidor corriendo en el puerto 3000'));`,
       '/src/view.js': `exports.renderHome = (path) => \`<!doctype html>
 <html>
   <body style="font-family: ui-sans-serif, system-ui; padding: 48px; background: #111; color: #f8f8f8;">
-    <h1>Vanilla template</h1>
-    <p>Current route: <strong>\${path}</strong></p>
-    <p>Try editing <code>/src/view.js</code> and click Run again.</p>
+    <h1>Plantilla Vanilla</h1>
+    <p>Ruta actual: <strong>\${path}</strong></p>
+    <p>Prueba editar <code>/src/view.js</code> y haz clic en Ejecutar de nuevo.</p>
   </body>
 </html>\`;`
     }
   },
   {
     id: 'typescript-api',
-    name: 'TypeScript API',
-    description: 'Node-compatible TypeScript server executed with Runbox Bun shim.',
+    name: 'API TypeScript',
+    description: 'Servidor TypeScript compatible con Node ejecutado con el shim de Bun en Runbox.',
     icon: <SiTypescript className="text-[#3178c6] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -88,22 +88,22 @@ const server = http.createServer((req, res) => {
   res.end(\`<!doctype html>
   <html>
     <body style="font-family: ui-sans-serif,system-ui; padding: 28px;">
-      <h1>TypeScript API Template</h1>
-      <p>Open <code>/api/health</code> in the preview URL bar.</p>
-      <p>Requests served: \${metrics.requests}</p>
+      <h1>Plantilla API TypeScript</h1>
+      <p>Abre <code>/api/health</code> en la barra de direcciones de la previsualización.</p>
+      <p>Peticiones atendidas: \${metrics.requests}</p>
     </body>
   </html>\`);
 });
 
 server.listen(4173, () => {
-  console.log('TS API listening at http://localhost:4173');
+  console.log('API TS escuchando en http://localhost:4173');
 });`
     }
   },
   {
     id: 'python-data-lab',
-    name: 'Python Data Lab',
-    description: 'Demonstrates pip install/list/freeze and python runtime execution.',
+    name: 'Laboratorio Datos Python',
+    description: 'Demuestra ejecución con python y pip install/list/freeze.',
     icon: <SiPython className="text-[#3776ab] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -123,16 +123,16 @@ server.listen(4173, () => {
 from datetime import datetime
 
 rows = [
-    {"name": "North", "sales": 120},
-    {"name": "South", "sales": 95},
-    {"name": "West", "sales": 133},
+    {"name": "Norte", "sales": 120},
+    {"name": "Sur", "sales": 95},
+    {"name": "Oeste", "sales": 133},
 ]
 
 total = sum(item["sales"] for item in rows)
 result = {
-    "generated_at": datetime.utcnow().isoformat() + "Z",
-    "rows": rows,
-    "total_sales": total,
+    "generado_en": datetime.utcnow().isoformat() + "Z",
+    "filas": rows,
+    "ventas_totales": total,
 }
 
 print("PYTHON_DATA_LAB_OK")
@@ -143,8 +143,8 @@ matplotlib==3.9.0`
   },
   {
     id: 'git-workflow',
-    name: 'Git Workflow',
-    description: 'Runs init/branch/commit/merge/log before launching a local app.',
+    name: 'Flujo de Trabajo Git',
+    description: 'Ejecuta comandos como init/branch/commit/merge antes de iniciar la app.',
     icon: <SiGit className="text-[#f1502f] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -178,20 +178,20 @@ const server = http.createServer((req, res) => {
   res.end(\`<!doctype html>
   <html>
     <body style="font-family: ui-sans-serif,system-ui; padding: 28px;">
-      <h1>Git workflow template</h1>
-      <p>Build id: <strong>\${buildId}</strong></p>
-      <p>Check terminal output for the git flow replay.</p>
+      <h1>Plantilla de flujo de trabajo Git</h1>
+      <p>ID de compilación: <strong>\${buildId}</strong></p>
+      <p>Revisa la salida de la terminal para ver los comandos de git ejecutados.</p>
     </body>
   </html>\`);
 });
 
-server.listen(3800, () => console.log('Git workflow app running at http://localhost:3800'));`
+server.listen(3800, () => console.log('App con flujo de Git corriendo en http://localhost:3800'));`
     }
   },
   {
     id: 'pnpm-showcase',
-    name: 'pnpm Showcase',
-    description: 'Uses pnpm install/list/audit and serves data with dependencies.',
+    name: 'Demostración pnpm',
+    description: 'Usa pnpm install/list/audit y expone datos con dependencias.',
     icon: <SiPnpm className="text-[#f69220] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -224,13 +224,13 @@ const server = http.createServer((req, res) => {
   }, null, 2));
 });
 
-server.listen(3550, () => console.log('pnpm showcase running on http://localhost:3550'));`
+server.listen(3550, () => console.log('pnpm showcase corriendo en http://localhost:3550'));`
     }
   },
   {
     id: 'yarn-showcase',
-    name: 'Yarn Showcase',
-    description: 'Runs yarn install/outdated and boots a small SSR page.',
+    name: 'Demostración Yarn',
+    description: 'Ejecuta yarn install/outdated e inicia una pequeña página SSR.',
     icon: <SiYarn className="text-[#2c8ebb] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -258,14 +258,14 @@ const server = http.createServer((req, res) => {
   res.end(\`<!doctype html>
   <html>
     <body style="font-family: ui-sans-serif,system-ui; padding: 28px;">
-      <h1>Yarn showcase</h1>
-      <p>Timestamp: \${dayjs().format('YYYY-MM-DD HH:mm:ss')}</p>
-      <p>Request id from lodash: <code>\${requestId}</code></p>
+      <h1>Demostración Yarn</h1>
+      <p>Marca de tiempo: \${dayjs().format('YYYY-MM-DD HH:mm:ss')}</p>
+      <p>ID de petición usando lodash: <code>\${requestId}</code></p>
     </body>
   </html>\`);
 });
 
-server.listen(3650, () => console.log('yarn showcase running on http://localhost:3650'));`
+server.listen(3650, () => console.log('yarn showcase corriendo en http://localhost:3650'));`
     }
   }
 ];
@@ -279,7 +279,7 @@ export const TemplatesSidebar: React.FC<TemplatesSidebarProps> = ({ onSelectTemp
   return (
     <div className="w-64 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col">
       <div className="flex items-center px-4 py-3">
-        <span className="text-xs font-poppins font-medium text-[#faf9f5]">Templates</span>
+        <span className="text-xs font-poppins font-medium text-[#faf9f5]">Plantillas</span>
       </div>
 
       <div className="flex-1 overflow-y-auto py-2 px-3 flex flex-col gap-3">

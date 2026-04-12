@@ -90,10 +90,10 @@ export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
 
     const isFolder = path.endsWith('/');
     const confirmDelete = await requestConfirm({
-      title: isFolder ? 'Delete Folder' : 'Delete File',
-      message: `${path}\nThis action cannot be undone.`,
-      confirmLabel: 'Delete',
-      cancelLabel: 'Cancel',
+      title: isFolder ? 'Eliminar Carpeta' : 'Eliminar Archivo',
+      message: `${path}\nEsta acción no se puede deshacer.`,
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
       tone: 'danger'
     });
 
@@ -187,10 +187,10 @@ export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
 
   const handleReset = async () => {
     const confirmReset = await requestConfirm({
-      title: 'Reset Workspace',
-      message: 'All local changes will be lost.',
-      confirmLabel: 'Reset',
-      cancelLabel: 'Cancel',
+      title: 'Reiniciar Espacio de Trabajo',
+      message: 'Se perderán todos los cambios locales.',
+      confirmLabel: 'Reiniciar',
+      cancelLabel: 'Cancelar',
       tone: 'danger'
     });
 

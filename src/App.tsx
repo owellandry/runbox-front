@@ -48,17 +48,17 @@ const HomePage = () => {
             className="max-w-xl backdrop-blur-sm bg-anthropic-dark/30 p-6 rounded-3xl border border-anthropic-light-gray/10"
           >
             <p className="text-xl md:text-2xl text-anthropic-light-gray/90 font-lora font-light mb-10 leading-snug">
-              Run Node.js directly in the browser. Instant environments, zero setup. Boot a full-stack app inside the browser with native performance.
+              Ejecuta Node.js directamente en el navegador. Entornos instantáneos, sin configuración. Arranca una aplicación full-stack dentro del navegador con rendimiento nativo.
             </p>
             
             <div className="flex flex-wrap items-center gap-6">
               <a href="#documentation" className="flex items-center gap-2 bg-anthropic-light text-anthropic-dark px-8 py-4 rounded-full font-poppins font-medium hover:bg-anthropic-light-gray transition-colors shadow-[0_0_40px_rgba(217,119,87,0.15)]">
-                Get Started <ArrowRight className="w-4 h-4" />
+                Comenzar <ArrowRight className="w-4 h-4" />
               </a>
               <button 
                 onClick={handleCopy}
                 className="group relative flex items-center gap-3 text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner hover:bg-anthropic-dark/80 transition-colors cursor-pointer"
-                title="Copy to clipboard"
+                title="Copiar al portapapeles"
               >
                 <span>npm install runboxjs</span>
                 {copied ? (
@@ -85,11 +85,11 @@ const HomePage = () => {
               <div className="w-3 h-3 rounded-full bg-anthropic-green" />
             </div>
             <div className="p-6 font-mono text-sm text-anthropic-green/90 flex flex-col gap-2">
-              <p><span className="text-anthropic-blue">~/project</span> $ npx create-runboxjs-app</p>
-              <p className="text-anthropic-light-gray/70">Booting environment...</p>
-              <p className="text-anthropic-light-gray/70">Starting Node.js v18.16.0</p>
-              <p className="text-anthropic-light-gray/70">Server ready on port 3000</p>
-              <p><span className="text-anthropic-blue">~/project</span> $ <span className="animate-pulse">_</span></p>
+              <p><span className="text-anthropic-blue">~/proyecto</span> $ npx create-runboxjs-app</p>
+              <p className="text-anthropic-light-gray/70">Iniciando entorno...</p>
+              <p className="text-anthropic-light-gray/70">Iniciando Node.js v18.16.0</p>
+              <p className="text-anthropic-light-gray/70">Servidor listo en el puerto 3000</p>
+              <p><span className="text-anthropic-blue">~/proyecto</span> $ <span className="animate-pulse">_</span></p>
             </div>
           </div>
         </motion.div>
@@ -108,8 +108,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Zap className="w-8 h-8 text-anthropic-orange" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Instant Boot</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Environments start in milliseconds. No containers to provision, no images to pull.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Inicio Instantáneo</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Los entornos se inician en milisegundos. Sin contenedores que provisionar, ni imágenes que descargar.</p>
             </motion.div>
 
             <motion.div 
@@ -120,8 +120,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Terminal className="w-8 h-8 text-anthropic-blue" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Full Node API</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Run Express, Vite, Next.js, and more. A fully compliant Node.js runtime inside your browser tab.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">API Completa de Node</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Ejecuta Express, Vite, Next.js y más. Un entorno de ejecución de Node.js totalmente compatible dentro de la pestaña de tu navegador.</p>
             </motion.div>
 
             <motion.div 
@@ -132,8 +132,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Globe className="w-8 h-8 text-anthropic-green" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Local-First</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Work offline. Compute stays local. Secure by design with zero backend dependencies required.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Local Primero</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Trabaja sin conexión. El procesamiento se mantiene local. Seguro por diseño sin requerir dependencias de backend.</p>
             </motion.div>
 
           </div>
@@ -145,24 +145,24 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div className="flex flex-col gap-8">
             <h2 className="text-4xl md:text-5xl font-poppins font-medium tracking-tight leading-tight text-anthropic-light">
-              Embeddable IDEs.<br />
-              Interactive Docs.
+              IDEs integrables.<br />
+              Docs interactivos.
             </h2>
             <p className="text-lg text-anthropic-mid-gray font-lora leading-relaxed max-w-md">
-              Integrate Runboxjs into your platform to provide interactive code examples, tutorials, or full-fledged development environments. It just works.
+              Integra Runboxjs en tu plataforma para proporcionar ejemplos de código interactivos, tutoriales o entornos de desarrollo completos. Simplemente funciona.
             </p>
             <ul className="flex flex-col gap-6 text-anthropic-light-gray font-lora">
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-orange"></span>
-                Mount virtual filesystems instantly
+                Monta sistemas de archivos virtuales al instante
               </li>
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-blue"></span>
-                Execute shell commands programmatically
+                Ejecuta comandos de shell de forma programática
               </li>
               <li className="flex items-center gap-4 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-green"></span>
-                Intercept network requests seamlessly
+                Intercepta solicitudes de red sin problemas
               </li>
             </ul>
           </div>
@@ -195,13 +195,13 @@ console.<code className="text-anthropic-blue">log</code>(JSON.<code className="t
       {/* Final CTA */}
       <section className="py-32 px-6 md:px-12 flex flex-col items-center text-center bg-anthropic-dark">
         <h2 className="text-5xl md:text-7xl font-poppins font-medium tracking-tighter mb-8 text-anthropic-light">
-          Start building.
+          Empieza a construir.
         </h2>
         <p className="text-xl font-lora text-anthropic-mid-gray max-w-lg mb-12 leading-relaxed">
-          Add Runboxjs to your project and experience the power of in-browser Node.js environments.
+          Añade Runboxjs a tu proyecto y experimenta el poder de los entornos Node.js en el navegador.
         </p>
         <a href="#" className="bg-anthropic-orange text-anthropic-dark px-10 py-5 rounded-full font-poppins font-medium text-lg hover:bg-[#c76547] hover:scale-105 transition-all shadow-xl">
-          Read the Documentation
+          Lee la Documentación
         </a>
       </section>
     </>
