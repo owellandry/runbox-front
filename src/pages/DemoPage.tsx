@@ -290,15 +290,6 @@ const DemoPage: React.FC = () => {
     }
   };
 
-  const handleNavigate = React.useCallback((path: string) => {
-    if (!runbox || !serverPort) return;
-    setBrowserUrl(path);
-    const response = JSON.parse(runbox.http_handle_request(JSON.stringify({
-      port: serverPort, method: 'GET', path, headers: {}, body: null
-    })));
-    setPreviewHtml(injectNavScript(response.body || ''));
-  }, [runbox, serverPort]);
-
   // Inyecta un script en el HTML del servidor que intercepta clicks en links
   // y los envía al parent via postMessage (evita CORS al navegar)
   const injectNavScript = (html: string) => {
@@ -316,6 +307,15 @@ const DemoPage: React.FC = () => {
     return html + navScript;
   };
 
+  const handleNavigate = React.useCallback((path: string) => {
+    if (!runbox || !serverPort) return;
+    setBrowserUrl(path);
+    const response = JSON.parse(runbox.http_handle_request(JSON.stringify({
+      port: serverPort, method: 'GET', path, headers: {}, body: null
+    })));
+    setPreviewHtml(injectNavScript(response.body || ''));
+  }, [runbox, serverPort]);
+
   // Escuchar eventos de navegación del iframe via postMessage
   useEffect(() => {
     const handler = (e: MessageEvent) => {
@@ -325,7 +325,7 @@ const DemoPage: React.FC = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [serverPort, runbox, handleNavigate]);
+  }, [handleNavigate]);
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the workspace? All local changes will be lost.')) {
