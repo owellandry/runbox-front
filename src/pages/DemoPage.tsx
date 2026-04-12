@@ -70,6 +70,14 @@ const DemoPage: React.FC = () => {
   }, [files]);
   const outputEndRef = useRef<HTMLDivElement>(null);
   const terminalDivRef = useRef<HTMLDivElement>(null);
+  const editorLineNumbersRef = useRef<HTMLDivElement>(null);
+
+  // Sync scroll between textarea and line numbers
+  const handleEditorScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+    if (editorLineNumbersRef.current) {
+      editorLineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+    }
+  };
   const initDoneRef = useRef(false);
 
   useEffect(() => {
@@ -434,20 +442,26 @@ const DemoPage: React.FC = () => {
                 ))}
               </div>
 
-              <div className="flex-1 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-12 bg-[#0f0f14] border-r border-anthropic-light-gray/10 pt-6 pointer-events-none text-right pr-3 h-full overflow-hidden">
-                  <div className="text-xs text-anthropic-mid-gray/40 font-mono leading-relaxed">
+              <div className="flex-1 relative overflow-hidden bg-[#1a1a19]">
+                <div 
+                  ref={editorLineNumbersRef}
+                  className="absolute top-0 left-0 w-12 bg-[#0f0f14] border-r border-anthropic-light-gray/10 pt-6 pb-6 pointer-events-none text-right pr-3 h-full overflow-hidden"
+                >
+                  <div className="text-[13px] text-anthropic-mid-gray/40 font-mono leading-relaxed">
                     {activeFile && files[activeFile] ? files[activeFile].split('\n').map((_, i) => (
-                      <div key={i}>{i + 1}</div>
-                    )) : <div>1</div>}
+                      <div key={i} className="h-[21px]">{i + 1}</div>
+                    )) : <div className="h-[21px]">1</div>}
                   </div>
                 </div>
                 {activeFile && files[activeFile] !== undefined ? (
                   <textarea
                     value={files[activeFile]}
                     onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
+                    onScroll={handleEditorScroll}
                     spellCheck="false"
-                    className="w-full h-full pl-14 pr-6 pt-6 pb-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar"
+                    style={{ lineHeight: '21px', fontSize: '13px' }}
+                    className="w-full h-full pl-16 pr-6 pt-6 pb-6 font-mono text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 no-scrollbar whitespace-pre"
+                    wrap="off"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-anthropic-mid-gray font-mono text-sm">
