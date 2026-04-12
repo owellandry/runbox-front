@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, FolderPlus, Trash2, Edit2, Folder, Puzzle, Settings, ChevronRight, ChevronDown, Box } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, FolderPlus, Trash2, Edit2, Folder, Puzzle, Settings, ChevronRight, ChevronDown, Box, Layout, Library, Layers } from 'lucide-react';
 import {
   SiJavascript, SiTypescript, SiReact, SiCss, SiHtml5,
   SiPython, SiMarkdown, SiRust, SiGnubash, SiSass,
@@ -45,6 +45,16 @@ function FileIcon({ path, className = 'w-3.5 h-3.5 shrink-0' }: FileIconProps) {
   if (ext === 'sh' || ext === 'bash' || ext === 'zsh') return <SiGnubash className={className} style={{ color: '#4eaa25' }} />;
   return <VscFile className={className} style={{ color: '#b0aea5' }} />;
 }
+
+const FolderIconComponent = ({ folderName, isExpanded, className }: { folderName: string, isExpanded: boolean, className?: string }) => {
+  const name = folderName.toLowerCase();
+  
+  if (name === 'components') return <Layout className={className} />;
+  if (name === 'lib' || name === 'utils') return <Library className={className} />;
+  if (name === 'pages' || name === 'views') return <Layers className={className} />;
+  
+  return <Folder className={className} />;
+};
 
 // ── Defaults ──────────────────────────────────────────────────────────────────
 
@@ -681,7 +691,7 @@ const DemoPage: React.FC = () => {
                 {isFile ? (
                   <FileIcon path={key} className="w-3.5 h-3.5 text-[#6a9bcc] mr-2 shrink-0" />
                 ) : (
-                  <Folder className="w-3.5 h-3.5 text-[#d97757] mr-2 shrink-0" />
+                  <FolderIconComponent folderName={key} isExpanded={isExpanded} className="w-3.5 h-3.5 text-[#d97757] mr-2 shrink-0" />
                 )}
                 <input
                   autoFocus
@@ -702,21 +712,21 @@ const DemoPage: React.FC = () => {
                 }`}
                 style={{ paddingLeft: `${level * 12 + 16}px` }}
               >
-                {!isFile && (
-                  <span className="mr-1 shrink-0">
-                    {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                  </span>
-                )}
-                
                 {isFile ? (
                   <FileIcon path={key} className={`w-3.5 h-3.5 mr-2 shrink-0 ${activeFile === fullPath ? 'text-[#6a9bcc]' : 'text-[#b0aea5]'}`} />
                 ) : (
-                  <Folder className={`w-3.5 h-3.5 mr-2 shrink-0 ${isExpanded ? 'text-[#d97757]' : 'text-[#b0aea5]'}`} />
+                  <FolderIconComponent folderName={key} isExpanded={isExpanded} className={`w-3.5 h-3.5 mr-2 shrink-0 ${isExpanded ? 'text-[#d97757]' : 'text-[#b0aea5]'}`} />
                 )}
                 
                 <span className="truncate flex-1 text-left">{key}</span>
                 
-                <div className="hidden group-hover:flex items-center gap-1 shrink-0 ml-2 pr-2">
+                {!isFile && (
+                  <span className="shrink-0 text-[#b0aea5] mr-2">
+                    {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  </span>
+                )}
+                
+                <div className="hidden group-hover:flex items-center gap-1 shrink-0 pr-2">
                   <button onClick={(e) => startRename(isFile ? fullPath : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-[#faf9f5]">
                     <Edit2 className="w-3 h-3" />
                   </button>
