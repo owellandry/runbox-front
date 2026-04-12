@@ -398,128 +398,100 @@ const DemoPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Editor with File Tabs */}
+            {/* Editor (Span 5) */}
             <div className="lg:col-span-5 rounded-2xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl">
-              {/* File Tabs */}
-              <div className="flex items-center justify-between bg-[#15151a] border-b border-anthropic-light-gray/10 px-4 py-0">
-                <div className="flex gap-2">
+              <div className="flex items-center bg-[#15151a] border-b border-anthropic-light-gray/10 overflow-x-auto no-scrollbar">
+                {Object.keys(files).map(path => (
                   <button
-                    onClick={() => setActiveFile('/package.json')}
-                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 ${
-                      activeFile === '/package.json'
-                        ? 'border-anthropic-orange text-anthropic-orange'
-                        : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
+                    key={path}
+                    onClick={() => setActiveFile(path)}
+                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                      activeFile === path
+                        ? 'border-anthropic-orange text-anthropic-orange bg-[#1a1a19]'
+                        : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray hover:bg-white/5'
                     }`}
                   >
-                    <Package className="w-4 h-4" />
-                    package.json
+                    <FileText className="w-3.5 h-3.5" />
+                    {path.replace(/^\//, '')}
                   </button>
-                  <button
-                    onClick={() => setActiveFile('/index.js')}
-                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 ${
-                      activeFile === '/index.js'
-                        ? 'border-anthropic-orange text-anthropic-orange'
-                        : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
-                    }`}
-                  >
-                    <Code className="w-4 h-4" />
-                    index.js
-                  </button>
-                </div>
-                <button
-                  onClick={handleRun}
-                  disabled={!isReady || isRunning}
-                  className="flex items-center gap-2 text-xs font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-4 py-2 rounded-lg hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed m-2"
-                >
-                  <Play className="w-3 h-3" /> {isRunning ? 'Running...' : 'Run'}
-                </button>
+                ))}
               </div>
 
-              {/* Code Editor */}
               <div className="flex-1 relative overflow-hidden">
-                {/* Line numbers (decorative) */}
                 <div className="absolute top-0 left-0 w-12 bg-[#0f0f14] border-r border-anthropic-light-gray/10 pt-6 pointer-events-none text-right pr-3 h-full overflow-hidden">
                   <div className="text-xs text-anthropic-mid-gray/40 font-mono leading-relaxed">
-                    {(files[activeFile] || '').split('\n').map((_, i) => (
+                    {activeFile && files[activeFile] ? files[activeFile].split('\n').map((_, i) => (
                       <div key={i}>{i + 1}</div>
-                    ))}
+                    )) : <div>1</div>}
                   </div>
                 </div>
-                <textarea
-                  value={files[activeFile] || ''}
-                  onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
-                  spellCheck="false"
-                  placeholder="Edit the code and click 'Run' to execute..."
-                  className="w-full h-full pl-14 pr-6 pt-6 pb-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar placeholder:text-anthropic-mid-gray/50"
-                />
+                {activeFile && files[activeFile] !== undefined ? (
+                  <textarea
+                    value={files[activeFile]}
+                    onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
+                    spellCheck="false"
+                    className="w-full h-full pl-14 pr-6 pt-6 pb-6 font-mono text-sm text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 leading-relaxed no-scrollbar"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-anthropic-mid-gray font-mono text-sm">
+                    Select or create a file to edit
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Live Preview */}
+            {/* Live Preview (Span 5) */}
             <div className="lg:col-span-5 rounded-2xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl">
-              {serverPort ? (
-                /* Mini browser cuando hay servidor HTTP */
-                <>
-                  <div className="flex items-center px-3 py-2 border-b border-gray-200 bg-gray-100 gap-2">
-                    <Globe className="w-4 h-4 text-gray-400 shrink-0" />
-                    <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-md px-2 py-1 gap-1">
-                      <span className="text-xs text-gray-400 font-mono shrink-0">localhost:{serverPort}</span>
-                      <input
-                        type="text"
-                        value={browserUrl}
-                        onChange={e => setBrowserUrl(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && handleNavigate(browserUrl)}
-                        className="flex-1 text-xs font-mono text-gray-700 focus:outline-none min-w-0"
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleNavigate(browserUrl)}
-                      className="text-xs bg-anthropic-orange text-white px-2 py-1 rounded font-mono shrink-0"
-                    >
-                      Go
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto text-black">
-                    <iframe
-                      srcDoc={previewHtml}
-                      className="w-full h-full border-0"
-                      sandbox="allow-scripts"
-                      onLoad={e => {
-                        // Interceptar clicks en links para navegar dentro del servidor
-                        const iframe = e.currentTarget;
-                        try {
-                          iframe.contentDocument?.querySelectorAll('a[href]').forEach(a => {
-                            (a as HTMLAnchorElement).addEventListener('click', ev => {
-                              ev.preventDefault();
-                              const href = (a as HTMLAnchorElement).getAttribute('href') || '/';
-                              handleNavigate(href);
-                            });
+              <div className="flex items-center px-3 py-2 border-b border-gray-200 bg-gray-100 gap-2">
+                <Globe className="w-4 h-4 text-gray-400 shrink-0" />
+                <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-md px-2 py-1 gap-1">
+                  <span className="text-xs text-gray-400 font-mono shrink-0">localhost:{serverPort || '3000'}</span>
+                  <input
+                    type="text"
+                    value={browserUrl}
+                    onChange={e => setBrowserUrl(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleNavigate(browserUrl)}
+                    disabled={!serverPort}
+                    className="flex-1 text-xs font-mono text-gray-700 focus:outline-none min-w-0 disabled:bg-transparent"
+                  />
+                </div>
+                <button
+                  onClick={() => handleNavigate(browserUrl)}
+                  disabled={!serverPort}
+                  className="text-xs bg-anthropic-orange text-white px-2 py-1 rounded font-mono shrink-0 disabled:opacity-50"
+                >
+                  Go
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto text-black">
+                {serverPort ? (
+                  <iframe
+                    srcDoc={previewHtml}
+                    className="w-full h-full border-0"
+                    sandbox="allow-scripts allow-same-origin"
+                    onLoad={e => {
+                      const iframe = e.currentTarget;
+                      try {
+                        iframe.contentDocument?.querySelectorAll('a[href]').forEach(a => {
+                          (a as HTMLAnchorElement).addEventListener('click', ev => {
+                            ev.preventDefault();
+                            const href = (a as HTMLAnchorElement).getAttribute('href') || '/';
+                            handleNavigate(href);
                           });
-                        } catch (_) {}
-                      }}
-                    />
+                        });
+                      } catch (_) {}
+                    }}
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center bg-gray-50 text-gray-400 font-poppins text-sm text-center p-6">
+                    <div>
+                      <Globe className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                      <p className="mb-2 text-gray-600">No server running</p>
+                      <p className="text-xs">Click "Run" to execute your code. If it starts an HTTP server, the preview will appear here.</p>
+                    </div>
                   </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center px-6 py-4 border-b border-gray-200 bg-gray-50 gap-2">
-                    <Code className="w-4 h-4 text-gray-500" />
-                    <span className="text-xs font-mono text-gray-500">Script Output & Info</span>
-                  </div>
-                  <div className="flex-1 p-6 text-black overflow-y-auto">
-                    {previewHtml ? (
-                      <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-gray-400 font-poppins text-sm text-center">
-                        <div>
-                          <p className="mb-2">Click "Run" to execute the script</p>
-                          <p className="text-xs">Output from your code will appear in the terminal</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
