@@ -9,6 +9,32 @@ import { RunboxInstance } from 'runboxjs';
 (globalThis as any).__runbox_reactdom = ReactDOM;
 (globalThis as any).__runbox_reactdom_server = ReactDOMServer;
 
+const LOCAL_STORAGE_KEY = 'runbox_demo_workspace';
+
+const defaultFiles: Record<string, string> = {
+  '/package.json': `{
+  "name": "runbox-demo",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "scripts": {
+    "start": "bun run /index.js"
+  }
+}`,
+  '/index.js': `const express = require('express');
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('<h1>Hello from Runboxjs IDE!</h1><p>Edit this file and click Run.</p>');
+});
+
+app.listen(port, () => {
+  console.log(\`Server listening on port \${port}\`);
+});`
+};
+
 const DemoPage: React.FC = () => {
   const [runbox, setRunbox] = useState<RunboxInstance | null>(null);
   const [output, setOutput] = useState<string[]>(['$ Booting Runboxjs WASM Sandbox...']);
@@ -18,67 +44,25 @@ const DemoPage: React.FC = () => {
   const [serverPort, setServerPort] = useState<number | null>(null);
   const [browserUrl, setBrowserUrl] = useState('/');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
-  const [activeFile, setActiveFile] = useState<'package.json' | 'index.js'>('index.js');
 
-  const packageJson = `{
-  "name": "data-processor",
-  "version": "1.0.0",
-  "description": "Data Processing Script",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "start": "bun /index.js",
-    "dev": "bun /index.js"
-  },
-  "author": "RunBox Team",
-  "license": "MIT"
-}`;
-
-  const indexJs = `// Data Processing Script with Bun
-// Edit this code and click 'Run' to execute it in RunBox WebAssembly
-
-// Sample data
-const users = [
-  { id: 1, name: 'Alice Johnson', age: 28, department: 'Engineering' },
-  { id: 2, name: 'Bob Smith', age: 35, department: 'Sales' },
-  { id: 3, name: 'Carol White', age: 32, department: 'Engineering' },
-  { id: 4, name: 'David Brown', age: 41, department: 'Management' },
-  { id: 5, name: 'Emma Davis', age: 26, department: 'Sales' }
-];
-
-console.log('[INFO] User Processing Script');
-console.log('================================\\n');
-
-// Total users
-console.log(\`Total Users: \${users.length}\`);
-
-// Users by department
-console.log('\\nUsers by Department:');
-const byDept = users.reduce((acc, u) => {
-  acc[u.department] = (acc[u.department] || 0) + 1;
-  return acc;
-}, {});
-Object.entries(byDept).forEach(([dept, count]) => {
-  console.log(\`  \${dept}: \${count}\`);
-});
-
-// Average age
-const avgAge = (users.reduce((sum, u) => sum + u.age, 0) / users.length).toFixed(1);
-console.log(\`\\nAverage Age: \${avgAge} years\`);
-
-// Engineers
-const engineers = users.filter(u => u.department === 'Engineering');
-console.log(\`\\nEngineering Team (\${engineers.length}):\`);
-engineers.forEach(u => {
-  console.log(\`  - \${u.name} (\${u.age})\`);
-});
-
-console.log('\\n[SUCCESS] Processing complete!');`;
-
-  const [files, setFiles] = useState({
-    'package.json': packageJson,
-    'index.js': indexJs
+  const [files, setFiles] = useState<Record<string, string>>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return defaultFiles;
+      }
+    }
+    return defaultFiles;
   });
+  
+  const [activeFile, setActiveFile] = useState<string>('/index.js');
+  
+  // Effect to save to localStorage whenever files change
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(files));
+  }, [files]);
   const outputEndRef = useRef<HTMLDivElement>(null);
   const terminalDivRef = useRef<HTMLDivElement>(null);
   const initDoneRef = useRef(false);
@@ -134,8 +118,8 @@ console.log('\\n[SUCCESS] Processing complete!');`;
 
     try {
       // Write both files to VFS with user's edited content
-      const pkgJsonBytes = new TextEncoder().encode(files['package.json']);
-      const indexJsBytes = new TextEncoder().encode(files['index.js']);
+      const pkgJsonBytes = new TextEncoder().encode(files['/package.json']);
+      const indexJsBytes = new TextEncoder().encode(files['/index.js']);
 
       runbox.write_file('/package.json', pkgJsonBytes);
       runbox.write_file('/index.js', indexJsBytes);
@@ -244,14 +228,46 @@ console.log('\\n[SUCCESS] Processing complete!');`;
     return () => window.removeEventListener('message', handler);
   }, [serverPort, runbox]);
 
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset the workspace? All local changes will be lost.')) {
+      setFiles(defaultFiles);
+      setActiveFile('/index.js');
+      setPreviewHtml('');
+      setServerPort(null);
+      setOutput(['$ Workspace reset to default template.']);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-anthropic-dark text-anthropic-light pt-32 pb-24 px-6 md:px-12 flex flex-col items-center">
       <div className="max-w-6xl w-full flex flex-col gap-12">
-        <header className="flex flex-col gap-4 text-center items-center">
-          <h1 className="text-4xl md:text-6xl font-poppins font-medium tracking-tight">RunBox Live Demo</h1>
-          <p className="text-xl font-lora text-anthropic-mid-gray leading-relaxed max-w-2xl">
-            Execute real JavaScript code in your browser using Bun runtime inside RunBox WebAssembly. Edit the code, change package.json, and click Run to see actual execution results.
-          </p>
+        <header className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#15151a] p-4 rounded-2xl border border-anthropic-light-gray/10 shadow-lg">
+          <div>
+            <h1 className="text-2xl font-poppins font-medium tracking-tight">RunBox IDE</h1>
+            <p className="text-sm font-lora text-anthropic-mid-gray">
+              Local WebAssembly Node.js Environment
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleReset}
+              className="text-xs font-poppins text-anthropic-mid-gray hover:text-white transition-colors"
+            >
+              Reset Workspace
+            </button>
+            <div className="h-6 w-px bg-anthropic-light-gray/20"></div>
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${isReady ? 'bg-anthropic-green' : 'bg-anthropic-orange animate-pulse'}`}></span>
+              <span className="text-xs font-mono text-anthropic-mid-gray">{isReady ? 'Ready' : 'Booting...'}</span>
+            </div>
+            <button 
+              onClick={handleRun}
+              disabled={!isReady || isRunning}
+              className="flex items-center gap-2 text-sm font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-6 py-2 rounded-xl hover:bg-[#c76547] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(217,119,87,0.2)]"
+            >
+              <Play className="w-4 h-4" /> {isRunning ? 'Running...' : 'Run'}
+            </button>
+          </div>
         </header>
 
         <div className="flex flex-col gap-8 mt-8">
@@ -262,9 +278,9 @@ console.log('\\n[SUCCESS] Processing complete!');`;
               <div className="flex items-center justify-between bg-[#15151a] border-b border-anthropic-light-gray/10 px-4 py-0">
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setActiveFile('package.json')}
+                    onClick={() => setActiveFile('/package.json')}
                     className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 ${
-                      activeFile === 'package.json'
+                      activeFile === '/package.json'
                         ? 'border-anthropic-orange text-anthropic-orange'
                         : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
                     }`}
@@ -273,9 +289,9 @@ console.log('\\n[SUCCESS] Processing complete!');`;
                     package.json
                   </button>
                   <button
-                    onClick={() => setActiveFile('index.js')}
+                    onClick={() => setActiveFile('/index.js')}
                     className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 ${
-                      activeFile === 'index.js'
+                      activeFile === '/index.js'
                         ? 'border-anthropic-orange text-anthropic-orange'
                         : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray'
                     }`}
@@ -298,13 +314,13 @@ console.log('\\n[SUCCESS] Processing complete!');`;
                 {/* Line numbers (decorative) */}
                 <div className="absolute top-0 left-0 w-12 bg-[#0f0f14] border-r border-anthropic-light-gray/10 pt-6 pointer-events-none text-right pr-3 h-full overflow-hidden">
                   <div className="text-xs text-anthropic-mid-gray/40 font-mono leading-relaxed">
-                    {files[activeFile].split('\n').map((_, i) => (
+                    {(files[activeFile] || '').split('\n').map((_, i) => (
                       <div key={i}>{i + 1}</div>
                     ))}
                   </div>
                 </div>
                 <textarea
-                  value={files[activeFile]}
+                  value={files[activeFile] || ''}
                   onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
                   spellCheck="false"
                   placeholder="Edit the code and click 'Run' to execute..."
