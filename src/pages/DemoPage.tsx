@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Terminal as TerminalIcon, Globe, FilePlus, Trash2, Edit2, Folder, Puzzle, Settings } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, FolderPlus, Trash2, Edit2, Folder, Puzzle, Settings, ChevronRight, ChevronDown, Box } from 'lucide-react';
 import {
   SiJavascript, SiTypescript, SiReact, SiCss, SiHtml5,
   SiPython, SiMarkdown, SiRust, SiGnubash, SiSass,
@@ -434,9 +434,12 @@ const DemoPage: React.FC = () => {
   const [userScrolledUp, setUserScrolledUp] = useState(false);
 
   const [creatingFile, setCreatingFile] = useState(false);
-  const [newFileName, setNewFileName]   = useState('');
+  const [creatingFolder, setCreatingFolder] = useState(false);
+  const [newFileName, setNewFileName] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
   const [renamingFile, setRenamingFile] = useState<string | null>(null);
-  const [renameInput, setRenameInput]   = useState('');
+  const [renameInput, setRenameInput] = useState('');
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
 
   const [activeView, setActiveView]   = useState<'code' | 'preview'>('code');
   const [showTerminal, setShowTerminal] = useState(false);
@@ -489,40 +492,251 @@ const DemoPage: React.FC = () => {
   const handleCreateFile = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       let path = newFileName.trim();
-      if (!path) { setCreatingFile(false); return; }
+      if (!path) {
+        setCreatingFile(false);
+        return;
+      }
       if (!path.startsWith('/')) path = '/' + path;
-      if (!files[path]) { setFiles(prev => ({ ...prev, [path]: '' })); setActiveFile(path); }
-      setCreatingFile(false); setNewFileName('');
-    } else if (e.key === 'Escape') { setCreatingFile(false); setNewFileName(''); }
+      
+      if (!files[path]) {
+        setFiles(prev => ({ ...prev, [path]: '' }));
+        setActiveFile(path);
+        
+        // Auto-expand folder if created inside one
+        const parentDir = path.substring(0, path.lastIndexOf('/'));
+        if (parentDir) {
+          setExpandedFolders(prev => ({ ...prev, [parentDir]: true }));
+        }
+      }
+      setCreatingFile(false);
+      setNewFileName('');
+    } else if (e.key === 'Escape') {
+      setCreatingFile(false);
+      setNewFileName('');
+    }
+  };
+
+  const handleCreateFolder = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      let path = newFolderName.trim();
+      if (!path) {
+        setCreatingFolder(false);
+        return;
+      }
+      if (!path.startsWith('/')) path = '/' + path;
+      if (!path.endsWith('/')) path = path + '/';
+      
+      if (!files[path]) {
+        // We simulate a folder by adding a key ending with '/' and empty content
+        setFiles(prev => ({ ...prev, [path]: '' }));
+        // Ensure parent is expanded
+        const parentDir = path.substring(0, path.lastIndexOf('/', path.length - 2));
+        if (parentDir) {
+          setExpandedFolders(prev => ({ ...prev, [parentDir]: true }));
+        }
+      }
+      setCreatingFolder(false);
+      setNewFolderName('');
+    } else if (e.key === 'Escape') {
+      setCreatingFolder(false);
+      setNewFolderName('');
+    }
   };
 
   const handleDeleteFile = (path: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!window.confirm(`Delete ${path}?`)) return;
-    const next = { ...files };
-    delete next[path];
-    setFiles(next);
-    if (activeFile === path) setActiveFile(Object.keys(next)[0] ?? '');
+    const newFiles = { ...files };
+    
+    if (path.endsWith('/')) {
+      // It's a folder, delete all files inside it
+      Object.keys(newFiles).forEach(key => {
+        if (key.startsWith(path)) {
+          delete newFiles[key];
+          if (activeFile === key) setActiveFile('');
+        }
+      });
+    } else {
+      delete newFiles[path];
+      if (activeFile === path) setActiveFile('');
+    }
+    
+    setFiles(newFiles);
+    if (activeFile === path || path.endsWith('/')) {
+      const remaining = Object.keys(newFiles).filter(k => !k.endsWith('/'));
+      if (activeFile === '' || path.endsWith('/')) {
+        setActiveFile(remaining.length > 0 ? remaining[0] : '');
+      }
+    }
   };
 
   const startRename = (path: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setRenamingFile(path); setRenameInput(path.replace(/^\//, ''));
+    setRenamingFile(path);
+    setRenameInput(path.replace(/^\//, '').replace(/\/$/, ''));
   };
 
   const handleRenameFile = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && renamingFile) {
       let newPath = renameInput.trim();
-      if (!newPath) { setRenamingFile(null); return; }
+      if (!newPath) {
+        setRenamingFile(null);
+        return;
+      }
       if (!newPath.startsWith('/')) newPath = '/' + newPath;
-      if (newPath !== renamingFile && !files[newPath]) {
-        const next = { ...files, [newPath]: files[renamingFile] };
-        delete next[renamingFile];
-        setFiles(next);
-        if (activeFile === renamingFile) setActiveFile(newPath);
+      
+      const isFolder = renamingFile.endsWith('/');
+      if (isFolder && !newPath.endsWith('/')) newPath += '/';
+      
+      if (newPath !== renamingFile) {
+        const newFiles = { ...files };
+        
+        if (isFolder) {
+          // Rename all files inside the folder
+          Object.keys(newFiles).forEach(key => {
+            if (key.startsWith(renamingFile)) {
+              const newChildPath = newPath + key.substring(renamingFile.length);
+              newFiles[newChildPath] = newFiles[key];
+              delete newFiles[key];
+              if (activeFile === key) setActiveFile(newChildPath);
+            }
+          });
+          
+          // Also rename expanded state
+          setExpandedFolders(prev => {
+            const next = { ...prev };
+            if (next[renamingFile.slice(0, -1)]) {
+              next[newPath.slice(0, -1)] = true;
+              delete next[renamingFile.slice(0, -1)];
+            }
+            return next;
+          });
+        } else {
+          if (!newFiles[newPath]) {
+            newFiles[newPath] = newFiles[renamingFile];
+            delete newFiles[renamingFile];
+            if (activeFile === renamingFile) setActiveFile(newPath);
+          }
+        }
+        
+        setFiles(newFiles);
       }
       setRenamingFile(null);
-    } else if (e.key === 'Escape') setRenamingFile(null);
+    } else if (e.key === 'Escape') {
+      setRenamingFile(null);
+    }
+  };
+
+  const toggleFolder = (folderPath: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedFolders(prev => ({
+      ...prev,
+      [folderPath]: !prev[folderPath]
+    }));
+  };
+
+  // Helper to build a file tree from flat paths
+  const getFileTree = () => {
+    const tree: any = {};
+    Object.keys(files).forEach(path => {
+      const parts = path.split('/').filter(Boolean);
+      let current = tree;
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        const isLast = i === parts.length - 1;
+        const isFolder = isLast && path.endsWith('/');
+        
+        if (!current[part]) {
+          current[part] = isLast && !isFolder ? { __isFile: true, path } : {};
+        }
+        current = current[part];
+      }
+    });
+    return tree;
+  };
+
+  const renderFileTree = (node: any, currentPath: string = '', level: number = 0) => {
+    return Object.keys(node).sort((a, b) => {
+      // Folders first
+      const aIsFile = node[a].__isFile;
+      const bIsFile = node[b].__isFile;
+      if (aIsFile && !bIsFile) return 1;
+      if (!aIsFile && bIsFile) return -1;
+      return a.localeCompare(b);
+    }).map(key => {
+      if (key === '__isFile') return null;
+      
+      const child = node[key];
+      const isFile = child.__isFile;
+      const fullPath = isFile ? child.path : `${currentPath}/${key}`;
+      const folderKey = isFile ? null : fullPath;
+      const isExpanded = folderKey ? expandedFolders[folderKey] : false;
+      const isRenaming = renamingFile === fullPath || renamingFile === `${fullPath}/`;
+
+      return (
+        <div key={fullPath} className="w-full">
+          <div className="group">
+            {isRenaming ? (
+              <div className="flex items-center w-full py-1.5" style={{ paddingLeft: `${level * 12 + 16}px` }}>
+                {isFile ? (
+                  <FileIcon path={key} className="w-3.5 h-3.5 text-[#6a9bcc] mr-2 shrink-0" />
+                ) : (
+                  <Folder className="w-3.5 h-3.5 text-[#d97757] mr-2 shrink-0" />
+                )}
+                <input
+                  autoFocus
+                  value={renameInput}
+                  onChange={e => setRenameInput(e.target.value)}
+                  onKeyDown={handleRenameFile}
+                  onBlur={() => setRenamingFile(null)}
+                  className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
+                />
+              </div>
+            ) : (
+              <div 
+                onClick={(e) => isFile ? setActiveFile(fullPath) : toggleFolder(folderKey!, e)}
+                className={`flex items-center w-full py-1.5 cursor-pointer text-xs font-mono transition-colors ${
+                  activeFile === fullPath 
+                    ? 'bg-[#0a0a09] text-[#faf9f5] border-l-2 border-[#6a9bcc]' 
+                    : 'text-[#b0aea5] hover:bg-[#b0aea5]/5 border-l-2 border-transparent'
+                }`}
+                style={{ paddingLeft: `${level * 12 + 16}px` }}
+              >
+                {!isFile && (
+                  <span className="mr-1 shrink-0">
+                    {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  </span>
+                )}
+                
+                {isFile ? (
+                  <FileIcon path={key} className={`w-3.5 h-3.5 mr-2 shrink-0 ${activeFile === fullPath ? 'text-[#6a9bcc]' : 'text-[#b0aea5]'}`} />
+                ) : (
+                  <Folder className={`w-3.5 h-3.5 mr-2 shrink-0 ${isExpanded ? 'text-[#d97757]' : 'text-[#b0aea5]'}`} />
+                )}
+                
+                <span className="truncate flex-1 text-left">{key}</span>
+                
+                <div className="hidden group-hover:flex items-center gap-1 shrink-0 ml-2 pr-2">
+                  <button onClick={(e) => startRename(isFile ? fullPath : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-[#faf9f5]">
+                    <Edit2 className="w-3 h-3" />
+                  </button>
+                  <button onClick={(e) => handleDeleteFile(isFile ? fullPath : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-red-400">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Render children if expanded folder */}
+          {!isFile && isExpanded && (
+            <div className="w-full">
+              {renderFileTree(child, fullPath, level + 1)}
+            </div>
+          )}
+        </div>
+      );
+    });
   };
 
   // ── Run ────────────────────────────────────────────────────────────────────
@@ -648,7 +862,7 @@ const DemoPage: React.FC = () => {
                 {activeView === view && (
                   <motion.span
                     layoutId="view-pill"
-                    className="absolute inset-0 bg-[#6a9bcc] rounded-full -z-10"
+                    className="absolute inset-0 bg-[#d97757] rounded-full -z-10"
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -661,23 +875,23 @@ const DemoPage: React.FC = () => {
         <div className="flex items-center justify-end gap-4 w-1/3">
           <button
             onClick={() => setShowTerminal(v => !v)}
-            className={`text-xs font-poppins flex items-center gap-1 transition-colors ${showTerminal ? 'text-[#faf9f5]' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
+            className={`text-xs font-poppins flex items-center gap-1 transition-colors cursor-pointer ${showTerminal ? 'text-[#faf9f5]' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
           >
             <TerminalIcon className="w-4 h-4" /> Terminal
           </button>
-          <button onClick={handleReset} className="text-xs font-poppins text-[#b0aea5] hover:text-[#faf9f5] transition-colors">Reset</button>
+          <button onClick={handleReset} className="text-xs font-poppins text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer">Reset</button>
           <div className="h-4 w-px bg-[#b0aea5]/20" />
           <motion.div
-            animate={{ scale: isReady ? 1 : [1, 1.3, 1] }}
-            transition={{ repeat: isReady ? 0 : Infinity, duration: 1 }}
+            animate={{ scale: isReady ? 1 : [1, 1.2, 1], opacity: isReady ? 1 : [0.5, 1, 0.5] }}
+            transition={{ repeat: isReady ? 0 : Infinity, duration: 1.5 }}
             className={`w-2 h-2 rounded-full ${isReady ? 'bg-[#788c5d]' : 'bg-[#d97757]'}`}
           />
           <motion.button
             onClick={handleRun}
             disabled={!isReady || isRunning}
-            whileTap={{ scale: 0.93 }}
-            whileHover={{ scale: 1.04 }}
-            className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#141413] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            whileTap={isReady && !isRunning ? { scale: 0.95 } : {}}
+            whileHover={isReady && !isRunning ? { scale: 1.05 } : {}}
+            className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#141413] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Play className="w-3 h-3 fill-current" />
             {isRunning ? 'Running…' : 'Run'}
@@ -702,69 +916,47 @@ const DemoPage: React.FC = () => {
         <div className="w-64 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col">
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-xs font-poppins font-medium text-[#faf9f5]">Explorer</span>
-            <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors">
-              <FilePlus className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="New File">
+                <FilePlus className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => setCreatingFolder(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="New Folder">
+                <FolderPlus className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto py-2">
-            <AnimatePresence initial={false}>
-              {Object.keys(files).sort().map(path => (
-                <motion.div
-                  key={path}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 0.15 }}
-                  className="group"
-                >
-                  {renamingFile === path ? (
-                    <div className="px-4 py-1.5 flex items-center gap-2">
-                      <FileIcon path={path} />
-                      <input
-                        autoFocus value={renameInput}
-                        onChange={e => setRenameInput(e.target.value)}
-                        onKeyDown={handleRenameFile}
-                        onBlur={() => setRenamingFile(null)}
-                        className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => setActiveFile(path)}
-                      className={`px-4 py-1.5 flex items-center gap-2 cursor-pointer text-xs font-mono transition-colors ${
-                        activeFile === path
-                          ? 'bg-[#0a0a09] text-[#faf9f5] border-l-2 border-[#6a9bcc]'
-                          : 'text-[#b0aea5] hover:bg-[#b0aea5]/5 border-l-2 border-transparent'
-                      }`}
-                    >
-                      <FileIcon path={path} />
-                      <span className="truncate flex-1">{path.replace(/^\//, '')}</span>
-                      <div className="hidden group-hover:flex items-center gap-1 shrink-0">
-                        <button onClick={e => startRename(path, e)} className="text-[#b0aea5] hover:text-[#faf9f5]"><Edit2 className="w-3 h-3" /></button>
-                        <button onClick={e => handleDeleteFile(path, e)} className="text-[#b0aea5] hover:text-red-400"><Trash2 className="w-3 h-3" /></button>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
+            {renderFileTree(getFileTree())}
+            
             {creatingFile && (
-              <motion.div
-                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                className="px-4 py-1.5 flex items-center gap-2"
-              >
-                <VscFile className="w-3.5 h-3.5 text-[#b0aea5] shrink-0" />
+              <div className="px-4 py-1.5 flex items-center gap-2">
+                <FileText className="w-3.5 h-3.5 text-[#6a9bcc] shrink-0" />
                 <input
-                  autoFocus value={newFileName}
+                  autoFocus
+                  value={newFileName}
                   onChange={e => setNewFileName(e.target.value)}
                   onKeyDown={handleCreateFile}
                   onBlur={() => setCreatingFile(false)}
                   placeholder="filename.js"
                   className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
                 />
-              </motion.div>
+              </div>
+            )}
+
+            {creatingFolder && (
+              <div className="px-4 py-1.5 flex items-center gap-2">
+                <Folder className="w-3.5 h-3.5 text-[#d97757] shrink-0" />
+                <input
+                  autoFocus
+                  value={newFolderName}
+                  onChange={e => setNewFolderName(e.target.value)}
+                  onKeyDown={handleCreateFolder}
+                  onBlur={() => setCreatingFolder(false)}
+                  placeholder="folder_name"
+                  className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#d97757] px-1 py-0.5 outline-none"
+                />
+              </div>
             )}
           </div>
         </div>
