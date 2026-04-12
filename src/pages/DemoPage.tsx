@@ -184,12 +184,17 @@ const DemoPage: React.FC = () => {
     setBrowserUrl('/');
 
     try {
-      // Write both files to VFS with user's edited content
-      const pkgJsonBytes = new TextEncoder().encode(files['/package.json']);
-      const indexJsBytes = new TextEncoder().encode(files['/index.js']);
-
-      runbox.write_file('/package.json', pkgJsonBytes);
-      runbox.write_file('/index.js', indexJsBytes);
+      // Write all files from state to VFS
+      for (const [path, content] of Object.entries(files)) {
+        // Create parent directories if needed
+        const dir = path.substring(0, path.lastIndexOf('/'));
+        if (dir && dir !== '') {
+           runbox.exec(`mkdir -p ${dir}`);
+        }
+        
+        const bytes = new TextEncoder().encode(content);
+        runbox.write_file(path, bytes);
+      }
 
       setOutput(prev => [...prev, '$ npm install']);
 
@@ -212,11 +217,23 @@ const DemoPage: React.FC = () => {
         setOutput(prev => [...prev, '  up to date']);
       }
 
+      let cmdToRun = 'bun run /index.js';
+      
+      // Basic detection if they have a package.json start script
+      if (files['/package.json']) {
+         try {
+           const pkg = JSON.parse(files['/package.json']);
+           if (pkg.scripts && pkg.scripts.start) {
+             cmdToRun = 'npm run start';
+           }
+         } catch(e) {}
+      }
+
       setOutput(prev => [...prev, '']);
-      setOutput(prev => [...prev, '$ bun run /index.js']);
+      setOutput(prev => [...prev, `$ ${cmdToRun}`]);
 
       // Execute with Bun run subcommand
-      const execResult = JSON.parse(runbox.exec('bun run /index.js'));
+      const execResult = JSON.parse(runbox.exec(cmdToRun));
 
       if (execResult.stdout) {
         execResult.stdout.split('\n').forEach((line: string) => {
