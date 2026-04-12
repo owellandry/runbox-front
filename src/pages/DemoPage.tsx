@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
-import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, Trash2, Edit2 } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, Trash2, Edit2, Box, Folder, Puzzle, Settings } from 'lucide-react';
 import { RunboxInstance } from 'runboxjs';
 
 // Exponer React en globalThis para el sandbox RunBox
@@ -49,6 +49,9 @@ const DemoPage: React.FC = () => {
   const [newFileName, setNewFileName] = useState('');
   const [renamingFile, setRenamingFile] = useState<string | null>(null);
   const [renameInput, setRenameInput] = useState('');
+
+  const [activeView, setActiveView] = useState<'code' | 'preview'>('code');
+  const [showTerminal, setShowTerminal] = useState(false);
 
   const [files, setFiles] = useState<Record<string, string>>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -273,8 +276,10 @@ const DemoPage: React.FC = () => {
         })));
         setPreviewHtml(injectNavScript(response.body || ''));
         setOutput(prev => [...prev, `✓ Server ready — navigate using the browser above`]);
+        setActiveView('preview');
       } else {
-        setPreviewHtml('<div style="padding: 20px; text-align: center; color: #666;"><p>Check the terminal output above</p></div>');
+        setShowTerminal(true);
+        setPreviewHtml('<div style="padding: 20px; text-align: center; color: #666;"><p>Check the terminal output</p></div>');
       }
 
       setIsRunning(false);
@@ -285,14 +290,14 @@ const DemoPage: React.FC = () => {
     }
   };
 
-  const handleNavigate = (path: string) => {
+  const handleNavigate = React.useCallback((path: string) => {
     if (!runbox || !serverPort) return;
     setBrowserUrl(path);
     const response = JSON.parse(runbox.http_handle_request(JSON.stringify({
       port: serverPort, method: 'GET', path, headers: {}, body: null
     })));
     setPreviewHtml(injectNavScript(response.body || ''));
-  };
+  }, [runbox, serverPort]);
 
   // Inyecta un script en el HTML del servidor que intercepta clicks en links
   // y los envía al parent via postMessage (evita CORS al navegar)
@@ -320,7 +325,7 @@ const DemoPage: React.FC = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [serverPort, runbox]);
+  }, [serverPort, runbox, handleNavigate]);
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the workspace? All local changes will be lost.')) {
@@ -333,229 +338,276 @@ const DemoPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-anthropic-dark text-anthropic-light p-6 md:p-8 flex flex-col items-center">
-      <div className="max-w-7xl w-full flex flex-col h-[calc(100vh-4rem)]">
-        <header className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#15151a] p-4 rounded-2xl border border-anthropic-light-gray/10 shadow-lg shrink-0">
-          <div>
-            <h1 className="text-2xl font-poppins font-medium tracking-tight">RunBox IDE</h1>
-          </div>
-          <div className="flex items-center gap-4">
+    <div className="h-screen w-full bg-[#141413] text-[#faf9f5] flex flex-col font-sans overflow-hidden">
+      {/* Top Bar */}
+      <header className="flex justify-between items-center px-4 py-3 border-b border-[#b0aea5]/10 shrink-0 bg-[#141413]">
+        <div className="flex items-center gap-2 w-1/3">
+          <Box className="w-5 h-5 text-[#d97757]" />
+          <h1 className="text-lg font-poppins font-medium tracking-tight">RunBox IDE</h1>
+        </div>
+        
+        <div className="flex items-center justify-center w-1/3">
+          <div className="flex bg-[#1e1e1d] p-1 rounded-full border border-[#b0aea5]/10">
             <button
-              onClick={handleReset}
-              className="text-xs font-poppins text-anthropic-mid-gray hover:text-white transition-colors"
+              onClick={() => setActiveView('preview')}
+              className={`px-4 py-1 text-xs font-poppins rounded-full transition-colors ${activeView === 'preview' ? 'bg-[#6a9bcc] text-[#141413] font-medium' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
             >
-              Reset Workspace
+              Preview
             </button>
-            <div className="h-6 w-px bg-anthropic-light-gray/20"></div>
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${isReady ? 'bg-anthropic-green' : 'bg-anthropic-orange animate-pulse'}`}></span>
-              <span className="text-xs font-mono text-anthropic-mid-gray">{isReady ? 'Ready' : 'Booting...'}</span>
-            </div>
-            <button 
-              onClick={handleRun}
-              disabled={!isReady || isRunning}
-              className="flex items-center gap-2 text-sm font-poppins font-medium text-anthropic-dark bg-anthropic-orange px-6 py-2 rounded-xl hover:bg-[#c76547] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(217,119,87,0.2)]"
+            <button
+              onClick={() => setActiveView('code')}
+              className={`px-4 py-1 text-xs font-poppins rounded-full transition-colors ${activeView === 'code' ? 'bg-[#6a9bcc] text-[#141413] font-medium' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
             >
-              <Play className="w-4 h-4" /> {isRunning ? 'Running...' : 'Run'}
+              Code
             </button>
           </div>
-        </header>
+        </div>
 
-        <div className="flex flex-col gap-6 mt-6 flex-1 min-h-0">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-3/5">
-            
-            {/* Explorer Sidebar (Span 2) */}
-            <div className="lg:col-span-2 rounded-2xl border border-anthropic-light-gray/10 bg-[#15151a] flex flex-col overflow-hidden shadow-2xl">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-anthropic-light-gray/10">
-                <span className="text-xs font-poppins font-medium text-anthropic-mid-gray uppercase tracking-wider">Explorer</span>
-                <div className="flex gap-1">
-                  <button onClick={() => setCreatingFile(true)} className="text-anthropic-mid-gray hover:text-white transition-colors">
-                    <FilePlus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto py-2">
-                {Object.keys(files).sort().map(path => (
-                  <div key={path} className="group">
-                    {renamingFile === path ? (
-                      <div className="px-4 py-1.5 flex items-center">
-                        <FileText className="w-3.5 h-3.5 text-anthropic-blue mr-2 shrink-0" />
-                        <input
-                          autoFocus
-                          value={renameInput}
-                          onChange={e => setRenameInput(e.target.value)}
-                          onKeyDown={handleRenameFile}
-                          onBlur={() => setRenamingFile(null)}
-                          className="w-full bg-[#0d0d0c] text-xs font-mono text-white border border-anthropic-blue px-1 py-0.5 outline-none"
-                        />
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => setActiveFile(path)}
-                        className={`px-4 py-1.5 flex items-center cursor-pointer text-xs font-mono transition-colors ${activeFile === path ? 'bg-anthropic-blue/10 text-anthropic-light border-l-2 border-anthropic-blue' : 'text-anthropic-mid-gray hover:bg-white/5 border-l-2 border-transparent'}`}
-                      >
-                        <FileText className={`w-3.5 h-3.5 mr-2 shrink-0 ${activeFile === path ? 'text-anthropic-blue' : 'text-anthropic-mid-gray'}`} />
-                        <span className="truncate flex-1">{path.replace(/^\//, '')}</span>
-                        
-                        <div className="hidden group-hover:flex items-center gap-1 shrink-0 ml-2">
-                          <button onClick={(e) => startRename(path, e)} className="text-anthropic-mid-gray hover:text-white"><Edit2 className="w-3 h-3" /></button>
-                          <button onClick={(e) => handleDeleteFile(path, e)} className="text-anthropic-mid-gray hover:text-red-400"><Trash2 className="w-3 h-3" /></button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                
-                {creatingFile && (
+        <div className="flex items-center justify-end gap-4 w-1/3">
+          <button
+            onClick={() => setShowTerminal(!showTerminal)}
+            className={`text-xs font-poppins flex items-center gap-1 transition-colors ${showTerminal ? 'text-[#faf9f5]' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
+          >
+            <TerminalIcon className="w-4 h-4" />
+            Terminal
+          </button>
+          <button
+            onClick={handleReset}
+            className="text-xs font-poppins text-[#b0aea5] hover:text-[#faf9f5] transition-colors"
+          >
+            Reset
+          </button>
+          <div className="h-4 w-px bg-[#b0aea5]/20"></div>
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${isReady ? 'bg-[#788c5d]' : 'bg-[#d97757] animate-pulse'}`}></span>
+          </div>
+          <button 
+            onClick={handleRun}
+            disabled={!isReady || isRunning}
+            className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#141413] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Play className="w-3 h-3 fill-current" /> {isRunning ? 'Running' : 'Run'}
+          </button>
+        </div>
+      </header>
+
+      {/* Main Body */}
+      <div className="flex-1 flex min-h-0 overflow-hidden bg-[#0a0a09]">
+        {/* Activity Bar */}
+        <div className="w-12 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col items-center py-4 gap-6">
+          <button className="text-[#faf9f5] relative">
+            <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#d97757] rounded-r-full"></div>
+            <Folder className="w-5 h-5" />
+          </button>
+          <button className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors">
+            <Puzzle className="w-5 h-5" />
+          </button>
+          <button className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors mt-auto">
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Explorer Sidebar */}
+        <div className="w-64 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-xs font-poppins font-medium text-[#faf9f5]">Explorer</span>
+            <div className="flex gap-2">
+              <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors">
+                <FilePlus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto py-2">
+            {Object.keys(files).sort().map(path => (
+              <div key={path} className="group">
+                {renamingFile === path ? (
                   <div className="px-4 py-1.5 flex items-center">
-                    <FileText className="w-3.5 h-3.5 text-anthropic-blue mr-2 shrink-0" />
+                    <FileText className="w-3.5 h-3.5 text-[#6a9bcc] mr-2 shrink-0" />
                     <input
                       autoFocus
-                      value={newFileName}
-                      onChange={e => setNewFileName(e.target.value)}
-                      onKeyDown={handleCreateFile}
-                      onBlur={() => setCreatingFile(false)}
-                      placeholder="filename.js"
-                      className="w-full bg-[#0d0d0c] text-xs font-mono text-white border border-anthropic-blue px-1 py-0.5 outline-none"
+                      value={renameInput}
+                      onChange={e => setRenameInput(e.target.value)}
+                      onKeyDown={handleRenameFile}
+                      onBlur={() => setRenamingFile(null)}
+                      className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
                     />
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Editor (Span 5) */}
-            <div className="lg:col-span-5 rounded-2xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl">
-              <div className="flex items-center bg-[#15151a] border-b border-anthropic-light-gray/10 overflow-x-auto no-scrollbar">
-                {Object.keys(files).map(path => (
-                  <button
-                    key={path}
+                ) : (
+                  <div 
                     onClick={() => setActiveFile(path)}
-                    className={`px-4 py-3 text-xs font-mono transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap shrink-0 ${
-                      activeFile === path
-                        ? 'border-anthropic-orange text-anthropic-orange bg-[#1a1a19]'
-                        : 'border-transparent text-anthropic-mid-gray hover:text-anthropic-light-gray hover:bg-white/5'
-                    }`}
+                    className={`px-4 py-1.5 flex items-center cursor-pointer text-xs font-mono transition-colors ${activeFile === path ? 'bg-[#0a0a09] text-[#faf9f5] border-l-2 border-[#6a9bcc]' : 'text-[#b0aea5] hover:bg-[#b0aea5]/5 border-l-2 border-transparent'}`}
                   >
-                    <FileText className="w-3.5 h-3.5" />
-                    {path.replace(/^\//, '')}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex-1 relative overflow-hidden bg-[#1a1a19]">
-                <div 
-                  ref={editorLineNumbersRef}
-                  className="absolute top-0 left-0 w-12 bg-[#0f0f14] border-r border-anthropic-light-gray/10 pt-6 pb-6 pointer-events-none text-right pr-3 h-full overflow-hidden"
-                >
-                  <div className="text-[13px] text-anthropic-mid-gray/40 font-mono leading-relaxed">
-                    {activeFile && files[activeFile] ? files[activeFile].split('\n').map((_, i) => (
-                      <div key={i} className="h-[21px]">{i + 1}</div>
-                    )) : <div className="h-[21px]">1</div>}
-                  </div>
-                </div>
-                {activeFile && files[activeFile] !== undefined ? (
-                  <textarea
-                    value={files[activeFile]}
-                    onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
-                    onScroll={handleEditorScroll}
-                    spellCheck="false"
-                    style={{ lineHeight: '21px', fontSize: '13px' }}
-                    className="w-full h-full pl-16 pr-6 pt-6 pb-6 font-mono text-anthropic-light-gray bg-transparent resize-none focus:outline-none focus:ring-0 no-scrollbar whitespace-pre"
-                    wrap="off"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-anthropic-mid-gray font-mono text-sm">
-                    Select or create a file to edit
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Live Preview (Span 5) */}
-            <div className="lg:col-span-5 rounded-2xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl">
-              <div className="flex items-center px-3 py-2 border-b border-gray-200 bg-gray-100 gap-2">
-                <Globe className="w-4 h-4 text-gray-400 shrink-0" />
-                <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-md px-2 py-1 gap-1">
-                  <span className="text-xs text-gray-400 font-mono shrink-0">localhost:{serverPort || '3000'}</span>
-                  <input
-                    type="text"
-                    value={browserUrl}
-                    onChange={e => setBrowserUrl(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleNavigate(browserUrl)}
-                    disabled={!serverPort}
-                    className="flex-1 text-xs font-mono text-gray-700 focus:outline-none min-w-0 disabled:bg-transparent"
-                  />
-                </div>
-                <button
-                  onClick={() => handleNavigate(browserUrl)}
-                  disabled={!serverPort}
-                  className="text-xs bg-anthropic-orange text-white px-2 py-1 rounded font-mono shrink-0 disabled:opacity-50"
-                >
-                  Go
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto text-black">
-                {serverPort ? (
-                  <iframe
-                    srcDoc={previewHtml}
-                    className="w-full h-full border-0"
-                    sandbox="allow-scripts allow-same-origin"
-                    onLoad={e => {
-                      const iframe = e.currentTarget;
-                      try {
-                        iframe.contentDocument?.querySelectorAll('a[href]').forEach(a => {
-                          (a as HTMLAnchorElement).addEventListener('click', ev => {
-                            ev.preventDefault();
-                            const href = (a as HTMLAnchorElement).getAttribute('href') || '/';
-                            handleNavigate(href);
-                          });
-                        });
-                      } catch {
-                        // ignore errors
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center bg-gray-50 text-gray-400 font-poppins text-sm text-center p-6">
-                    <div>
-                      <Globe className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                      <p className="mb-2 text-gray-600">No server running</p>
-                      <p className="text-xs">Click "Run" to execute your code. If it starts an HTTP server, the preview will appear here.</p>
+                    <FileText className={`w-3.5 h-3.5 mr-2 shrink-0 ${activeFile === path ? 'text-[#6a9bcc]' : 'text-[#b0aea5]'}`} />
+                    <span className="truncate flex-1">{path.replace(/^\//, '')}</span>
+                    
+                    <div className="hidden group-hover:flex items-center gap-1 shrink-0 ml-2">
+                      <button onClick={(e) => startRename(path, e)} className="text-[#b0aea5] hover:text-[#faf9f5]"><Edit2 className="w-3 h-3" /></button>
+                      <button onClick={(e) => handleDeleteFile(path, e)} className="text-[#b0aea5] hover:text-red-400"><Trash2 className="w-3 h-3" /></button>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            ))}
+            
+            {creatingFile && (
+              <div className="px-4 py-1.5 flex items-center">
+                <FileText className="w-3.5 h-3.5 text-[#6a9bcc] mr-2 shrink-0" />
+                <input
+                  autoFocus
+                  value={newFileName}
+                  onChange={e => setNewFileName(e.target.value)}
+                  onKeyDown={handleCreateFile}
+                  onBlur={() => setCreatingFile(false)}
+                  placeholder="filename.js"
+                  className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Main Area (Editor/Preview + Terminal) */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#0a0a09]">
+          {/* Dynamic Content */}
+          <div className="flex-1 flex flex-col min-h-0">
+            {activeView === 'code' ? (
+              <div className="flex-1 flex flex-col min-h-0">
+                {/* File Tabs */}
+                <div className="flex items-center bg-[#141413] overflow-x-auto no-scrollbar">
+                  {Object.keys(files).map(path => (
+                    <button
+                      key={path}
+                      onClick={() => setActiveFile(path)}
+                      className={`px-4 py-2.5 text-xs font-mono transition-colors flex items-center gap-2 whitespace-nowrap border-r border-[#b0aea5]/10 ${
+                        activeFile === path
+                          ? 'bg-[#0a0a09] text-[#6a9bcc] border-t-2 border-t-[#6a9bcc]'
+                          : 'bg-[#141413] text-[#b0aea5] hover:bg-[#1e1e1d] border-t-2 border-t-transparent'
+                      }`}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      {path.replace(/^\//, '')}
+                    </button>
+                  ))}
+                </div>
+                {/* Textarea Editor */}
+                <div className="flex-1 relative overflow-hidden bg-[#0a0a09]">
+                  <div 
+                    ref={editorLineNumbersRef}
+                    className="absolute top-0 left-0 w-12 bg-[#141413] border-r border-[#b0aea5]/10 pt-6 pb-6 pointer-events-none text-right pr-3 h-full overflow-hidden"
+                  >
+                    <div className="text-[13px] text-[#b0aea5]/40 font-mono leading-relaxed">
+                      {activeFile && files[activeFile] ? files[activeFile].split('\n').map((_, i) => (
+                        <div key={i} className="h-[21px]">{i + 1}</div>
+                      )) : <div className="h-[21px]">1</div>}
+                    </div>
+                  </div>
+                  {activeFile && files[activeFile] !== undefined ? (
+                    <textarea
+                      value={files[activeFile]}
+                      onChange={(e) => setFiles({ ...files, [activeFile]: e.target.value })}
+                      onScroll={handleEditorScroll}
+                      spellCheck="false"
+                      style={{ lineHeight: '21px', fontSize: '13px' }}
+                      className="w-full h-full pl-16 pr-6 pt-6 pb-6 font-mono text-[#faf9f5] bg-transparent resize-none focus:outline-none focus:ring-0 no-scrollbar whitespace-pre"
+                      wrap="off"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#b0aea5] font-mono text-sm">
+                      Select or create a file to edit
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col min-h-0 bg-white">
+                {/* Address Bar */}
+                <div className="flex items-center px-4 py-2 border-b border-gray-200 bg-gray-50 gap-2 shrink-0">
+                  <Globe className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div className="flex items-center flex-1 bg-white border border-gray-200 rounded px-2 py-1 gap-1">
+                    <span className="text-xs text-gray-400 font-mono shrink-0">localhost:{serverPort || '3000'}</span>
+                    <input
+                      type="text"
+                      value={browserUrl}
+                      onChange={e => setBrowserUrl(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleNavigate(browserUrl)}
+                      disabled={!serverPort}
+                      className="flex-1 text-xs font-mono text-gray-700 focus:outline-none min-w-0 disabled:bg-transparent"
+                    />
+                  </div>
+                  <button
+                    onClick={() => handleNavigate(browserUrl)}
+                    disabled={!serverPort}
+                    className="text-xs bg-[#d97757] text-[#141413] px-3 py-1 rounded font-medium shrink-0 disabled:opacity-50"
+                  >
+                    Go
+                  </button>
+                </div>
+                {/* Iframe */}
+                <div className="flex-1 overflow-y-auto text-black">
+                  {serverPort ? (
+                    <iframe
+                      srcDoc={previewHtml}
+                      className="w-full h-full border-0"
+                      sandbox="allow-scripts allow-same-origin"
+                      onLoad={e => {
+                        const iframe = e.currentTarget;
+                        try {
+                          iframe.contentDocument?.querySelectorAll('a[href]').forEach(a => {
+                            (a as HTMLAnchorElement).addEventListener('click', ev => {
+                              ev.preventDefault();
+                              const href = (a as HTMLAnchorElement).getAttribute('href') || '/';
+                              handleNavigate(href);
+                            });
+                          });
+                        } catch {
+                          // ignore errors
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="h-full flex items-center justify-center bg-gray-50 text-gray-400 font-poppins text-sm text-center p-6">
+                      <div>
+                        <Globe className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                        <p className="mb-2 text-gray-600">No server running</p>
+                        <p className="text-xs">Click "Run" to execute your code. If it starts an HTTP server, the preview will appear here.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Terminal / Output (Full Width Bottom) */}
-          <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-2/5">
-            <div className="flex items-center justify-between px-6 py-3 border-b border-anthropic-light-gray/10 bg-[#1e1e1d]">
-              <div className="flex items-center gap-2">
-                <TerminalIcon className="w-4 h-4 text-anthropic-mid-gray" />
-                <span className="text-xs font-mono text-anthropic-mid-gray uppercase tracking-wider">Terminal</span>
+          {/* Terminal */}
+          {showTerminal && (
+            <div className="h-1/3 shrink-0 border-t border-[#b0aea5]/10 bg-[#141413] flex flex-col">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-[#b0aea5]/10 bg-[#1e1e1d]">
+                <div className="flex items-center gap-2">
+                  <TerminalIcon className="w-3.5 h-3.5 text-[#b0aea5]" />
+                  <span className="text-xs font-mono text-[#b0aea5] uppercase tracking-wider">Terminal</span>
+                </div>
+                <button 
+                  onClick={() => setOutput(['$ Terminal cleared.'])}
+                  className="text-xs font-mono text-[#b0aea5] hover:text-[#faf9f5]"
+                >
+                  Clear
+                </button>
               </div>
-              <button 
-                onClick={() => setOutput(['$ Terminal cleared.'])}
-                className="text-xs font-mono text-anthropic-mid-gray hover:text-white transition-colors"
+              <div
+                ref={terminalDivRef}
+                onScroll={handleTerminalScroll}
+                className="flex-1 p-4 font-mono text-xs text-[#e8e6dc] overflow-y-auto no-scrollbar"
               >
-                Clear
-              </button>
+                {output.map((line, i) => (
+                  <p key={i} className={`mb-1.5 ${line.startsWith('$') ? 'text-[#b0aea5]' : line.includes('[ERROR]') || line.startsWith('Error:') ? 'text-red-400' : 'text-[#788c5d]'}`}>
+                    {line}
+                  </p>
+                ))}
+                <p className="mt-4"><span className="animate-pulse text-[#d97757]">_</span></p>
+                <div ref={outputEndRef} />
+              </div>
             </div>
-            <div
-              ref={terminalDivRef}
-              onScroll={handleTerminalScroll}
-              className="flex-1 p-6 font-mono text-sm text-anthropic-light-gray overflow-y-auto no-scrollbar"
-            >
-              {output.map((line, i) => (
-                <p key={i} className={`mb-1.5 ${line.startsWith('$') ? 'text-anthropic-mid-gray' : line.includes('[ERROR]') || line.startsWith('Error:') ? 'text-red-400' : 'text-anthropic-green/90'}`}>
-                  {line}
-                </p>
-              ))}
-              <p className="mt-4"><span className="animate-pulse text-anthropic-orange">_</span></p>
-              <div ref={outputEndRef} />
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
