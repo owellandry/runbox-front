@@ -55,7 +55,9 @@ const defaultFiles: Record<string, string> = {
   "name": "my-react-app",
   "version": "1.0.0",
   "dependencies": {
-    "dayjs": "^1.11.10"
+    "dayjs": "^1.11.10",
+    "clsx": "^2.1.1",
+    "react-icons": "^5.4.0"
   },
   "scripts": {
     "start": "bun run /index.js"
@@ -63,167 +65,316 @@ const defaultFiles: Record<string, string> = {
 }`,
 
   '/index.js': `/**
- * React SSR app running inside the RunBox WASM sandbox.
- * Uses React (provided by the host) + dayjs (installed from npm).
+ * Dashboard SaaS — React SSR inside RunBox WASM sandbox.
+ * Deps: react (host), react-dom/server (host), dayjs, clsx, react-icons/fi
  */
 const http   = require('http');
 const React  = require('react');
 const Server = require('react-dom/server');
 const dayjs  = require('dayjs');
+const clsx   = require('clsx');
+
+// react-icons — graceful fallback to text if not yet loaded
+let FiIcons = {};
+try { FiIcons = require('react-icons/fi'); } catch(_) {}
+const Icon = (name, fallback) => FiIcons[name]
+  ? React.createElement(FiIcons[name], { size: 18 })
+  : React.createElement('span', null, fallback);
 
 const e = React.createElement;
 
+// ── Design tokens ─────────────────────────────────────────────────────────────
+const C = {
+  bg:       '#0f0f11',
+  surface:  '#18181b',
+  border:   '#27272a',
+  accent:   '#6d6afe',
+  green:    '#22c55e',
+  yellow:   '#eab308',
+  red:      '#ef4444',
+  text:     '#fafafa',
+  muted:    '#a1a1aa',
+};
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+const users = [
+  { id: 1, name: 'Ana García',    email: 'ana@acme.io',    role: 'Admin',    status: 'active',   joined: '2024-01-12' },
+  { id: 2, name: 'Luis Torres',   email: 'luis@acme.io',   role: 'Editor',   status: 'active',   joined: '2024-02-08' },
+  { id: 3, name: 'Sara Kim',      email: 'sara@acme.io',   role: 'Viewer',   status: 'inactive', joined: '2024-03-21' },
+  { id: 4, name: 'Tomás Ruiz',    email: 'tomas@acme.io',  role: 'Editor',   status: 'active',   joined: '2024-04-05' },
+  { id: 5, name: 'Elena Romero',  email: 'elena@acme.io',  role: 'Viewer',   status: 'active',   joined: '2024-05-17' },
+];
+
+const stats = [
+  { label: 'Total Users',    value: '2,841',  change: '+12%',  up: true,  icon: 'FiUsers'     },
+  { label: 'Monthly Revenue','value: $48,290', change: '+8.2%', up: true,  icon: 'FiDollarSign'},
+  { label: 'Active Projects','value: 134',     change: '-3%',   up: false, icon: 'FiFolder'    },
+  { label: 'Uptime',         value: '99.97%', change: '+0.1%', up: true,  icon: 'FiActivity'  },
+];
+
+const activity = [
+  { text: 'Ana García deployed v2.4.1',       time: '2 min ago',  color: C.green  },
+  { text: 'Luis Torres updated /api/users',    time: '14 min ago', color: C.accent },
+  { text: 'Build failed on staging branch',   time: '1 hr ago',   color: C.red    },
+  { text: 'Sara Kim joined the workspace',     time: '3 hr ago',   color: C.yellow },
+  { text: 'Database backup completed',         time: '6 hr ago',   color: C.green  },
+];
+
 // ── Components ────────────────────────────────────────────────────────────────
 
-function Navbar({ path }) {
-  const links = [
-    { href: '/',       label: 'Home'     },
-    { href: '/about',  label: 'About'    },
-    { href: '/stack',  label: 'Stack'    },
+function Sidebar({ path }) {
+  const nav = [
+    { href: '/',        label: 'Dashboard', icon: 'FiGrid'    },
+    { href: '/users',   label: 'Users',     icon: 'FiUsers'   },
+    { href: '/projects',label: 'Projects',  icon: 'FiFolder'  },
+    { href: '/settings',label: 'Settings',  icon: 'FiSettings'},
   ];
-  return e('nav', { style: styles.nav },
-    e('span', { style: styles.brand }, '⚡ MyApp'),
-    e('div', { style: styles.navLinks },
-      ...links.map(({ href, label }) =>
+  return e('aside', { style: s.sidebar },
+    e('div', { style: s.sidebarBrand },
+      Icon('FiZap', '⚡'),
+      e('span', { style: { marginLeft: 10, fontWeight: 700, fontSize: 16 } }, 'Acme HQ')
+    ),
+    e('nav', { style: { marginTop: 32 } },
+      ...nav.map(({ href, label, icon }) =>
         e('a', {
           key: href, href,
-          style: { ...styles.navLink, ...(path === href ? styles.navLinkActive : {}) },
-        }, label)
-      )
-    )
-  );
-}
-
-function HomePage() {
-  const now = dayjs().format('ddd, MMM D YYYY · HH:mm');
-  const features = [
-    { icon: '🔷', title: 'React SSR',      desc: 'Rendered server-side with ReactDOMServer inside a WASM sandbox.' },
-    { icon: '📦', title: 'npm packages',   desc: 'dayjs loaded from the real npm registry — no bundler needed.'    },
-    { icon: '🌐', title: 'HTTP routing',   desc: 'Multi-page app served by a mock http.createServer() handler.'     },
-    { icon: '⚡', title: 'Instant reload', desc: 'Edit any file and click Run — the sandbox re-executes in place.'  },
-  ];
-  return e('main', { style: styles.main },
-    e('section', { style: styles.hero },
-      e('h1', { style: styles.heroTitle }, 'Hello from RunBox!'),
-      e('p',  { style: styles.heroSub  }, 'A full React app running inside a WebAssembly sandbox.'),
-      e('div', { style: styles.badge }, '🕐 ' + now)
-    ),
-    e('section', { style: styles.grid },
-      ...features.map(({ icon, title, desc }) =>
-        e('div', { key: title, style: styles.card },
-          e('span', { style: styles.cardIcon }, icon),
-          e('h3',   { style: styles.cardTitle }, title),
-          e('p',    { style: styles.cardDesc  }, desc)
+          style: clsx ? {
+            ...s.navItem,
+            ...(path === href ? s.navItemActive : {}),
+          } : s.navItem,
+        },
+          Icon(icon, '•'),
+          e('span', { style: { marginLeft: 10 } }, label)
         )
       )
+    ),
+    e('div', { style: s.sidebarFooter },
+      e('div', { style: s.avatar }, 'AH'),
+      e('div', null,
+        e('div', { style: { fontSize: 13, fontWeight: 600 } }, 'Admin Hub'),
+        e('div', { style: { fontSize: 11, color: C.muted } }, 'admin@acme.io')
+      )
     )
   );
 }
 
-function AboutPage() {
-  return e('main', { style: styles.main },
-    e('h2', { style: styles.pageTitle }, 'About'),
-    e('p',  { style: styles.text },
-      'This demo is a server-side rendered React application running entirely inside ',
-      e('strong', null, 'RunBox'), ' — a WebAssembly sandbox built with Rust.'
+function StatCard({ label, value, change, up, icon }) {
+  return e('div', { style: s.statCard },
+    e('div', { style: s.statHeader },
+      e('span', { style: s.statLabel }, label),
+      e('div', { style: { ...s.statIcon, background: C.accent + '22' } }, Icon(icon, '●'))
     ),
-    e('p', { style: styles.text },
-      'No Node.js process. No Vite dev server. Pure WASM in your browser tab.'
-    ),
-    e('a', { href: '/', style: styles.link }, '← Back home')
+    e('div', { style: s.statValue }, value),
+    e('div', { style: { color: up ? C.green : C.red, fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 } },
+      Icon(up ? 'FiTrendingUp' : 'FiTrendingDown', up ? '▲' : '▼'),
+      e('span', null, change + ' vs last month')
+    )
   );
 }
 
-function StackPage() {
-  const stack = [
-    { name: 'Rust',             role: 'Sandbox runtime compiled to WASM'   },
-    { name: 'wasm-bindgen',     role: 'Rust ↔ JS bridge'                    },
-    { name: 'React 19',         role: 'UI components (SSR via renderToString)' },
-    { name: 'dayjs',            role: 'Date formatting — zero dependencies'  },
-    { name: 'http (mock)',       role: 'Built-in server shim in the sandbox' },
-  ];
-  return e('main', { style: styles.main },
-    e('h2', { style: styles.pageTitle }, 'Tech Stack'),
-    e('table', { style: styles.table },
-      e('thead', null,
-        e('tr', null,
-          e('th', { style: styles.th }, 'Package'),
-          e('th', { style: styles.th }, 'Role')
+function Badge({ status }) {
+  const color = status === 'active' ? C.green : C.red;
+  return e('span', {
+    style: { background: color + '22', color, padding: '2px 10px', borderRadius: 99, fontSize: 11, fontWeight: 600 }
+  }, status);
+}
+
+function DashboardPage() {
+  const now = dayjs().format('MMM D, YYYY HH:mm');
+  return e('div', null,
+    e('div', { style: s.pageHeader },
+      e('div', null,
+        e('h1', { style: s.pageTitle }, 'Dashboard'),
+        e('p',  { style: { color: C.muted, fontSize: 13, marginTop: 4 } }, 'Last updated: ' + now)
+      ),
+      e('button', { style: s.btn },
+        Icon('FiPlus', '+'),
+        e('span', { style: { marginLeft: 6 } }, 'New Project')
+      )
+    ),
+    e('div', { style: s.statsGrid },
+      ...stats.map(stat => e(StatCard, { key: stat.label, ...stat }))
+    ),
+    e('div', { style: s.twoCol },
+      e('div', { style: s.panel },
+        e('div', { style: s.panelHeader },
+          e('span', { style: s.panelTitle }, 'Recent Activity'),
+          e('a', { href: '/users', style: s.panelLink }, 'View all')
+        ),
+        e('ul', { style: { listStyle: 'none', margin: 0, padding: 0 } },
+          ...activity.map((item, i) =>
+            e('li', { key: i, style: s.activityItem },
+              e('div', { style: { ...s.activityDot, background: item.color } }),
+              e('div', { style: { flex: 1 } },
+                e('div', { style: { fontSize: 13 } }, item.text),
+                e('div', { style: { fontSize: 11, color: C.muted, marginTop: 2 } }, item.time)
+              )
+            )
+          )
         )
       ),
-      e('tbody', null,
-        ...stack.map(({ name, role }) =>
-          e('tr', { key: name, style: styles.tr },
-            e('td', { style: { ...styles.td, fontWeight: 600 } }, name),
-            e('td', { style: styles.td }, role)
+      e('div', { style: s.panel },
+        e('div', { style: s.panelHeader },
+          e('span', { style: s.panelTitle }, 'Quick Stats'),
+          null
+        ),
+        e('div', { style: { display: 'flex', flexDirection: 'column', gap: 16 } },
+          ...[
+            { label: 'API calls today',  value: 94, color: C.accent },
+            { label: 'Storage used',     value: 62, color: C.yellow },
+            { label: 'CI/CD success',    value: 88, color: C.green  },
+            { label: 'Error rate',       value: 3,  color: C.red    },
+          ].map(({ label, value, color }) =>
+            e('div', { key: label },
+              e('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 } },
+                e('span', { style: { color: C.muted } }, label),
+                e('span', { style: { fontWeight: 600 } }, value + '%')
+              ),
+              e('div', { style: { height: 6, background: C.border, borderRadius: 99 } },
+                e('div', { style: { height: '100%', width: value + '%', background: color, borderRadius: 99 } })
+              )
+            )
           )
         )
       )
+    )
+  );
+}
+
+function UsersPage() {
+  return e('div', null,
+    e('div', { style: s.pageHeader },
+      e('h1', { style: s.pageTitle }, 'Users'),
+      e('button', { style: s.btn },
+        Icon('FiUserPlus', '+'),
+        e('span', { style: { marginLeft: 6 } }, 'Invite User')
+      )
     ),
-    e('a', { href: '/', style: styles.link }, '← Back home')
+    e('div', { style: s.panel },
+      e('table', { style: { width: '100%', borderCollapse: 'collapse' } },
+        e('thead', null,
+          e('tr', null,
+            ...['Name', 'Email', 'Role', 'Status', 'Joined'].map(h =>
+              e('th', { key: h, style: s.th }, h)
+            )
+          )
+        ),
+        e('tbody', null,
+          ...users.map(u =>
+            e('tr', { key: u.id, style: s.tr },
+              e('td', { style: s.td },
+                e('div', { style: { display: 'flex', alignItems: 'center', gap: 10 } },
+                  e('div', { style: { ...s.avatar, width: 30, height: 30, fontSize: 11 } },
+                    u.name.split(' ').map(n => n[0]).join('')
+                  ),
+                  e('span', { style: { fontWeight: 500, fontSize: 13 } }, u.name)
+                )
+              ),
+              e('td', { style: { ...s.td, color: C.muted, fontSize: 13 } }, u.email),
+              e('td', { style: s.td }, e('span', { style: { fontSize: 13 } }, u.role)),
+              e('td', { style: s.td }, e(Badge, { status: u.status })),
+              e('td', { style: { ...s.td, color: C.muted, fontSize: 12 } },
+                dayjs(u.joined).format('MMM D, YYYY')
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+function SettingsPage() {
+  const sections = [
+    { title: 'General',      desc: 'Workspace name, timezone, and locale.' },
+    { title: 'Security',     desc: 'Two-factor authentication and session management.' },
+    { title: 'Integrations', desc: 'Connect GitHub, Slack, and third-party services.' },
+    { title: 'Billing',      desc: 'Manage your subscription and payment methods.' },
+  ];
+  return e('div', null,
+    e('div', { style: s.pageHeader }, e('h1', { style: s.pageTitle }, 'Settings')),
+    e('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
+      ...sections.map(({ title, desc }) =>
+        e('div', { key: title, style: { ...s.panel, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px' } },
+          e('div', null,
+            e('div', { style: { fontWeight: 600, marginBottom: 4 } }, title),
+            e('div', { style: { fontSize: 13, color: C.muted } }, desc)
+          ),
+          e('button', { style: { ...s.btn, background: 'transparent', border: '1px solid ' + C.border, color: C.text } },
+            Icon('FiChevronRight', '›')
+          )
+        )
+      )
+    )
   );
 }
 
 function NotFound() {
-  return e('main', { style: styles.main },
-    e('h2', { style: { ...styles.pageTitle, color: '#e74c3c' } }, '404 — Not Found'),
-    e('a', { href: '/', style: styles.link }, '← Go home')
+  return e('div', { style: { textAlign: 'center', padding: '80px 24px' } },
+    e('h2', { style: { fontSize: 24, marginBottom: 8 } }, '404'),
+    e('p',  { style: { color: C.muted } }, 'Page not found'),
+    e('a',  { href: '/', style: s.panelLink }, '← Dashboard')
+  );
+}
+
+function Layout({ path, children }) {
+  return e('div', { style: { display: 'flex', minHeight: '100vh', background: C.bg, color: C.text } },
+    e(Sidebar, { path }),
+    e('div', { style: { flex: 1, overflow: 'auto' } },
+      e('div', { style: { maxWidth: 1100, margin: '0 auto', padding: '32px 32px' } }, children)
+    )
   );
 }
 
 function App({ path }) {
-  const pages = { '/': HomePage, '/about': AboutPage, '/stack': StackPage };
+  const pages = { '/': DashboardPage, '/users': UsersPage, '/settings': SettingsPage };
   const Page  = pages[path] || NotFound;
-  return e('div', { style: styles.root },
-    e(Navbar, { path }),
-    e(Page)
-  );
+  return e(Layout, { path }, e(Page));
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────────
-
-const styles = {
-  root:          { fontFamily: 'system-ui, sans-serif', minHeight: '100vh', background: '#f8f7f4', color: '#1a1a1a' },
-  nav:           { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px', height: 56, background: '#1a1a1a', color: '#fff' },
-  brand:         { fontWeight: 700, fontSize: 18, letterSpacing: '-0.5px' },
-  navLinks:      { display: 'flex', gap: 8 },
-  navLink:       { color: '#aaa', textDecoration: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 14 },
-  navLinkActive: { color: '#fff', background: '#333' },
-  main:          { maxWidth: 780, margin: '0 auto', padding: '48px 24px' },
-  hero:          { textAlign: 'center', marginBottom: 56 },
-  heroTitle:     { fontSize: 48, fontWeight: 800, margin: '0 0 12px', letterSpacing: '-2px', color: '#1a1a1a' },
-  heroSub:       { fontSize: 18, color: '#666', margin: '0 0 24px' },
-  badge:         { display: 'inline-block', background: '#1a1a1a', color: '#f0db4f', padding: '6px 16px', borderRadius: 99, fontSize: 13, fontFamily: 'monospace' },
-  grid:          { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 },
-  card:          { background: '#fff', border: '1px solid #e8e5e0', borderRadius: 12, padding: '24px 20px' },
-  cardIcon:      { fontSize: 28, display: 'block', marginBottom: 12 },
-  cardTitle:     { margin: '0 0 8px', fontSize: 16, fontWeight: 700 },
-  cardDesc:      { margin: 0, fontSize: 14, color: '#666', lineHeight: 1.6 },
-  pageTitle:     { fontSize: 32, fontWeight: 800, marginBottom: 24, letterSpacing: '-1px' },
-  text:          { fontSize: 16, color: '#444', lineHeight: 1.7, marginBottom: 16 },
-  link:          { color: '#0070f3', textDecoration: 'none', fontWeight: 500 },
-  table:         { width: '100%', borderCollapse: 'collapse', marginBottom: 32 },
-  th:            { textAlign: 'left', padding: '10px 16px', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 600 },
-  td:            { padding: '12px 16px', borderBottom: '1px solid #e8e5e0', fontSize: 14 },
+const s = {
+  sidebar:       { width: 220, minHeight: '100vh', background: C.surface, borderRight: '1px solid ' + C.border, padding: '24px 16px', display: 'flex', flexDirection: 'column', flexShrink: 0 },
+  sidebarBrand:  { display: 'flex', alignItems: 'center', padding: '0 8px', color: C.text },
+  sidebarFooter: { marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 8px', borderTop: '1px solid ' + C.border },
+  navItem:       { display: 'flex', alignItems: 'center', padding: '10px 12px', borderRadius: 8, color: C.muted, textDecoration: 'none', fontSize: 14, marginBottom: 2 },
+  navItemActive: { background: C.accent + '22', color: C.text },
+  avatar:        { width: 36, height: 36, borderRadius: 99, background: C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 },
+  pageHeader:    { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
+  pageTitle:     { fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: '-0.5px' },
+  statsGrid:     { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 },
+  statCard:      { background: C.surface, border: '1px solid ' + C.border, borderRadius: 12, padding: '20px 20px' },
+  statHeader:    { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  statLabel:     { fontSize: 12, color: C.muted, fontWeight: 500 },
+  statValue:     { fontSize: 26, fontWeight: 700, letterSpacing: '-1px' },
+  statIcon:      { width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  twoCol:        { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
+  panel:         { background: C.surface, border: '1px solid ' + C.border, borderRadius: 12, padding: '20px 20px' },
+  panelHeader:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  panelTitle:    { fontWeight: 600, fontSize: 14 },
+  panelLink:     { fontSize: 12, color: C.accent, textDecoration: 'none' },
+  activityItem:  { display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 0', borderBottom: '1px solid ' + C.border },
+  activityDot:   { width: 8, height: 8, borderRadius: 99, marginTop: 4, flexShrink: 0 },
+  btn:           { display: 'flex', alignItems: 'center', padding: '8px 16px', background: C.accent, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' },
+  th:            { textAlign: 'left', padding: '10px 16px', fontSize: 11, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid ' + C.border },
+  td:            { padding: '12px 16px', borderBottom: '1px solid ' + C.border },
   tr:            {},
 };
 
 // ── Server ────────────────────────────────────────────────────────────────────
-
 const server = http.createServer((req, res) => {
   const path = (req.url || '/').split('?')[0];
   const body = Server.renderToString(e(App, { path }));
-
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
   res.end(\`<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyApp — RunBox</title>
-  <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Acme HQ</title>
+  <style>*,*::before,*::after{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif}a{text-decoration:none}</style>
 </head>
-<body><div id="root">\${body}</div></body>
+<body>\${body}</body>
 </html>\`);
 });
 
