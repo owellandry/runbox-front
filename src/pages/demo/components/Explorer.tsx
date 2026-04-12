@@ -171,7 +171,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
 
         {creatingFolder && (
           <div className="px-4 py-1.5 flex items-center gap-2">
-            <Folder className="w-3.5 h-3.5 text-[#d97757] shrink-0" />
+            <Folder className="w-3.5 h-3.5 text-[#d97757] shrink-0" fill="currentColor" fillOpacity={0.2} />
             <input
               autoFocus
               value={newFolderName}

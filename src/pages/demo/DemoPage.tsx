@@ -10,6 +10,7 @@ import { Explorer } from './components/Explorer';
 import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { Terminal } from './components/Terminal';
+import { TemplatesSidebar } from './components/TemplatesSidebar';
 import { useFileSystem } from './hooks/useFileSystem';
 
 (globalThis as unknown as Record<string, unknown>).__runbox_react = React;
@@ -28,6 +29,7 @@ const DemoPage: React.FC = () => {
 
   const [activeView, setActiveView] = useState<'code' | 'preview'>('code');
   const [showTerminal, setShowTerminal] = useState(false);
+  const [activeSidebar, setActiveSidebar] = useState<'explorer' | 'templates'>('explorer');
 
   const fileSystem = useFileSystem();
 
@@ -172,9 +174,21 @@ const DemoPage: React.FC = () => {
 
       {/* ── Main Body ── */}
       <div className="flex-1 flex min-h-0 overflow-hidden bg-[#0a0a09]">
-        <ActivityBar />
+        <ActivityBar activeSidebar={activeSidebar} setActiveSidebar={setActiveSidebar} />
 
-        <Explorer {...fileSystem} />
+        {activeSidebar === 'explorer' ? (
+          <Explorer {...fileSystem} />
+        ) : (
+          <TemplatesSidebar 
+            onSelectTemplate={(files) => {
+              fileSystem.setFiles(files);
+              fileSystem.setActiveFile(Object.keys(files).find(k => !k.endsWith('/')) || '');
+              setActiveSidebar('explorer');
+              setPreviewHtml(''); 
+              setServerPort(null);
+            }} 
+          />
+        )}
 
         {/* Main Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-[#0a0a09]">
