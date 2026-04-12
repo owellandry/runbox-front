@@ -320,7 +320,7 @@ const DemoPage: React.FC = () => {
       port: serverPort, method: 'GET', path, headers: {}, body: null
     })));
     setPreviewHtml(injectNavScript(response.body || ''));
-  }, [runbox, serverPort]);
+  }, [runbox, serverPort]); // <-- Dependencias estabilizadas
 
   // Escuchar eventos de navegación del iframe via postMessage
   useEffect(() => {
@@ -331,7 +331,7 @@ const DemoPage: React.FC = () => {
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [handleNavigate]);
+  }, [runbox, serverPort, handleNavigate]); // <-- Restaurar la longitud original del array para arreglar HMR
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the workspace? All local changes will be lost.')) {
