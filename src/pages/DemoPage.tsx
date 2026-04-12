@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
-import { Play, Terminal as TerminalIcon, Globe, Package, Code } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, Package, Code, FileText, FilePlus, Trash2, Edit2 } from 'lucide-react';
 import { RunboxInstance } from 'runboxjs';
 
 // Exponer React en globalThis para el sandbox RunBox
@@ -44,6 +44,11 @@ const DemoPage: React.FC = () => {
   const [serverPort, setServerPort] = useState<number | null>(null);
   const [browserUrl, setBrowserUrl] = useState('/');
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+
+  const [creatingFile, setCreatingFile] = useState(false);
+  const [newFileName, setNewFileName] = useState('');
+  const [renamingFile, setRenamingFile] = useState<string | null>(null);
+  const [renameInput, setRenameInput] = useState('');
 
   const [files, setFiles] = useState<Record<string, string>>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -105,6 +110,68 @@ const DemoPage: React.FC = () => {
 
     // Mark as scrolled up if not at bottom
     setUserScrolledUp(!isAtBottom);
+  };
+
+  const handleCreateFile = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      let path = newFileName.trim();
+      if (!path) {
+        setCreatingFile(false);
+        return;
+      }
+      if (!path.startsWith('/')) path = '/' + path;
+      
+      if (!files[path]) {
+        setFiles(prev => ({ ...prev, [path]: '' }));
+        setActiveFile(path);
+      }
+      setCreatingFile(false);
+      setNewFileName('');
+    } else if (e.key === 'Escape') {
+      setCreatingFile(false);
+      setNewFileName('');
+    }
+  };
+
+  const handleDeleteFile = (path: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(`Delete ${path}?`)) {
+      const newFiles = { ...files };
+      delete newFiles[path];
+      setFiles(newFiles);
+      if (activeFile === path) {
+        const remaining = Object.keys(newFiles);
+        setActiveFile(remaining.length > 0 ? remaining[0] : '');
+      }
+    }
+  };
+
+  const startRename = (path: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRenamingFile(path);
+    setRenameInput(path.replace(/^\//, ''));
+  };
+
+  const handleRenameFile = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && renamingFile) {
+      let newPath = renameInput.trim();
+      if (!newPath) {
+        setRenamingFile(null);
+        return;
+      }
+      if (!newPath.startsWith('/')) newPath = '/' + newPath;
+      
+      if (newPath !== renamingFile && !files[newPath]) {
+        const newFiles = { ...files };
+        newFiles[newPath] = newFiles[renamingFile];
+        delete newFiles[renamingFile];
+        setFiles(newFiles);
+        if (activeFile === renamingFile) setActiveFile(newPath);
+      }
+      setRenamingFile(null);
+    } else if (e.key === 'Escape') {
+      setRenamingFile(null);
+    }
   };
 
   const handleRun = async () => {
@@ -271,9 +338,68 @@ const DemoPage: React.FC = () => {
         </header>
 
         <div className="flex flex-col gap-8 mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
+            {/* Explorer Sidebar (Span 2) */}
+            <div className="lg:col-span-2 rounded-2xl border border-anthropic-light-gray/10 bg-[#15151a] flex flex-col overflow-hidden shadow-2xl">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-anthropic-light-gray/10">
+                <span className="text-xs font-poppins font-medium text-anthropic-mid-gray uppercase tracking-wider">Explorer</span>
+                <div className="flex gap-1">
+                  <button onClick={() => setCreatingFile(true)} className="text-anthropic-mid-gray hover:text-white transition-colors">
+                    <FilePlus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto py-2">
+                {Object.keys(files).sort().map(path => (
+                  <div key={path} className="group">
+                    {renamingFile === path ? (
+                      <div className="px-4 py-1.5 flex items-center">
+                        <FileText className="w-3.5 h-3.5 text-anthropic-blue mr-2 shrink-0" />
+                        <input
+                          autoFocus
+                          value={renameInput}
+                          onChange={e => setRenameInput(e.target.value)}
+                          onKeyDown={handleRenameFile}
+                          onBlur={() => setRenamingFile(null)}
+                          className="w-full bg-[#0d0d0c] text-xs font-mono text-white border border-anthropic-blue px-1 py-0.5 outline-none"
+                        />
+                      </div>
+                    ) : (
+                      <div 
+                        onClick={() => setActiveFile(path)}
+                        className={`px-4 py-1.5 flex items-center cursor-pointer text-xs font-mono transition-colors ${activeFile === path ? 'bg-anthropic-blue/10 text-anthropic-light border-l-2 border-anthropic-blue' : 'text-anthropic-mid-gray hover:bg-white/5 border-l-2 border-transparent'}`}
+                      >
+                        <FileText className={`w-3.5 h-3.5 mr-2 shrink-0 ${activeFile === path ? 'text-anthropic-blue' : 'text-anthropic-mid-gray'}`} />
+                        <span className="truncate flex-1">{path.replace(/^\//, '')}</span>
+                        
+                        <div className="hidden group-hover:flex items-center gap-1 shrink-0 ml-2">
+                          <button onClick={(e) => startRename(path, e)} className="text-anthropic-mid-gray hover:text-white"><Edit2 className="w-3 h-3" /></button>
+                          <button onClick={(e) => handleDeleteFile(path, e)} className="text-anthropic-mid-gray hover:text-red-400"><Trash2 className="w-3 h-3" /></button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {creatingFile && (
+                  <div className="px-4 py-1.5 flex items-center">
+                    <FileText className="w-3.5 h-3.5 text-anthropic-blue mr-2 shrink-0" />
+                    <input
+                      autoFocus
+                      value={newFileName}
+                      onChange={e => setNewFileName(e.target.value)}
+                      onKeyDown={handleCreateFile}
+                      onBlur={() => setCreatingFile(false)}
+                      placeholder="filename.js"
+                      className="w-full bg-[#0d0d0c] text-xs font-mono text-white border border-anthropic-blue px-1 py-0.5 outline-none"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Editor with File Tabs */}
-            <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl h-[400px]">
+            <div className="lg:col-span-5 rounded-2xl border border-anthropic-light-gray/10 bg-[#1a1a19] overflow-hidden flex flex-col shadow-2xl">
               {/* File Tabs */}
               <div className="flex items-center justify-between bg-[#15151a] border-b border-anthropic-light-gray/10 px-4 py-0">
                 <div className="flex gap-2">
@@ -330,7 +456,7 @@ const DemoPage: React.FC = () => {
             </div>
 
             {/* Live Preview */}
-            <div className="rounded-3xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl h-[400px]">
+            <div className="lg:col-span-5 rounded-2xl border border-anthropic-light-gray/10 bg-white overflow-hidden flex flex-col shadow-2xl">
               {serverPort ? (
                 /* Mini browser cuando hay servidor HTTP */
                 <>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Terminal, Box, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
+import { Terminal, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
 import HeroBackground from './HeroBackground';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
