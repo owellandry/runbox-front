@@ -889,13 +889,13 @@ const DemoPage: React.FC = () => {
           >
             <TerminalIcon className="w-4 h-4" /> Terminal
           </button>
-          <button onClick={handleReset} className="text-xs font-poppins text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer">Reset</button>
+          <button
+            onClick={handleReset}
+            className="text-xs font-poppins text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer"
+          >
+            Reset
+          </button>
           <div className="h-4 w-px bg-[#b0aea5]/20" />
-          <motion.div
-            animate={{ scale: isReady ? 1 : [1, 1.2, 1], opacity: isReady ? 1 : [0.5, 1, 0.5] }}
-            transition={{ repeat: isReady ? 0 : Infinity, duration: 1.5 }}
-            className={`w-2 h-2 rounded-full ${isReady ? 'bg-[#788c5d]' : 'bg-[#d97757]'}`}
-          />
           <motion.button 
             whileHover={isReady && !isRunning ? { scale: 1.05 } : {}}
             whileTap={isReady && !isRunning ? { scale: 0.95 } : {}}
