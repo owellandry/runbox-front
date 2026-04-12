@@ -210,7 +210,6 @@ server.listen(3800, () => console.log('Git workflow app running at http://localh
     ]
   }
 }`,
-      '/pnpm-lock.yaml': `lockfileVersion: '9.0'`,
       '/index.js': `const http = require('http');
 const dayjs = require('dayjs');
 const _ = require('lodash');
@@ -249,7 +248,6 @@ server.listen(3550, () => console.log('pnpm showcase running on http://localhost
     ]
   }
 }`,
-      '/yarn.lock': `# yarn lockfile v1`,
       '/index.js': `const http = require('http');
 const _ = require('lodash');
 const dayjs = require('dayjs');

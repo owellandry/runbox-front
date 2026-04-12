@@ -29,7 +29,11 @@ interface DemoRunboxConfig {
 }
 
 interface DemoPackageJson {
+  name?: string;
+  version?: string;
   scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
   runbox?: DemoRunboxConfig;
 }
 
@@ -38,6 +42,8 @@ interface ExecResult {
   stderr?: string;
   exit_code: number;
 }
+
+const LOCK_FILE_PATHS = ['/package-lock.json', '/pnpm-lock.yaml', '/yarn.lock', '/bun.lock'] as const;
 
 interface PyodideRuntime {
   FS: {
@@ -62,6 +68,118 @@ function detectPackageManager(files: Record<string, string>, hint?: DemoPackageM
   if (files['/yarn.lock']) return 'yarn';
   if (files['/bun.lock']) return 'bun';
   return 'npm';
+}
+
+function lockfilePathFor(pm: DemoPackageManager): (typeof LOCK_FILE_PATHS)[number] {
+  switch (pm) {
+    case 'pnpm':
+      return '/pnpm-lock.yaml';
+    case 'yarn':
+      return '/yarn.lock';
+    case 'bun':
+      return '/bun.lock';
+    default:
+      return '/package-lock.json';
+  }
+}
+
+function normalizeVersionSpec(spec: string | undefined): string {
+  if (!spec || spec === 'latest') return '1.0.0';
+  const normalized = spec.trim().replace(/^[^\d]+/, '');
+  return normalized || '1.0.0';
+}
+
+function buildGeneratedLockfile(
+  pm: DemoPackageManager,
+  packageJson: DemoPackageJson | null,
+  resolvedVersions: Record<string, string>
+): { path: string; content: string } | null {
+  if (!packageJson) return null;
+
+  const deps = packageJson.dependencies ?? {};
+  const devDeps = packageJson.devDependencies ?? {};
+  const entries = [
+    ...Object.entries(deps).map(([name, spec]) => ({ name, spec, dev: false })),
+    ...Object.entries(devDeps).map(([name, spec]) => ({ name, spec, dev: true }))
+  ];
+
+  if (entries.length === 0) return null;
+
+  const path = lockfilePathFor(pm);
+
+  if (pm === 'pnpm') {
+    const lines: string[] = ["lockfileVersion: '9.0'", '', 'importers:', '  .:', '    dependencies:'];
+    for (const entry of entries.filter((e) => !e.dev)) {
+      const version = resolvedVersions[entry.name] ?? normalizeVersionSpec(entry.spec);
+      lines.push(`      ${entry.name}:`);
+      lines.push(`        specifier: "${entry.spec}"`);
+      lines.push(`        version: "${version}"`);
+    }
+    const devOnly = entries.filter((e) => e.dev);
+    if (devOnly.length > 0) {
+      lines.push('    devDependencies:');
+      for (const entry of devOnly) {
+        const version = resolvedVersions[entry.name] ?? normalizeVersionSpec(entry.spec);
+        lines.push(`      ${entry.name}:`);
+        lines.push(`        specifier: "${entry.spec}"`);
+        lines.push(`        version: "${version}"`);
+      }
+    }
+    lines.push('', 'packages:');
+    for (const entry of entries) {
+      const version = resolvedVersions[entry.name] ?? normalizeVersionSpec(entry.spec);
+      lines.push(`  /${entry.name}@${version}:`);
+      lines.push('    resolution:');
+      lines.push(`      integrity: sha512-generated-${entry.name.replace(/[^a-z0-9]/gi, '')}`);
+    }
+    return { path, content: lines.join('\n') + '\n' };
+  }
+
+  if (pm === 'yarn') {
+    const lines = ['# yarn lockfile v1', ''];
+    for (const entry of entries) {
+      const version = resolvedVersions[entry.name] ?? normalizeVersionSpec(entry.spec);
+      lines.push(`"${entry.name}@${entry.spec}":`);
+      lines.push(`  version "${version}"`);
+      lines.push(`  resolved "https://registry.yarnpkg.com/${entry.name}/-/${entry.name}-${version}.tgz"`);
+      lines.push('  integrity sha512-generated');
+      lines.push('');
+    }
+    return { path, content: lines.join('\n') };
+  }
+
+  const lockPackages: Record<string, unknown> = {
+    '': {
+      name: packageJson.name ?? 'app',
+      version: packageJson.version ?? '1.0.0',
+      dependencies: deps,
+      devDependencies: devDeps
+    }
+  };
+
+  for (const entry of entries) {
+    const version = resolvedVersions[entry.name] ?? normalizeVersionSpec(entry.spec);
+    lockPackages[`node_modules/${entry.name}`] = {
+      version,
+      resolved: `https://registry.npmjs.org/${entry.name}/-/${entry.name}-${version}.tgz`,
+      integrity: 'sha512-generated'
+    };
+  }
+
+  return {
+    path,
+    content: JSON.stringify(
+      {
+        name: packageJson.name ?? 'app',
+        version: packageJson.version ?? '1.0.0',
+        lockfileVersion: 3,
+        requires: true,
+        packages: lockPackages
+      },
+      null,
+      2
+    )
+  };
 }
 
 function parsePythonScriptPath(command: string): string | null {
@@ -286,6 +404,25 @@ const DemoPage: React.FC = () => {
       const preRunCommands = Array.isArray(runboxConfig.preRun)
         ? runboxConfig.preRun.filter((cmd) => typeof cmd === 'string' && cmd.trim().length > 0)
         : [];
+      const decoder = new TextDecoder();
+      const encoder = new TextEncoder();
+
+      const syncGeneratedLockfiles = () => {
+        const generatedLocks: Record<string, string> = {};
+
+        for (const lockPath of LOCK_FILE_PATHS) {
+          if (!activeRunbox.file_exists(lockPath)) continue;
+          try {
+            generatedLocks[lockPath] = decoder.decode(activeRunbox.read_file(lockPath));
+          } catch {
+            // ignore unreadable lockfiles
+          }
+        }
+
+        if (Object.keys(generatedLocks).length > 0) {
+          fileSystem.setFiles((prev) => ({ ...prev, ...generatedLocks }));
+        }
+      };
 
       const appendExecOutput = (result: ExecResult) => {
         if (result.stdout) {
@@ -308,15 +445,18 @@ const DemoPage: React.FC = () => {
       if (shouldInstall) {
         setOutput((prev) => [...prev, `$ ${packageManager} install`]);
         const needed: Array<{ name: string; version: string }> = JSON.parse(activeRunbox.npm_packages_needed());
+        const resolvedVersions: Record<string, string> = {};
         if (needed.length > 0) {
           for (const pkg of needed) {
             setOutput((prev) => [...prev, `  -> ${pkg.name}@${pkg.version}`]);
             try {
               const meta = await fetch(`https://registry.npmjs.org/${pkg.name}/${pkg.version}`).then(r => r.json());
+              resolvedVersions[pkg.name] = meta.version ?? normalizeVersionSpec(pkg.version);
               const tarball = await fetch(meta.dist.tarball).then(r => r.arrayBuffer());
               const result = JSON.parse(activeRunbox.npm_process_tarball(pkg.name, pkg.version, new Uint8Array(tarball)));
               if (!result.ok) setOutput((prev) => [...prev, `  x ${pkg.name}: ${result.error}`]);
             } catch (e) {
+              resolvedVersions[pkg.name] = normalizeVersionSpec(pkg.version);
               setOutput((prev) => [...prev, `  x ${pkg.name}: ${(e as Error).message}`]);
             }
           }
@@ -324,12 +464,22 @@ const DemoPage: React.FC = () => {
         } else {
           setOutput((prev) => [...prev, '  up to date']);
         }
+
+        const generatedLock = buildGeneratedLockfile(packageManager, packageJson, resolvedVersions);
+        if (generatedLock) {
+          activeRunbox.write_file(generatedLock.path, encoder.encode(generatedLock.content));
+          fileSystem.setFiles((prev) => ({ ...prev, [generatedLock.path]: generatedLock.content }));
+          setOutput((prev) => [...prev, `  generated ${generatedLock.path}`]);
+        }
+
+        syncGeneratedLockfiles();
       }
 
       for (const command of preRunCommands) {
         setOutput((prev) => [...prev, '', `$ ${command}`]);
         const preRunResult = await executeCommand(command);
         appendExecOutput(preRunResult);
+        syncGeneratedLockfiles();
         if (preRunResult.exit_code !== 0) {
           setOutput((prev) => [...prev, `[ERROR] Process exited with code ${preRunResult.exit_code}`]);
           setIsRunning(false);
@@ -349,6 +499,7 @@ const DemoPage: React.FC = () => {
       setOutput((prev) => [...prev, '', `$ ${cmdToRun}`]);
       const execResult = await executeCommand(cmdToRun);
       appendExecOutput(execResult);
+      syncGeneratedLockfiles();
 
       if (execResult.exit_code !== 0) {
         setOutput((prev) => [...prev, `[ERROR] Process exited with code ${execResult.exit_code}`]);
