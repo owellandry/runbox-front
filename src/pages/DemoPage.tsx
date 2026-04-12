@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
-import { Play, Terminal as TerminalIcon, Globe, Package, Code, FileText, FilePlus, Trash2, Edit2 } from 'lucide-react';
+import { Play, Terminal as TerminalIcon, Globe, FileText, FilePlus, Trash2, Edit2 } from 'lucide-react';
 import { RunboxInstance } from 'runboxjs';
 
 // Exponer React en globalThis para el sandbox RunBox
-(globalThis as any).__runbox_react = React;
-(globalThis as any).__runbox_reactdom = ReactDOM;
-(globalThis as any).__runbox_reactdom_server = ReactDOMServer;
+(globalThis as unknown as Record<string, unknown>).__runbox_react = React;
+(globalThis as unknown as Record<string, unknown>).__runbox_reactdom = ReactDOM;
+(globalThis as unknown as Record<string, unknown>).__runbox_reactdom_server = ReactDOMServer;
 
 const LOCAL_STORAGE_KEY = 'runbox_demo_workspace';
 
@@ -55,7 +55,7 @@ const DemoPage: React.FC = () => {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {
+      } catch {
         return defaultFiles;
       }
     }
@@ -82,8 +82,8 @@ const DemoPage: React.FC = () => {
       setRunbox(instance);
       setIsReady(true);
       setOutput(prev => [...prev, '[SUCCESS] Sandbox Ready. WebAssembly module loaded.']);
-    } catch (err: any) {
-      setOutput(prev => [...prev, `[ERROR] Error loading WASM: ${err.message}`]);
+    } catch (err) {
+      setOutput(prev => [...prev, `[ERROR] Error loading WASM: ${(err as Error).message}`]);
     }
   }, []);
 
@@ -208,8 +208,8 @@ const DemoPage: React.FC = () => {
             const tarball = await fetch(meta.dist.tarball).then(r => r.arrayBuffer());
             const result = JSON.parse(runbox.npm_process_tarball(pkg.name, pkg.version, new Uint8Array(tarball)));
             if (!result.ok) setOutput(prev => [...prev, `  ✗ ${pkg.name}: ${result.error}`]);
-          } catch (e: any) {
-            setOutput(prev => [...prev, `  ✗ ${pkg.name}: ${e.message}`]);
+          } catch (e) {
+            setOutput(prev => [...prev, `  ✗ ${pkg.name}: ${(e as Error).message}`]);
           }
         }
         setOutput(prev => [...prev, `  added ${needed.length} packages`]);
@@ -226,7 +226,9 @@ const DemoPage: React.FC = () => {
            if (pkg.scripts && pkg.scripts.start) {
              cmdToRun = 'npm run start';
            }
-         } catch(e) {}
+         } catch {
+           // ignore
+         }
       }
 
       setOutput(prev => [...prev, '']);
@@ -269,8 +271,8 @@ const DemoPage: React.FC = () => {
 
       setIsRunning(false);
 
-    } catch (err: any) {
-      setOutput(prev => [...prev, `[ERROR] ${err.message}`]);
+    } catch (err) {
+      setOutput(prev => [...prev, `[ERROR] ${(err as Error).message}`]);
       setIsRunning(false);
     }
   };
@@ -496,7 +498,9 @@ const DemoPage: React.FC = () => {
                             handleNavigate(href);
                           });
                         });
-                      } catch (_) {}
+                      } catch {
+                        // ignore errors
+                      }
                     }}
                   />
                 ) : (
@@ -512,11 +516,19 @@ const DemoPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Terminal / Output */}
-          <div className="rounded-3xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-[250px]">
-            <div className="flex items-center px-6 py-4 border-b border-anthropic-light-gray/10 bg-[#1e1e1d] gap-2">
-              <TerminalIcon className="w-4 h-4 text-anthropic-mid-gray" />
-              <span className="text-xs font-mono text-anthropic-mid-gray">Server Output & API Calls</span>
+          {/* Terminal / Output (Full Width Bottom) */}
+          <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-[250px]">
+            <div className="flex items-center justify-between px-6 py-3 border-b border-anthropic-light-gray/10 bg-[#1e1e1d]">
+              <div className="flex items-center gap-2">
+                <TerminalIcon className="w-4 h-4 text-anthropic-mid-gray" />
+                <span className="text-xs font-mono text-anthropic-mid-gray uppercase tracking-wider">Terminal</span>
+              </div>
+              <button 
+                onClick={() => setOutput(['$ Terminal cleared.'])}
+                className="text-xs font-mono text-anthropic-mid-gray hover:text-white transition-colors"
+              >
+                Clear
+              </button>
             </div>
             <div
               ref={terminalDivRef}
@@ -524,7 +536,7 @@ const DemoPage: React.FC = () => {
               className="flex-1 p-6 font-mono text-sm text-anthropic-light-gray overflow-y-auto no-scrollbar"
             >
               {output.map((line, i) => (
-                <p key={i} className={`mb-2 ${line.startsWith('$') ? 'text-anthropic-mid-gray' : line.startsWith('Error:') ? 'text-red-400' : 'text-anthropic-green'}`}>
+                <p key={i} className={`mb-1.5 ${line.startsWith('$') ? 'text-anthropic-mid-gray' : line.includes('[ERROR]') || line.startsWith('Error:') ? 'text-red-400' : 'text-anthropic-green/90'}`}>
                   {line}
                 </p>
               ))}
