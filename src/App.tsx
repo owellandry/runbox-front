@@ -6,7 +6,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DocsPage from './pages/DocsPage';
-import DemoPage from './pages/DemoPage';
+import DemoPage from './pages/demo';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 
