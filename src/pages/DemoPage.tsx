@@ -52,64 +52,179 @@ const LOCAL_STORAGE_KEY = 'runbox_demo_workspace';
 
 const defaultFiles: Record<string, string> = {
   '/package.json': `{
-  "name": "runbox-demo",
+  "name": "my-react-app",
   "version": "1.0.0",
+  "dependencies": {
+    "dayjs": "^1.11.10"
+  },
   "scripts": {
     "start": "bun run /index.js"
   }
 }`,
-  '/index.js': `const http = require('http');
 
-const routes = {
-  '/': \`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>RunBox App</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
-    h1   { color: #d97757; }
-    a    { color: #6a9bcc; }
-    code { background: #f0ede6; padding: 2px 6px; border-radius: 4px; }
-  </style>
-</head>
-<body>
-  <h1>Hello from RunBox!</h1>
-  <p>Edit <code>index.js</code> and click <strong>Run</strong>.</p>
-  <p><a href="/about">About</a></p>
-</body>
-</html>\`,
+  '/index.js': `/**
+ * React SSR app running inside the RunBox WASM sandbox.
+ * Uses React (provided by the host) + dayjs (installed from npm).
+ */
+const http   = require('http');
+const React  = require('react');
+const Server = require('react-dom/server');
+const dayjs  = require('dayjs');
 
-  '/about': \`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>About — RunBox</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
-    h1   { color: #6a9bcc; }
-    a    { color: #d97757; }
-  </style>
-</head>
-<body>
-  <h1>About</h1>
-  <p>Powered by <strong>RunBox</strong> — a WebAssembly sandbox runtime.</p>
-  <p><a href="/">← Back home</a></p>
-</body>
-</html>\`,
+const e = React.createElement;
+
+// ── Components ────────────────────────────────────────────────────────────────
+
+function Navbar({ path }) {
+  const links = [
+    { href: '/',       label: 'Home'     },
+    { href: '/about',  label: 'About'    },
+    { href: '/stack',  label: 'Stack'    },
+  ];
+  return e('nav', { style: styles.nav },
+    e('span', { style: styles.brand }, '⚡ MyApp'),
+    e('div', { style: styles.navLinks },
+      ...links.map(({ href, label }) =>
+        e('a', {
+          key: href, href,
+          style: { ...styles.navLink, ...(path === href ? styles.navLinkActive : {}) },
+        }, label)
+      )
+    )
+  );
+}
+
+function HomePage() {
+  const now = dayjs().format('ddd, MMM D YYYY · HH:mm');
+  const features = [
+    { icon: '🔷', title: 'React SSR',      desc: 'Rendered server-side with ReactDOMServer inside a WASM sandbox.' },
+    { icon: '📦', title: 'npm packages',   desc: 'dayjs loaded from the real npm registry — no bundler needed.'    },
+    { icon: '🌐', title: 'HTTP routing',   desc: 'Multi-page app served by a mock http.createServer() handler.'     },
+    { icon: '⚡', title: 'Instant reload', desc: 'Edit any file and click Run — the sandbox re-executes in place.'  },
+  ];
+  return e('main', { style: styles.main },
+    e('section', { style: styles.hero },
+      e('h1', { style: styles.heroTitle }, 'Hello from RunBox!'),
+      e('p',  { style: styles.heroSub  }, 'A full React app running inside a WebAssembly sandbox.'),
+      e('div', { style: styles.badge }, '🕐 ' + now)
+    ),
+    e('section', { style: styles.grid },
+      ...features.map(({ icon, title, desc }) =>
+        e('div', { key: title, style: styles.card },
+          e('span', { style: styles.cardIcon }, icon),
+          e('h3',   { style: styles.cardTitle }, title),
+          e('p',    { style: styles.cardDesc  }, desc)
+        )
+      )
+    )
+  );
+}
+
+function AboutPage() {
+  return e('main', { style: styles.main },
+    e('h2', { style: styles.pageTitle }, 'About'),
+    e('p',  { style: styles.text },
+      'This demo is a server-side rendered React application running entirely inside ',
+      e('strong', null, 'RunBox'), ' — a WebAssembly sandbox built with Rust.'
+    ),
+    e('p', { style: styles.text },
+      'No Node.js process. No Vite dev server. Pure WASM in your browser tab.'
+    ),
+    e('a', { href: '/', style: styles.link }, '← Back home')
+  );
+}
+
+function StackPage() {
+  const stack = [
+    { name: 'Rust',             role: 'Sandbox runtime compiled to WASM'   },
+    { name: 'wasm-bindgen',     role: 'Rust ↔ JS bridge'                    },
+    { name: 'React 19',         role: 'UI components (SSR via renderToString)' },
+    { name: 'dayjs',            role: 'Date formatting — zero dependencies'  },
+    { name: 'http (mock)',       role: 'Built-in server shim in the sandbox' },
+  ];
+  return e('main', { style: styles.main },
+    e('h2', { style: styles.pageTitle }, 'Tech Stack'),
+    e('table', { style: styles.table },
+      e('thead', null,
+        e('tr', null,
+          e('th', { style: styles.th }, 'Package'),
+          e('th', { style: styles.th }, 'Role')
+        )
+      ),
+      e('tbody', null,
+        ...stack.map(({ name, role }) =>
+          e('tr', { key: name, style: styles.tr },
+            e('td', { style: { ...styles.td, fontWeight: 600 } }, name),
+            e('td', { style: styles.td }, role)
+          )
+        )
+      )
+    ),
+    e('a', { href: '/', style: styles.link }, '← Back home')
+  );
+}
+
+function NotFound() {
+  return e('main', { style: styles.main },
+    e('h2', { style: { ...styles.pageTitle, color: '#e74c3c' } }, '404 — Not Found'),
+    e('a', { href: '/', style: styles.link }, '← Go home')
+  );
+}
+
+function App({ path }) {
+  const pages = { '/': HomePage, '/about': AboutPage, '/stack': StackPage };
+  const Page  = pages[path] || NotFound;
+  return e('div', { style: styles.root },
+    e(Navbar, { path }),
+    e(Page)
+  );
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+
+const styles = {
+  root:          { fontFamily: 'system-ui, sans-serif', minHeight: '100vh', background: '#f8f7f4', color: '#1a1a1a' },
+  nav:           { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px', height: 56, background: '#1a1a1a', color: '#fff' },
+  brand:         { fontWeight: 700, fontSize: 18, letterSpacing: '-0.5px' },
+  navLinks:      { display: 'flex', gap: 8 },
+  navLink:       { color: '#aaa', textDecoration: 'none', padding: '6px 12px', borderRadius: 6, fontSize: 14 },
+  navLinkActive: { color: '#fff', background: '#333' },
+  main:          { maxWidth: 780, margin: '0 auto', padding: '48px 24px' },
+  hero:          { textAlign: 'center', marginBottom: 56 },
+  heroTitle:     { fontSize: 48, fontWeight: 800, margin: '0 0 12px', letterSpacing: '-2px', color: '#1a1a1a' },
+  heroSub:       { fontSize: 18, color: '#666', margin: '0 0 24px' },
+  badge:         { display: 'inline-block', background: '#1a1a1a', color: '#f0db4f', padding: '6px 16px', borderRadius: 99, fontSize: 13, fontFamily: 'monospace' },
+  grid:          { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 },
+  card:          { background: '#fff', border: '1px solid #e8e5e0', borderRadius: 12, padding: '24px 20px' },
+  cardIcon:      { fontSize: 28, display: 'block', marginBottom: 12 },
+  cardTitle:     { margin: '0 0 8px', fontSize: 16, fontWeight: 700 },
+  cardDesc:      { margin: 0, fontSize: 14, color: '#666', lineHeight: 1.6 },
+  pageTitle:     { fontSize: 32, fontWeight: 800, marginBottom: 24, letterSpacing: '-1px' },
+  text:          { fontSize: 16, color: '#444', lineHeight: 1.7, marginBottom: 16 },
+  link:          { color: '#0070f3', textDecoration: 'none', fontWeight: 500 },
+  table:         { width: '100%', borderCollapse: 'collapse', marginBottom: 32 },
+  th:            { textAlign: 'left', padding: '10px 16px', background: '#1a1a1a', color: '#fff', fontSize: 13, fontWeight: 600 },
+  td:            { padding: '12px 16px', borderBottom: '1px solid #e8e5e0', fontSize: 14 },
+  tr:            {},
 };
 
-const server = http.createServer((req, res) => {
-  const url = (req.url || '/').split('?')[0];
-  const body = routes[url];
+// ── Server ────────────────────────────────────────────────────────────────────
 
-  if (body) {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(body);
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('404 Not Found');
-  }
+const server = http.createServer((req, res) => {
+  const path = (req.url || '/').split('?')[0];
+  const body = Server.renderToString(e(App, { path }));
+
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(\`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MyApp — RunBox</title>
+  <style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body><div id="root">\${body}</div></body>
+</html>\`);
 });
 
 server.listen(3000, () => {
