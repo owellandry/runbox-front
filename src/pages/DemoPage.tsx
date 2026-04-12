@@ -330,9 +330,6 @@ const DemoPage: React.FC = () => {
         <header className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#15151a] p-4 rounded-2xl border border-anthropic-light-gray/10 shadow-lg shrink-0">
           <div>
             <h1 className="text-2xl font-poppins font-medium tracking-tight">RunBox IDE</h1>
-            <p className="text-sm font-lora text-anthropic-mid-gray">
-              Local WebAssembly Node.js Environment
-            </p>
           </div>
           <div className="flex items-center gap-4">
             <button
