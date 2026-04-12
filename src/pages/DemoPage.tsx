@@ -325,9 +325,9 @@ const DemoPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-anthropic-dark text-anthropic-light pt-32 pb-24 px-6 md:px-12 flex flex-col items-center">
-      <div className="max-w-6xl w-full flex flex-col gap-12">
-        <header className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#15151a] p-4 rounded-2xl border border-anthropic-light-gray/10 shadow-lg">
+    <div className="min-h-screen bg-anthropic-dark text-anthropic-light p-6 md:p-8 flex flex-col items-center">
+      <div className="max-w-7xl w-full flex flex-col h-[calc(100vh-4rem)]">
+        <header className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[#15151a] p-4 rounded-2xl border border-anthropic-light-gray/10 shadow-lg shrink-0">
           <div>
             <h1 className="text-2xl font-poppins font-medium tracking-tight">RunBox IDE</h1>
             <p className="text-sm font-lora text-anthropic-mid-gray">
@@ -356,8 +356,9 @@ const DemoPage: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex flex-col gap-8 mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
+        <div className="flex flex-col gap-6 mt-6 flex-1 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-3/5">
+            
             {/* Explorer Sidebar (Span 2) */}
             <div className="lg:col-span-2 rounded-2xl border border-anthropic-light-gray/10 bg-[#15151a] flex flex-col overflow-hidden shadow-2xl">
               <div className="flex items-center justify-between px-4 py-3 border-b border-anthropic-light-gray/10">
@@ -517,7 +518,7 @@ const DemoPage: React.FC = () => {
           </div>
 
           {/* Terminal / Output (Full Width Bottom) */}
-          <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-[250px]">
+          <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#0d0d0c] overflow-hidden flex flex-col shadow-2xl h-2/5">
             <div className="flex items-center justify-between px-6 py-3 border-b border-anthropic-light-gray/10 bg-[#1e1e1d]">
               <div className="flex items-center gap-2">
                 <TerminalIcon className="w-4 h-4 text-anthropic-mid-gray" />

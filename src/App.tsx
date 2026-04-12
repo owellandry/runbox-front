@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Terminal, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
+import { Terminal, Box, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
 import HeroBackground from './HeroBackground';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DocsPage from './pages/DocsPage';
@@ -209,9 +209,12 @@ console.<code className="text-anthropic-blue">log</code>(JSON.<code className="t
 };
 
 export default function App() {
+  const location = useLocation();
+  const isDemoRoute = location.pathname === '/demo';
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500 selection:text-white font-sans flex flex-col">
-      <Navbar />
+      {!isDemoRoute && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -221,7 +224,7 @@ export default function App() {
           <Route path="/terms" element={<TermsPage />} />
         </Routes>
       </main>
-      <Footer />
+      {!isDemoRoute && <Footer />}
     </div>
   );
 }
