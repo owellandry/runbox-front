@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import LoadingScreen from './LoadingScreen';
 
 interface RouteTransitionProps {
@@ -9,21 +10,29 @@ interface RouteTransitionProps {
 
 const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
   const location = useLocation();
+  const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const previousPathRef = useRef(location.pathname);
+  const previousLangRef = useRef(i18n.language);
 
   useEffect(() => {
     const routeChanged = previousPathRef.current !== location.pathname;
+    const langChanged = previousLangRef.current !== i18n.language;
+    
     previousPathRef.current = location.pathname;
+    previousLangRef.current = i18n.language;
 
-    setIsLoading(true);
+    // Trigger loading only if route changed or language changed
+    if (routeChanged || langChanged) {
+      setIsLoading(true);
 
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, routeChanged ? 650 : 1000);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, routeChanged ? 650 : 500);
 
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname, i18n.language]);
 
   return (
     <>
