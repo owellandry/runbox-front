@@ -9,11 +9,26 @@ interface RouteTransitionProps {
 
 const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
   const hasMountedRef = useRef(false);
 
-  useLayoutEffect(() => {
+  // Derive loading state from the location key so we avoid calling
+  // setState synchronously inside useLayoutEffect, which triggers the
+  // react-hooks/set-state-in-effect lint rule.
+  const [loadingKey, setLoadingKey] = useState(location.key);
+  const isNewRoute = loadingKey !== location.key;
+  if (isNewRoute) {
+    // Synchronous state update during render (before commit) is the
+    // React-recommended way to reset state when props change.
+    // See: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+    setLoadingKey(location.key);
+  }
+
+  const [isLoading, setIsLoading] = useState(true);
+  if (isNewRoute && !isLoading) {
     setIsLoading(true);
+  }
+
+  useLayoutEffect(() => {
     const isInitial = !hasMountedRef.current;
     hasMountedRef.current = true;
 
@@ -21,7 +36,6 @@ const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
       setIsLoading(false);
     }, isInitial ? 900 : 450);
 
-    // Safety net to prevent any chance of an infinite loader.
     const guardTimer = setTimeout(() => {
       setIsLoading(false);
     }, 3000);
@@ -30,7 +44,7 @@ const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
       clearTimeout(hideTimer);
       clearTimeout(guardTimer);
     };
-  }, [location.key]);
+  }, [loadingKey]);
 
   return (
     <>

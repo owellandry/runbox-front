@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY, defaultFiles } from '../constants/defaultFiles';
 import { useTranslation } from 'react-i18next';
+import type { FileTreeNode } from '../components/Explorer';
 
 export type ConfirmTone = 'default' | 'danger';
 
@@ -205,11 +206,11 @@ export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
   };
 
   // Helper to build a file tree from flat paths
-  const getFileTree = () => {
-    const tree: any = {};
+  const getFileTree = (): Record<string, FileTreeNode> => {
+    const tree: Record<string, FileTreeNode> = {};
     Object.keys(files).forEach(path => {
       const parts = path.split('/').filter(Boolean);
-      let current = tree;
+      let current: Record<string, FileTreeNode> = tree;
       for (let i = 0; i < parts.length; i++) {
         const part = parts[i];
         const isLast = i === parts.length - 1;
@@ -218,7 +219,7 @@ export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
         if (!current[part]) {
           current[part] = isLast && !isFolder ? { __isFile: true, path } : {};
         }
-        current = current[part];
+        current = current[part] as Record<string, FileTreeNode>;
       }
     });
     return tree;
