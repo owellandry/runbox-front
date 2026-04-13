@@ -12,7 +12,6 @@ interface TopBarProps {
   setShowTerminal: React.Dispatch<React.SetStateAction<boolean>>;
   handleReset: () => void;
   handleRun: () => void;
-  isReady: boolean;
   isRunning: boolean;
 }
 
@@ -23,7 +22,6 @@ export const TopBar: React.FC<TopBarProps> = ({
   setShowTerminal,
   handleReset,
   handleRun,
-  isReady,
   isRunning
 }) => {
   const { t } = useTranslation();
@@ -81,10 +79,10 @@ export const TopBar: React.FC<TopBarProps> = ({
         </button>
         <div className="h-4 w-px bg-[#b0aea5]/20" />
         <motion.button 
-          whileHover={isReady && !isRunning ? { scale: 1.05 } : {}}
-          whileTap={isReady && !isRunning ? { scale: 0.95 } : {}}
+          whileHover={!isRunning ? { scale: 1.05 } : {}}
+          whileTap={!isRunning ? { scale: 0.95 } : {}}
           onClick={handleRun}
-          disabled={!isReady || isRunning}
+          disabled={isRunning}
           className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#faf9f5] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <Play className="w-3 h-3 fill-current" />

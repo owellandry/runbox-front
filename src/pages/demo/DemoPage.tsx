@@ -320,7 +320,6 @@ const DemoPage: React.FC = () => {
 
   const outputEndRef = useRef<HTMLDivElement>(null);
   const terminalDivRef = useRef<HTMLDivElement>(null);
-  const initDoneRef = useRef(false);
   const runboxRef = useRef<RunboxInstance | null>(null);
 
   useEffect(() => {
@@ -334,9 +333,6 @@ const DemoPage: React.FC = () => {
 
   // â”€â”€ Init WASM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
-    if (initDoneRef.current) return;
-    initDoneRef.current = true;
-
     let cancelled = false;
     (async () => {
       try {
@@ -375,11 +371,16 @@ const DemoPage: React.FC = () => {
 
   // â”€â”€ Run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleRun = async () => {
-    if (!isReady || isRunning) return;
+    if (isRunning) return;
     setIsRunning(true); setUserScrolledUp(false);
     setPreviewHtml(''); setServerPort(null); setBrowserUrl('/');
 
     try {
+      if (!isReady) {
+        await ensureRunboxWasmReady();
+        setIsReady(true);
+      }
+
       const activeRunbox = new RunboxInstance();
       runboxRef.current = activeRunbox;
 
@@ -597,7 +598,6 @@ const DemoPage: React.FC = () => {
         setShowTerminal={setShowTerminal}
         handleReset={handleReset}
         handleRun={handleRun}
-        isReady={isReady}
         isRunning={isRunning}
       />
 
