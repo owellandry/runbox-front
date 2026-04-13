@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -20,6 +21,8 @@ const GithubIcon = ({ className }: { className?: string }) => (
 );
 
 const Navbar: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
       <nav className="flex items-center justify-between px-6 py-4 backdrop-blur-xl bg-anthropic-dark/60 border border-anthropic-light-gray/10 rounded-full w-full max-w-4xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] pointer-events-auto">
@@ -28,8 +31,8 @@ const Navbar: React.FC = () => {
           <span>Runboxjs</span>
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm font-poppins font-medium text-anthropic-light-gray">
-          <Link to="/doc" className="hover:text-anthropic-light transition-colors">Documentación</Link>
-          <Link to="/demo" className="hover:text-anthropic-light transition-colors">Demo</Link>
+          <Link to="/doc" className="hover:text-anthropic-light transition-colors">{t('nav.docs')}</Link>
+          <Link to="/demo" className="hover:text-anthropic-light transition-colors">{t('nav.demo')}</Link>
           <a href="https://github.com/owellandry/runbox-front" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-anthropic-light transition-colors bg-anthropic-light/5 hover:bg-anthropic-light/10 px-4 py-2 rounded-full border border-anthropic-light-gray/5">
             <GithubIcon className="w-4 h-4" />
             <span>GitHub</span>

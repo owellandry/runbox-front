@@ -2,6 +2,7 @@ import React from 'react';
 import { FilePlus, FolderPlus, FileText, Folder, ChevronRight, ChevronDown, Edit2, Trash2 } from 'lucide-react';
 import { FileIcon } from './FileIcon';
 import { FolderIconComponent } from './FolderIcon';
+import { useTranslation } from 'react-i18next';
 
 interface ExplorerProps {
   files: Record<string, string>;
@@ -54,6 +55,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
   toggleFolder,
   getFileTree
 }) => {
+  const { t } = useTranslation();
 
   const renderFileTree = (node: any, currentPath: string = '', level: number = 0) => {
     return Object.keys(node).sort((a, b) => {
@@ -138,14 +140,14 @@ export const Explorer: React.FC<ExplorerProps> = ({
   };
 
   return (
-    <div className="w-64 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col">
+    <div className="w-64 border-r border-[#b0aea5]/10 bg-[#141413] flex flex-col shrink-0">
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-xs font-poppins font-medium text-[#faf9f5]">Explorador</span>
+        <span className="text-xs font-poppins font-medium text-[#faf9f5]">{t('demo.explorer.title')}</span>
         <div className="flex gap-2">
-          <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="Nuevo Archivo">
+          <button onClick={() => setCreatingFile(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title={t('demo.explorer.new_file')}>
             <FilePlus className="w-3.5 h-3.5" />
           </button>
-          <button onClick={() => setCreatingFolder(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title="Nueva Carpeta">
+          <button onClick={() => setCreatingFolder(true)} className="text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer" title={t('demo.explorer.new_folder')}>
             <FolderPlus className="w-3.5 h-3.5" />
           </button>
         </div>

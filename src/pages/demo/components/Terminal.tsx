@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal as TerminalIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TerminalProps {
   showTerminal: boolean;
@@ -19,6 +20,8 @@ export const Terminal: React.FC<TerminalProps> = ({
   handleTerminalScroll,
   outputEndRef
 }) => {
+  const { t } = useTranslation();
+
   return (
     <AnimatePresence>
       {showTerminal && (
@@ -35,7 +38,7 @@ export const Terminal: React.FC<TerminalProps> = ({
               <span className="text-xs font-mono text-[#b0aea5] uppercase tracking-wider">Terminal</span>
             </div>
             <button onClick={() => setOutput(['$ Terminal limpiada.'])} className="text-xs font-mono text-[#b0aea5] hover:text-[#faf9f5] transition-colors">
-              Limpiar
+              {t('demo.terminal.clear')}
             </button>
           </div>
           <div

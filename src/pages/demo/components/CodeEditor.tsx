@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import _Editor from 'react-simple-code-editor';
+import { useTranslation } from 'react-i18next';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-json';
@@ -21,6 +22,8 @@ interface CodeEditorProps {
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({ files, setFiles, activeFile, setActiveFile }) => {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       key="code"
@@ -75,7 +78,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ files, setFiles, activeF
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-[#b0aea5] font-mono text-sm">
-                Selecciona o crea un archivo para editar
+                {t('demo.editor.empty')}
               </div>
             )}
           </div>

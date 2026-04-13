@@ -8,6 +8,8 @@ import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import RouteTransition from './components/RouteTransition';
 
+import { useTranslation } from 'react-i18next';
+
 // Lazy loaded pages
 const DocsPage = lazy(() => import('./pages/DocsPage'));
 const DemoPage = lazy(() => import('./pages/demo'));
@@ -15,6 +17,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
@@ -52,17 +55,17 @@ const HomePage = () => {
             className="max-w-xl backdrop-blur-sm bg-anthropic-dark/30 p-6 rounded-3xl border border-anthropic-light-gray/10"
           >
             <p className="text-xl md:text-2xl text-anthropic-light-gray/90 font-lora font-light mb-10 leading-snug">
-              Ejecuta Node.js directamente en el navegador. Entornos instantáneos, sin configuración. Arranca una aplicación full-stack dentro del navegador con rendimiento nativo.
+              {t('home.hero.desc')}
             </p>
             
             <div className="flex flex-wrap items-center gap-6">
               <a href="#documentation" className="flex items-center gap-2 bg-anthropic-light text-anthropic-dark px-8 py-4 rounded-full font-poppins font-medium hover:bg-anthropic-light-gray transition-colors shadow-[0_0_40px_rgba(217,119,87,0.15)]">
-                Comenzar <ArrowRight className="w-4 h-4" />
+                {t('home.hero.start')} <ArrowRight className="w-4 h-4" />
               </a>
               <button 
                 onClick={handleCopy}
                 className="group relative flex items-center gap-3 text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner hover:bg-anthropic-dark/80 transition-colors cursor-pointer"
-                title="Copiar al portapapeles"
+                title={t('home.hero.copy')}
               >
                 <span>npm install runboxjs</span>
                 {copied ? (
@@ -89,11 +92,11 @@ const HomePage = () => {
               <div className="w-3 h-3 rounded-full bg-anthropic-green" />
             </div>
             <div className="p-6 font-mono text-sm text-anthropic-green/90 flex flex-col gap-2">
-              <p><span className="text-anthropic-blue">~/proyecto</span> $ npx create-runboxjs-app</p>
-              <p className="text-anthropic-light-gray/70">Iniciando entorno...</p>
-              <p className="text-anthropic-light-gray/70">Iniciando Node.js v18.16.0</p>
-              <p className="text-anthropic-light-gray/70">Servidor listo en el puerto 3000</p>
-              <p><span className="text-anthropic-blue">~/proyecto</span> $ <span className="animate-pulse">_</span></p>
+              <p><span className="text-anthropic-blue">~/project</span> $ npx create-runboxjs-app</p>
+              <p className="text-anthropic-light-gray/70">{t('home.terminal.booting')}</p>
+              <p className="text-anthropic-light-gray/70">{t('home.terminal.starting')}</p>
+              <p className="text-anthropic-light-gray/70">{t('home.terminal.ready')}</p>
+              <p><span className="text-anthropic-blue">~/project</span> $ <span className="animate-pulse">_</span></p>
             </div>
           </div>
         </motion.div>
@@ -112,8 +115,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Zap className="w-8 h-8 text-anthropic-orange" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Inicio Instantáneo</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Los entornos se inician en milisegundos. Sin contenedores que provisionar, ni imágenes que descargar.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">{t('home.features.f1_title')}</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">{t('home.features.f1_desc')}</p>
             </motion.div>
 
             <motion.div 
@@ -124,8 +127,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Terminal className="w-8 h-8 text-anthropic-blue" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">API Completa de Node</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Ejecuta Express, Vite, Next.js y más. Un entorno de ejecución de Node.js totalmente compatible dentro de la pestaña de tu navegador.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">{t('home.features.f2_title')}</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">{t('home.features.f2_desc')}</p>
             </motion.div>
 
             <motion.div 
@@ -136,8 +139,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Globe className="w-8 h-8 text-anthropic-green" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Local Primero</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Trabaja sin conexión. El procesamiento se mantiene local. Seguro por diseño sin requerir dependencias de backend.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">{t('home.features.f3_title')}</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">{t('home.features.f3_desc')}</p>
             </motion.div>
 
           </div>
@@ -148,25 +151,24 @@ const HomePage = () => {
       <section id="documentation" className="py-32 px-6 md:px-12 bg-[#1a1a19] border-y border-anthropic-light-gray/5 scroll-mt-24">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div className="flex flex-col gap-8">
-            <h2 className="text-4xl md:text-5xl font-poppins font-medium tracking-tight leading-tight text-anthropic-light">
-              IDEs integrables.<br />
-              Docs interactivos.
+            <h2 className="text-4xl md:text-5xl font-poppins font-medium tracking-tight leading-tight text-anthropic-light whitespace-pre-line">
+              {t('home.details.title')}
             </h2>
             <p className="text-lg text-anthropic-mid-gray font-lora leading-relaxed max-w-md">
-              Integra Runboxjs en tu plataforma para proporcionar ejemplos de código interactivos, tutoriales o entornos de desarrollo completos. Simplemente funciona.
+              {t('home.details.desc')}
             </p>
             <ul className="flex flex-col gap-6 text-anthropic-light-gray font-lora">
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-orange"></span>
-                Monta sistemas de archivos virtuales al instante
+                {t('home.details.li1')}
               </li>
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-blue"></span>
-                Ejecuta comandos de shell de forma programática
+                {t('home.details.li2')}
               </li>
               <li className="flex items-center gap-4 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-green"></span>
-                Intercepta solicitudes de red sin problemas
+                {t('home.details.li3')}
               </li>
             </ul>
           </div>
@@ -199,13 +201,13 @@ console.<code className="text-anthropic-blue">log</code>(JSON.<code className="t
       {/* Final CTA */}
       <section className="py-32 px-6 md:px-12 flex flex-col items-center text-center bg-anthropic-dark">
         <h2 className="text-5xl md:text-7xl font-poppins font-medium tracking-tighter mb-8 text-anthropic-light">
-          Empieza a construir.
+          {t('home.cta.title')}
         </h2>
         <p className="text-xl font-lora text-anthropic-mid-gray max-w-lg mb-12 leading-relaxed">
-          Añade Runboxjs a tu proyecto y experimenta el poder de los entornos Node.js en el navegador.
+          {t('home.cta.desc')}
         </p>
         <a href="/doc" className="bg-anthropic-orange text-anthropic-dark px-10 py-5 rounded-full font-poppins font-medium text-lg hover:bg-[#c76547] hover:scale-105 transition-all shadow-xl">
-          Lee la Documentación
+          {t('home.cta.button')}
         </a>
       </section>
     </>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Terminal as TerminalIcon, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface TopBarProps {
   activeView: 'code' | 'preview';
@@ -24,6 +25,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   isReady,
   isRunning
 }) => {
+  const { t } = useTranslation();
+
   return (
     <header className="flex justify-between items-center px-4 py-3 border-b border-[#b0aea5]/10 shrink-0 bg-[#141413]">
       <Link to="/" className="flex items-center gap-2 w-1/3 cursor-pointer hover:opacity-80 transition-opacity">
@@ -44,7 +47,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
               />
             )}
-            Preview
+            {t('demo.topbar.preview')}
           </button>
           <button
             onClick={() => setActiveView('code')}
@@ -57,7 +60,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
               />
             )}
-            Código
+            {t('demo.topbar.code')}
           </button>
         </div>
       </div>
@@ -73,7 +76,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           onClick={handleReset}
           className="text-xs font-poppins text-[#b0aea5] hover:text-[#faf9f5] transition-colors cursor-pointer"
         >
-          Reiniciar
+          {t('demo.topbar.reset')}
         </button>
         <div className="h-4 w-px bg-[#b0aea5]/20" />
         <motion.button 
@@ -84,7 +87,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           className="flex items-center gap-1.5 text-xs font-poppins font-medium text-[#faf9f5] bg-[#d97757] px-4 py-1.5 rounded-full hover:bg-[#c76547] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <Play className="w-3 h-3 fill-current" />
-          {isRunning ? 'Ejecutando' : 'Ejecutar'}
+          {isRunning ? t('demo.topbar.running') : t('demo.topbar.run')}
         </motion.button>
       </div>
     </header>

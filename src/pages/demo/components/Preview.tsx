@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Globe, ArrowLeft, ArrowRight, RotateCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PreviewProps {
   serverPort: number | null;
@@ -27,6 +28,8 @@ export const Preview: React.FC<PreviewProps> = ({
   canGoBack,
   canGoForward
 }) => {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       key="preview"
@@ -74,26 +77,18 @@ export const Preview: React.FC<PreviewProps> = ({
         <button
           onClick={() => handleNavigate(browserUrl)} disabled={!serverPort}
           className="text-xs bg-[#d97757] hover:bg-[#c76547] text-[#141413] px-4 py-1.5 rounded font-medium shrink-0 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >Ir</button>
+        >{t('demo.preview.go')}</button>
       </div>
 
       {/* Iframe */}
       <div className="flex-1 overflow-y-auto bg-white">
         {serverPort ? (
           <iframe
+            key={previewHtml}
             srcDoc={previewHtml}
-            className="w-full h-full border-0"
-            sandbox="allow-scripts allow-same-origin"
-            onLoad={e => {
-              try {
-                e.currentTarget.contentDocument?.querySelectorAll('a[href]').forEach(a => {
-                  (a as HTMLAnchorElement).addEventListener('click', ev => {
-                    ev.preventDefault();
-                    handleNavigate((a as HTMLAnchorElement).getAttribute('href') || '/');
-                  });
-                });
-              } catch { /* cross-origin */ }
-            }}
+            title="preview"
+            className="w-full h-full border-none"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
           />
         ) : (
           <div className="h-full flex items-center justify-center bg-[#0a0a09] text-[#b0aea5] font-poppins text-sm text-center p-6">
@@ -101,10 +96,8 @@ export const Preview: React.FC<PreviewProps> = ({
               <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#1e1e1d] flex items-center justify-center border border-[#b0aea5]/10 shadow-inner">
                 <Globe className="w-8 h-8 text-[#d97757] opacity-80" />
               </div>
-              <h3 className="text-base font-medium text-[#faf9f5] mb-2 tracking-tight">No hay servidor en ejecución</h3>
-              <p className="text-xs text-[#b0aea5]/70 leading-relaxed max-w-sm mx-auto">
-                Haz clic en el botón <span className="text-[#d97757] font-medium">Ejecutar</span> para correr tu código. Si arranca un servidor HTTP, la previsualización aparecerá automáticamente aquí.
-              </p>
+              <h3 className="text-base font-medium text-[#faf9f5] mb-2 tracking-tight">{t('demo.preview.no_server')}</h3>
+              <p className="text-xs text-[#b0aea5]/70 leading-relaxed max-w-sm mx-auto" dangerouslySetInnerHTML={{ __html: t('demo.preview.no_server_desc') }}></p>
             </div>
           </div>
         )}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { SiGit, SiJavascript, SiPnpm, SiPython, SiReact, SiTypescript, SiYarn } from 'react-icons/si';
 import { defaultFiles } from '../constants/defaultFiles';
+import { useTranslation } from 'react-i18next';
 
 interface DemoTemplate {
   id: string;
@@ -276,10 +277,12 @@ interface TemplatesSidebarProps {
 }
 
 export const TemplatesSidebar: React.FC<TemplatesSidebarProps> = ({ onSelectTemplate, onConfirmTemplateLoad }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="w-64 shrink-0 bg-[#141413] border-r border-[#b0aea5]/10 flex flex-col">
       <div className="flex items-center px-4 py-3">
-        <span className="text-xs font-poppins font-medium text-[#faf9f5]">Plantillas</span>
+        <span className="text-xs font-poppins font-medium text-[#faf9f5]">{t('demo.templates.title')}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto py-2 px-3 flex flex-col gap-3">

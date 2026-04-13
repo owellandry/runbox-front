@@ -1,0 +1,116 @@
+{
+  "footer": {
+    "description": "Bringing native Node.js environments directly to your browser tab. Fast, secure, and entirely local.",
+    "resources": "Resources",
+    "docs": "Documentation",
+    "demo": "Interactive Demo",
+    "blog": "Blog",
+    "community": "Community",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "rights": "All rights reserved."
+  },
+  "nav": {
+    "docs": "Documentation",
+    "demo": "Demo"
+  },
+  "loading": {
+    "text": "Loading environment..."
+  },
+  "home": {
+    "hero": {
+      "desc": "Run Node.js directly in the browser. Instant environments, zero setup. Boot a full-stack app inside the browser with native performance.",
+      "start": "Get Started",
+      "copy": "Copy to clipboard"
+    },
+    "terminal": {
+      "booting": "Booting environment...",
+      "starting": "Starting Node.js v18.16.0",
+      "ready": "Server ready on port 3000"
+    },
+    "features": {
+      "f1_title": "Instant Boot",
+      "f1_desc": "Environments start in milliseconds. No containers to provision, no images to pull.",
+      "f2_title": "Full Node API",
+      "f2_desc": "Run Express, Vite, Next.js, and more. A fully compliant Node.js runtime inside your browser tab.",
+      "f3_title": "Local-First",
+      "f3_desc": "Work offline. Compute stays local. Secure by design with zero backend dependencies required."
+    },
+    "details": {
+      "title": "Embeddable IDEs.\nInteractive Docs.",
+      "desc": "Integrate Runboxjs into your platform to provide interactive code examples, tutorials, or full-fledged development environments. It just works.",
+      "li1": "Mount virtual filesystems instantly",
+      "li2": "Execute shell commands programmatically",
+      "li3": "Intercept network requests seamlessly"
+    },
+    "cta": {
+      "title": "Start building.",
+      "desc": "Add Runboxjs to your project and experience the power of in-browser Node.js environments.",
+      "button": "Read the Documentation"
+    }
+  },
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Everything you need to know about integrating Runboxjs into your platform.",
+    "cards": {
+      "c1_title": "Quick Start",
+      "c1_desc": "Get up and running in less than 5 minutes.",
+      "c2_title": "API Reference",
+      "c2_desc": "Detailed documentation of the Runboxjs API.",
+      "c3_title": "Guides",
+      "c3_desc": "Step-by-step tutorials for common use cases."
+    },
+    "install": {
+      "title": "Installation",
+      "desc": "Install the package using your preferred package manager:"
+    },
+    "quickstart": {
+      "title": "Quick Start",
+      "desc": "Create a RunboxInstance, write files, and execute commands. The WebAssembly module initializes automatically on import:"
+    },
+    "advanced": {
+      "title": "Advanced: Interactive Terminal",
+      "desc": "Runboxjs provides full terminal emulation capabilities. You can send inputs exactly as if a user was typing in an xterm.js instance:"
+    },
+    "overview": {
+      "title": "Overview",
+      "desc": "RunboxJS is a WebAssembly-first runtime that lets you execute project workflows directly in-browser: files, commands, terminal streams, package installs, git flows, and assistant tool calls.",
+      "t1": "Core package",
+      "d1": "`runboxjs` (WASM + JS bindings)",
+      "t2": "Execution model",
+      "d2": "Virtual filesystem + runtime dispatch by command target",
+      "t3": "Output contract",
+      "d3": "`exec()` always returns JSON with `stdout`, `stderr`, `exit_code`",
+      "t4": "Best fit",
+      "d4": "Interactive docs, playgrounds, browser IDEs, AI coding copilots"
+    }
+  },
+  "demo": {
+    "topbar": {
+      "preview": "Preview",
+      "code": "Code",
+      "reset": "Reset",
+      "run": "Run",
+      "running": "Running"
+    },
+    "preview": {
+      "no_server": "No server running",
+      "no_server_desc": "Click the <span class=\"text-[#d97757] font-medium\">Run</span> button to execute your code. If it starts an HTTP server, the preview will automatically appear here.",
+      "go": "Go"
+    },
+    "explorer": {
+      "title": "Explorer",
+      "new_file": "New File",
+      "new_folder": "New Folder"
+    },
+    "terminal": {
+      "clear": "Clear"
+    },
+    "editor": {
+      "empty": "Select or create a file to edit"
+    },
+    "templates": {
+      "title": "Templates"
+    }
+  }
+}

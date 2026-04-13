@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -13,6 +13,7 @@ import {
   Server,
   Shield,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type RuntimeCard = {
   title: string;
@@ -26,16 +27,7 @@ type ApiGroup = {
   detail: string;
 };
 
-const sectionLinks = [
-  { id: 'overview', label: 'Descripción General' },
-  { id: 'install', label: 'Instalación + Vite' },
-  { id: 'quickstart', label: 'Inicio Rápido' },
-  { id: 'runtime-matrix', label: 'Matriz de Ejecución' },
-  { id: 'api-reference', label: 'Referencia de la API' },
-  { id: 'assistant-skill', label: 'Habilidad del Asistente' },
-  { id: 'examples', label: 'Plantillas y Escenarios' },
-  { id: 'troubleshooting', label: 'Solución de Problemas' },
-];
+
 
 const installCode = `npm install runboxjs`;
 
@@ -189,6 +181,20 @@ const SectionCard: React.FC<{ id: string; title: string; icon: React.ReactNode; 
 );
 
 const DocsPage: React.FC = () => {
+  const { t } = useTranslation();
+  const [activeSection, setActiveSection] = useState('overview');
+
+  const sectionLinks = [
+    { id: 'overview', label: t('docs.overview.title') },
+    { id: 'install', label: t('docs.install.title') },
+    { id: 'quickstart', label: t('docs.quickstart.title') },
+    { id: 'runtime-matrix', label: t('docs.runtime-matrix.title') },
+    { id: 'api-reference', label: t('docs.api-reference.title') },
+    { id: 'assistant-skill', label: t('docs.assistant-skill.title') },
+    { id: 'examples', label: t('docs.examples.title') },
+    { id: 'troubleshooting', label: t('docs.troubleshooting.title') },
+  ];
+
   return (
     <div className="min-h-screen bg-anthropic-dark text-anthropic-light pt-28 pb-20 px-6 md:px-10">
       <div className="max-w-7xl mx-auto">

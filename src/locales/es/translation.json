@@ -1,0 +1,116 @@
+{
+  "footer": {
+    "description": "Llevando entornos nativos de Node.js directamente a la pestaña de tu navegador. Rápido, seguro y completamente local.",
+    "resources": "Recursos",
+    "docs": "Documentación",
+    "demo": "Demo Interactiva",
+    "blog": "Blog",
+    "community": "Comunidad",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "rights": "Todos los derechos reservados."
+  },
+  "nav": {
+    "docs": "Documentación",
+    "demo": "Demo"
+  },
+  "loading": {
+    "text": "Cargando entorno..."
+  },
+  "home": {
+    "hero": {
+      "desc": "Ejecuta Node.js directamente en el navegador. Entornos instantáneos, sin configuración. Arranca una aplicación full-stack dentro del navegador con rendimiento nativo.",
+      "start": "Comenzar",
+      "copy": "Copiar al portapapeles"
+    },
+    "terminal": {
+      "booting": "Iniciando entorno...",
+      "starting": "Iniciando Node.js v18.16.0",
+      "ready": "Servidor listo en el puerto 3000"
+    },
+    "features": {
+      "f1_title": "Inicio Instantáneo",
+      "f1_desc": "Los entornos se inician en milisegundos. Sin contenedores que provisionar, ni imágenes que descargar.",
+      "f2_title": "API Completa de Node",
+      "f2_desc": "Ejecuta Express, Vite, Next.js y más. Un entorno de ejecución de Node.js totalmente compatible dentro de la pestaña de tu navegador.",
+      "f3_title": "Local Primero",
+      "f3_desc": "Trabaja sin conexión. El procesamiento se mantiene local. Seguro por diseño sin requerir dependencias de backend."
+    },
+    "details": {
+      "title": "IDEs integrables.\nDocs interactivos.",
+      "desc": "Integra Runboxjs en tu plataforma para proporcionar ejemplos de código interactivos, tutoriales o entornos de desarrollo completos. Simplemente funciona.",
+      "li1": "Monta sistemas de archivos virtuales al instante",
+      "li2": "Ejecuta comandos de shell de forma programática",
+      "li3": "Intercepta solicitudes de red sin problemas"
+    },
+    "cta": {
+      "title": "Empieza a construir.",
+      "desc": "Añade Runboxjs a tu proyecto y experimenta el poder de los entornos Node.js en el navegador.",
+      "button": "Lee la Documentación"
+    }
+  },
+  "docs": {
+    "title": "Documentación",
+    "subtitle": "Todo lo que necesitas saber sobre cómo integrar Runboxjs en tu plataforma.",
+    "cards": {
+      "c1_title": "Inicio Rápido",
+      "c1_desc": "Empieza a usarlo en menos de 5 minutos.",
+      "c2_title": "Referencia de la API",
+      "c2_desc": "Documentación detallada de la API de Runboxjs.",
+      "c3_title": "Guías",
+      "c3_desc": "Tutoriales paso a paso para casos de uso comunes."
+    },
+    "install": {
+      "title": "Instalación",
+      "desc": "Instala el paquete utilizando tu gestor de paquetes preferido:"
+    },
+    "quickstart": {
+      "title": "Inicio Rápido",
+      "desc": "Crea un RunboxInstance, escribe archivos y ejecuta comandos. El módulo WebAssembly se inicializa automáticamente al importar:"
+    },
+    "advanced": {
+      "title": "Avanzado: Terminal Interactiva",
+      "desc": "Runboxjs proporciona capacidades completas de emulación de terminal. Puedes enviar entradas exactamente como si un usuario estuviera escribiendo en una instancia de xterm.js:"
+    },
+    "overview": {
+      "title": "Descripción General",
+      "desc": "RunboxJS es un entorno de ejecución orientado a WebAssembly que te permite ejecutar flujos de trabajo de proyectos directamente en el navegador: archivos, comandos, flujos de terminal, instalaciones de paquetes, flujos git y llamadas a herramientas de asistentes.",
+      "t1": "Paquete principal",
+      "d1": "`runboxjs` (WASM + enlaces JS)",
+      "t2": "Modelo de ejecución",
+      "d2": "Sistema de archivos virtual + despacho de ejecución por objetivo de comando",
+      "t3": "Contrato de salida",
+      "d3": "`exec()` siempre devuelve un JSON con `stdout`, `stderr`, `exit_code`",
+      "t4": "Mejor uso",
+      "d4": "Docs interactivos, playgrounds, IDEs en el navegador, copilotos de programación IA"
+    }
+  },
+  "demo": {
+    "topbar": {
+      "preview": "Preview",
+      "code": "Código",
+      "reset": "Reiniciar",
+      "run": "Ejecutar",
+      "running": "Ejecutando"
+    },
+    "preview": {
+      "no_server": "No hay servidor en ejecución",
+      "no_server_desc": "Haz clic en el botón <span class=\"text-[#d97757] font-medium\">Ejecutar</span> para correr tu código. Si arranca un servidor HTTP, la previsualización aparecerá automáticamente aquí.",
+      "go": "Ir"
+    },
+    "explorer": {
+      "title": "Explorador",
+      "new_file": "Nuevo Archivo",
+      "new_folder": "Nueva Carpeta"
+    },
+    "terminal": {
+      "clear": "Limpiar"
+    },
+    "editor": {
+      "empty": "Selecciona o crea un archivo para editar"
+    },
+    "templates": {
+      "title": "Plantillas"
+    }
+  }
+}

@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const LoadingScreen: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -52,7 +55,7 @@ const LoadingScreen: React.FC = () => {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="text-[#b0aea5] font-lora text-sm animate-pulse"
         >
-          Cargando entorno...
+          {t('loading.text')}
         </motion.p>
       </motion.div>
     </motion.div>
