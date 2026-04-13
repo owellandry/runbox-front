@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import LoadingScreen from './LoadingScreen';
@@ -12,7 +12,7 @@ const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const hasMountedRef = useRef(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setIsLoading(true);
     const isInitial = !hasMountedRef.current;
     hasMountedRef.current = true;

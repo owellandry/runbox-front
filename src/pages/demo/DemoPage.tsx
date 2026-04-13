@@ -12,7 +12,6 @@ import { Terminal } from './components/Terminal';
 import { TemplatesSidebar } from './components/TemplatesSidebar';
 import { ConfirmModal } from './components/ConfirmModal';
 import { useFileSystem, type ConfirmRequestOptions } from './hooks/useFileSystem';
-import { RunboxLog } from '../../components/RunboxLog';
 
 type DemoPackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
@@ -567,7 +566,6 @@ const DemoPage: React.FC = () => {
   // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="h-screen w-full bg-[#141413] text-[#faf9f5] flex flex-col font-sans overflow-hidden">
-      <RunboxLog />
       <TopBar
         activeView={activeView}
         setActiveView={setActiveView}

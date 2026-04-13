@@ -3,10 +3,19 @@ const NOISY_ERROR_PATTERNS = [
   /Cannot read properties of undefined \(reading ['"]useCache['"]\)/i
 ];
 
+const NOISY_CONSOLE_PATTERNS = [
+  ...NOISY_ERROR_PATTERNS,
+  /Constant ["']VERSION["'] on line \d+ is being redeclared and conflicts with a p5\.js constant/i
+];
+
 const NOISY_FILE_HINTS = ['content.js', 'polyfill.js', 'chrome-extension://', 'moz-extension://'];
 
 function matchesKnownNoise(text: string): boolean {
   return NOISY_ERROR_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function matchesKnownConsoleNoise(text: string): boolean {
+  return NOISY_CONSOLE_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 function isNoisyFile(filename: string): boolean {
@@ -64,7 +73,14 @@ export function installExtensionNoiseFilter(): void {
   const originalError = console.error.bind(console);
   console.error = (...args: unknown[]) => {
     const text = args.map((arg) => String(arg)).join(' ');
-    if (matchesKnownNoise(text)) return;
+    if (matchesKnownConsoleNoise(text)) return;
     originalError(...args);
+  };
+
+  const originalWarn = console.warn.bind(console);
+  console.warn = (...args: unknown[]) => {
+    const text = args.map((arg) => String(arg)).join(' ');
+    if (matchesKnownConsoleNoise(text)) return;
+    originalWarn(...args);
   };
 }
