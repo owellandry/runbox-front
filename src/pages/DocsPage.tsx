@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
@@ -463,6 +463,7 @@ const DocsPage: React.FC = () => {
   const { i18n } = useTranslation();
   const locale: 'en' | 'es' = i18n.resolvedLanguage?.startsWith('es') ? 'es' : 'en';
   const copy = docsByLocale[locale];
+  const [activeSection] = useState('overview');
 
   const sectionLinks = [
     { id: 'overview', label: copy.sectionLabels.overview },
@@ -497,7 +498,9 @@ const DocsPage: React.FC = () => {
                 <a
                   key={link.id}
                   href={`#${link.id}`}
-                  className="block text-sm transition-colors text-anthropic-light-gray/85 hover:text-anthropic-light"
+                  className={`block text-sm transition-colors ${
+                    activeSection === link.id ? 'text-anthropic-light' : 'text-anthropic-light-gray/85 hover:text-anthropic-light'
+                  }`}
                 >
                   {link.label}
                 </a>
