@@ -27,14 +27,14 @@ type ApiGroup = {
 };
 
 const sectionLinks = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'install', label: 'Install + Vite' },
-  { id: 'quickstart', label: 'Quick Start' },
-  { id: 'runtime-matrix', label: 'Runtime Matrix' },
-  { id: 'api-reference', label: 'API Reference' },
-  { id: 'assistant-skill', label: 'Assistant Skill' },
-  { id: 'examples', label: 'Templates & Scenarios' },
-  { id: 'troubleshooting', label: 'Troubleshooting' },
+  { id: 'overview', label: 'Descripción General' },
+  { id: 'install', label: 'Instalación + Vite' },
+  { id: 'quickstart', label: 'Inicio Rápido' },
+  { id: 'runtime-matrix', label: 'Matriz de Ejecución' },
+  { id: 'api-reference', label: 'Referencia de la API' },
+  { id: 'assistant-skill', label: 'Habilidad del Asistente' },
+  { id: 'examples', label: 'Plantillas y Escenarios' },
+  { id: 'troubleshooting', label: 'Solución de Problemas' },
 ];
 
 const installCode = `npm install runboxjs`;
@@ -64,103 +64,103 @@ console.log(response);`;
 
 const runtimeCards: RuntimeCard[] = [
   {
-    title: 'Bun/Node Runtime',
+    title: 'Entorno Bun/Node',
     command: 'bun run, node, nodejs, tsx, ts-node',
-    notes: 'Node aliases are routed to the Bun runtime layer for sandbox execution.',
+    notes: 'Los alias de Node se dirigen a la capa de ejecución de Bun para su ejecución en el sandbox.',
   },
   {
-    title: 'Package Managers',
+    title: 'Gestores de Paquetes',
     command: 'npm, npx, pnpm, pnpx, yarn, bun install/add',
-    notes: 'Install/add/remove/list/audit/update flows supported with lockfile generation in VFS.',
+    notes: 'Soporte para flujos de install/add/remove/list/audit/update con generación de lockfile en el VFS.',
   },
   {
-    title: 'Git Runtime',
+    title: 'Entorno Git',
     command: 'git init/add/commit/status/branch/checkout/merge/push/pull',
-    notes: 'In-memory git workflow with remote helpers and credentials.',
+    notes: 'Flujo de trabajo de git en memoria con credenciales y ayudantes remotos.',
   },
   {
-    title: 'Python Runtime',
+    title: 'Entorno Python',
     command: 'python/python3, pip/pip3',
-    notes: 'Browser environments can bridge Pyodide; native targets try system Python first.',
+    notes: 'Los entornos de navegador pueden conectarse con Pyodide; los objetivos nativos intentan usar primero el Python del sistema.',
   },
   {
-    title: 'Shell Builtins',
+    title: 'Comandos Shell Nativos',
     command: 'cd, ls, echo, cat, pwd, mkdir, rm, cp, mv, touch',
-    notes: 'Useful for file and workspace orchestration from assistant flows.',
+    notes: 'Útil para la orquestación de archivos y del espacio de trabajo desde flujos de asistentes.',
   },
   {
-    title: 'Terminal Stream',
+    title: 'Flujo de Terminal',
     command: 'terminal_input, terminal_drain, terminal_resize',
-    notes: 'xterm-style stream model with incremental output polling.',
+    notes: 'Modelo de flujo estilo xterm con consultas (polling) incrementales de salida.',
   },
 ];
 
 const apiGroups: ApiGroup[] = [
   {
-    title: 'Filesystem',
+    title: 'Sistema de Archivos',
     methods: ['write_file', 'read_file', 'list_dir', 'file_exists', 'remove_file'],
-    detail: 'Operate on the in-memory virtual filesystem with binary-safe read/write support.',
+    detail: 'Opera sobre el sistema de archivos virtual en memoria con soporte de lectura/escritura seguro para binarios.',
   },
   {
-    title: 'Execution',
+    title: 'Ejecución',
     methods: ['exec'],
-    detail: 'Execute commands and receive structured JSON output with stdout, stderr, and exit_code.',
+    detail: 'Ejecuta comandos y recibe una salida JSON estructurada con stdout, stderr y exit_code.',
   },
   {
-    title: 'Package Tarball Flow',
+    title: 'Flujo de Tarballs de Paquetes',
     methods: ['npm_packages_needed', 'npm_process_tarball'],
-    detail: 'WASM-friendly dependency install flow using host-side npm registry fetch and tarball ingestion.',
+    detail: 'Flujo de instalación de dependencias amigable con WASM utilizando la obtención de registros npm del lado del host e ingesta de tarballs.',
   },
   {
-    title: 'Console + Terminal',
+    title: 'Consola y Terminal',
     methods: ['console_push', 'console_all', 'console_since', 'terminal_input', 'terminal_drain'],
-    detail: 'Capture logs, stream outputs, and power terminal UIs in the browser.',
+    detail: 'Captura registros, transmite salidas y potencia interfaces de terminal en el navegador.',
   },
   {
-    title: 'Hot Reload + Inspector',
+    title: 'Recarga en Caliente e Inspector',
     methods: ['hot_tick', 'hot_flush', 'inspector_activate', 'inspector_set_node', 'inspector_overlay'],
-    detail: 'Drive UI refresh decisions and DOM inspection overlays from a host app.',
+    detail: 'Impulsa decisiones de actualización de UI y superposiciones de inspección DOM desde una aplicación anfitriona.',
   },
   {
-    title: 'AI Tools',
+    title: 'Herramientas de IA',
     methods: ['ai_tools', 'ai_dispatch'],
-    detail: 'Expose tool schemas for OpenAI/Anthropic/Gemini and execute skill calls in sandbox context.',
+    detail: 'Expone esquemas de herramientas para OpenAI/Anthropic/Gemini y ejecuta llamadas a habilidades en el contexto del sandbox.',
   },
   {
-    title: 'Sandbox + Network Bridges',
+    title: 'Sandbox y Puentes de Red',
     methods: ['sandbox_command', 'sandbox_event', 'http_handle_request', 'sw_handle_request'],
-    detail: 'Bridge preview servers, sandbox events, and service-worker-driven request handling.',
+    detail: 'Conecta servidores de vista previa, eventos de sandbox y manejo de peticiones controladas por service-workers.',
   },
 ];
 
 const templateScenarios = [
   {
-    name: 'React Dashboard',
-    goal: 'Load app, install deps, run start script, and expose localhost preview.',
+    name: 'Dashboard en React',
+    goal: 'Cargar la aplicación, instalar dependencias, ejecutar script de inicio y exponer previsualización en localhost.',
   },
   {
-    name: 'Vanilla JS App',
-    goal: 'Simple zero-build app with fast startup and browser-native preview.',
+    name: 'Aplicación Vanilla JS',
+    goal: 'Aplicación simple sin compilación con inicio rápido y vista previa nativa en el navegador.',
   },
   {
-    name: 'TypeScript API Playground',
-    goal: 'Run TS server-style entry points through runtime script execution.',
+    name: 'Playground API TypeScript',
+    goal: 'Ejecutar puntos de entrada de servidor en TypeScript mediante la ejecución de scripts en el entorno.',
   },
   {
-    name: 'Python Data Lab',
-    goal: 'Validate pip install/list/freeze and python script execution behavior.',
+    name: 'Laboratorio de Datos en Python',
+    goal: 'Validar pip install/list/freeze y el comportamiento de la ejecución de scripts python.',
   },
   {
-    name: 'Git Workflow Demo',
-    goal: 'Validate init/add/status/branch/checkout/commit/remote flows inside VFS.',
+    name: 'Demostración del Flujo Git',
+    goal: 'Validar flujos init/add/status/branch/checkout/commit/remote dentro del sistema de archivos (VFS).',
   },
   {
-    name: 'pnpm Showcase',
-    goal: 'Exercise lockfile generation and package command lifecycle with pnpm.',
+    name: 'Demostración pnpm',
+    goal: 'Probar la generación de lockfiles y el ciclo de vida de comandos de paquetes con pnpm.',
   },
   {
-    name: 'Yarn Showcase',
-    goal: 'Exercise lockfile generation and package command lifecycle with yarn.',
+    name: 'Demostración yarn',
+    goal: 'Probar la generación de lockfiles y el ciclo de vida de comandos de paquetes con yarn.',
   },
 ];
 
@@ -198,18 +198,18 @@ const DocsPage: React.FC = () => {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10"
         >
-          <p className="uppercase tracking-[0.22em] text-xs text-anthropic-blue font-poppins">RunboxJS Documentation</p>
+          <p className="uppercase tracking-[0.22em] text-xs text-anthropic-blue font-poppins">Documentación de RunboxJS</p>
           <h1 className="text-4xl md:text-6xl font-poppins font-medium tracking-tight mt-3 text-anthropic-light">
-            Complete Docs for /doc
+            Docs Completos para /doc
           </h1>
           <p className="max-w-3xl mt-4 text-lg text-anthropic-mid-gray font-lora">
-            Architecture, API, runtime behavior, assistant skills, and real integration guidance for building robust browser sandboxes with RunboxJS.
+            Arquitectura, API, comportamiento de ejecución, habilidades de asistente y orientación real de integración para construir sandboxes de navegador robustos con RunboxJS.
           </p>
         </motion.header>
 
         <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] gap-8 items-start">
           <aside className="hidden lg:block sticky top-28 rounded-2xl border border-anthropic-light-gray/10 bg-[#171715] p-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-anthropic-mid-gray font-poppins mb-4">On this page</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-anthropic-mid-gray font-poppins mb-4">En esta página</p>
             <nav className="space-y-2">
               {sectionLinks.map((link) => (
                 <a
@@ -224,34 +224,34 @@ const DocsPage: React.FC = () => {
           </aside>
 
           <div className="space-y-7">
-            <SectionCard id="overview" title="Overview" icon={<BookOpen className="w-5 h-5" />}>
+            <SectionCard id="overview" title="Descripción General" icon={<BookOpen className="w-5 h-5" />}>
               <p>
-                RunboxJS is a WebAssembly-first runtime that lets you execute project workflows directly in-browser: files,
-                commands, terminal streams, package installs, git flows, and assistant tool calls.
+                RunboxJS es un entorno de ejecución orientado a WebAssembly que te permite ejecutar flujos de trabajo de proyectos directamente en el navegador: archivos,
+                comandos, flujos de terminal, instalaciones de paquetes, flujos git y llamadas a herramientas de asistentes.
               </p>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Core package</p>
-                  <p className="text-sm text-anthropic-mid-gray mt-1">`runboxjs` (WASM + JS bindings)</p>
+                  <p className="text-anthropic-light font-poppins text-sm">Paquete principal</p>
+                  <p className="text-sm text-anthropic-mid-gray mt-1">`runboxjs` (WASM + enlaces JS)</p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Execution model</p>
-                  <p className="text-sm text-anthropic-mid-gray mt-1">Virtual filesystem + runtime dispatch by command target</p>
+                  <p className="text-anthropic-light font-poppins text-sm">Modelo de ejecución</p>
+                  <p className="text-sm text-anthropic-mid-gray mt-1">Sistema de archivos virtual + despacho de ejecución por objetivo de comando</p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Output contract</p>
-                  <p className="text-sm text-anthropic-mid-gray mt-1">`exec()` always returns JSON with `stdout`, `stderr`, `exit_code`</p>
+                  <p className="text-anthropic-light font-poppins text-sm">Contrato de salida</p>
+                  <p className="text-sm text-anthropic-mid-gray mt-1">`exec()` siempre devuelve un JSON con `stdout`, `stderr`, `exit_code`</p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Best fit</p>
-                  <p className="text-sm text-anthropic-mid-gray mt-1">Interactive docs, playgrounds, browser IDEs, AI coding copilots</p>
+                  <p className="text-anthropic-light font-poppins text-sm">Mejor uso</p>
+                  <p className="text-sm text-anthropic-mid-gray mt-1">Docs interactivos, playgrounds, IDEs en el navegador, copilotos de programación IA</p>
                 </div>
               </div>
             </SectionCard>
 
-            <SectionCard id="install" title="Install + Vite Setup" icon={<Wrench className="w-5 h-5" />}>
+            <SectionCard id="install" title="Instalación + Vite" icon={<Wrench className="w-5 h-5" />}>
               <p>
-                RunboxJS now works in standard Vite apps without additional plugin configuration. Install and initialize directly.
+                RunboxJS ahora funciona en aplicaciones Vite estándar sin configuración adicional de plugins. Instala e inicializa directamente.
               </p>
               <pre className="p-4 rounded-xl bg-[#11110f] border border-anthropic-light-gray/10 overflow-x-auto text-sm text-anthropic-light-gray">
                 <code>{installCode}</code>
@@ -261,9 +261,9 @@ const DocsPage: React.FC = () => {
               </pre>
             </SectionCard>
 
-            <SectionCard id="quickstart" title="Quick Start" icon={<Rocket className="w-5 h-5" />}>
+            <SectionCard id="quickstart" title="Inicio Rápido" icon={<Rocket className="w-5 h-5" />}>
               <p>
-                Initialize once with `await init()`, then create isolated runtimes by instantiating `RunboxInstance`.
+                Inicializa una vez con `await init()`, luego crea entornos aislados instanciando `RunboxInstance`.
               </p>
               <pre className="p-4 rounded-xl bg-[#11110f] border border-anthropic-light-gray/10 overflow-x-auto text-sm text-anthropic-light-gray">
                 <code>{quickStartCode}</code>
@@ -271,18 +271,18 @@ const DocsPage: React.FC = () => {
               <div className="rounded-2xl border border-anthropic-green/25 bg-anthropic-green/10 p-4 text-sm">
                 <p className="text-anthropic-light flex items-center gap-2 font-poppins">
                   <CheckCircle2 className="w-4 h-4 text-anthropic-green" />
-                  Production tip
+                  Consejo para producción
                 </p>
                 <p className="mt-2">
-                  Always parse command results and branch behavior on `exit_code` instead of string matching `stderr`.
+                  Siempre analiza los resultados del comando y ramifica el comportamiento con `exit_code` en lugar de coincidir cadenas de texto en `stderr`.
                 </p>
               </div>
             </SectionCard>
 
-            <SectionCard id="runtime-matrix" title="Runtime Matrix" icon={<Server className="w-5 h-5" />}>
+            <SectionCard id="runtime-matrix" title="Matriz de Ejecución" icon={<Server className="w-5 h-5" />}>
               <p>
-                Command dispatch is program-based and routes into dedicated runtime modules. This matrix helps when building
-                command UIs or assistant planners.
+                El despacho de comandos está basado en programas y se dirige a módulos de ejecución dedicados. Esta matriz ayuda cuando se construyen 
+                interfaces de comandos o planificadores de asistentes.
               </p>
               <div className="grid md:grid-cols-2 gap-4">
                 {runtimeCards.map((runtime) => (
@@ -294,7 +294,7 @@ const DocsPage: React.FC = () => {
                 ))}
               </div>
               <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4 text-sm">
-                <p className="text-anthropic-light font-poppins mb-2">Lockfile output paths</p>
+                <p className="text-anthropic-light font-poppins mb-2">Rutas de salida de Lockfiles</p>
                 <p>`npm` {'->'} `/package-lock.json`</p>
                 <p>`pnpm` {'->'} `/pnpm-lock.yaml`</p>
                 <p>`yarn` {'->'} `/yarn.lock`</p>
@@ -302,10 +302,10 @@ const DocsPage: React.FC = () => {
               </div>
             </SectionCard>
 
-            <SectionCard id="api-reference" title="API Reference" icon={<Terminal className="w-5 h-5" />}>
+            <SectionCard id="api-reference" title="Referencia de la API" icon={<Terminal className="w-5 h-5" />}>
               <p>
-                The API is designed in groups so you can connect editor state, terminal state, and preview state without custom
-                protocols.
+                La API está diseñada en grupos para que puedas conectar el estado del editor, el estado de la terminal y el estado de la vista previa sin
+                protocolos personalizados.
               </p>
               <div className="grid md:grid-cols-2 gap-4">
                 {apiGroups.map((group) => (
@@ -318,35 +318,34 @@ const DocsPage: React.FC = () => {
               </div>
             </SectionCard>
 
-            <SectionCard id="assistant-skill" title="Assistant Skill Integration" icon={<Bot className="w-5 h-5" />}>
+            <SectionCard id="assistant-skill" title="Integración de Habilidad de Asistente" icon={<Bot className="w-5 h-5" />}>
               <p>
-                `ai_tools(provider)` exposes schema for OpenAI, Anthropic, and Gemini. `ai_dispatch` executes the requested tool in
-                the same sandbox state.
+                `ai_tools(provider)` expone esquemas para OpenAI, Anthropic y Gemini. `ai_dispatch` ejecuta la herramienta solicitada en el mismo estado del sandbox.
               </p>
               <pre className="p-4 rounded-xl bg-[#11110f] border border-anthropic-light-gray/10 overflow-x-auto text-sm text-anthropic-light-gray">
                 <code>{aiDispatchCode}</code>
               </pre>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm mb-2">Available skill names</p>
+                  <p className="text-anthropic-light font-poppins text-sm mb-2">Nombres de habilidades disponibles</p>
                   <p className="text-xs font-mono leading-relaxed text-anthropic-blue">
                     read_file • write_file • list_dir • exec_command • search_code • get_console_logs • reload_sandbox •
                     install_packages • get_file_tree
                   </p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm mb-2">Recommended control loop</p>
+                  <p className="text-anthropic-light font-poppins text-sm mb-2">Bucle de control recomendado</p>
                   <p className="text-sm">
-                    inspect tree {'->'} run command {'->'} parse exit_code {'->'} patch files {'->'} rerun {'->'} report deterministic result
+                    inspeccionar árbol {'->'} ejecutar comando {'->'} analizar exit_code {'->'} aplicar parche a archivos {'->'} volver a ejecutar {'->'} reportar resultado determinista
                   </p>
                 </div>
               </div>
             </SectionCard>
 
-            <SectionCard id="examples" title="Templates & Scenarios" icon={<Sparkles className="w-5 h-5" />}>
+            <SectionCard id="examples" title="Plantillas y Escenarios" icon={<Sparkles className="w-5 h-5" />}>
               <p>
-                These scenarios mirror real templates used in the demo environment and are ideal for regression checks when shipping
-                runtime updates.
+                Estos escenarios reflejan plantillas reales utilizadas en el entorno de demostración y son ideales para comprobaciones de regresión cuando se despliegan
+                actualizaciones de ejecución.
               </p>
               <div className="grid md:grid-cols-2 gap-4">
                 {templateScenarios.map((scenario) => (
@@ -359,41 +358,40 @@ const DocsPage: React.FC = () => {
               <div className="rounded-2xl border border-anthropic-blue/30 bg-anthropic-blue/10 p-4 text-sm">
                 <p className="flex items-center gap-2 text-anthropic-light font-poppins">
                   <FolderTree className="w-4 h-4 text-anthropic-blue" />
-                  Regression baseline
+                  Línea base de regresión
                 </p>
                 <p className="mt-2">
-                  Keep scenario logs grouped and exportable so each template can be validated without manual copy-paste from the
-                  terminal panel.
+                  Mantén los registros de escenarios agrupados y exportables para que cada plantilla pueda validarse sin copiar y pegar manualmente desde el panel del terminal.
                 </p>
               </div>
             </SectionCard>
 
-            <SectionCard id="troubleshooting" title="Troubleshooting" icon={<AlertTriangle className="w-5 h-5" />}>
+            <SectionCard id="troubleshooting" title="Solución de Problemas" icon={<AlertTriangle className="w-5 h-5" />}>
               <div className="space-y-4">
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">WASM import fails in Vite</p>
-                  <p className="text-sm mt-2">Clear cache and reinstall dependencies. RunboxJS no longer requires `vite-plugin-wasm`.</p>
+                  <p className="text-anthropic-light font-poppins text-sm">La importación de WASM falla en Vite</p>
+                  <p className="text-sm mt-2">Limpia la caché y reinstala las dependencias. RunboxJS ya no requiere `vite-plugin-wasm`.</p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Modules not found after install</p>
-                  <p className="text-sm mt-2">Verify both `/package.json` dependency entries and `/node_modules/&lt;name&gt;/package.json` in VFS.</p>
+                  <p className="text-anthropic-light font-poppins text-sm">Módulos no encontrados después de instalar</p>
+                  <p className="text-sm mt-2">Verifica tanto las entradas de dependencia en `/package.json` como `/node_modules/&lt;nombre&gt;/package.json` en el VFS.</p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Python command warns about missing python3</p>
-                  <p className="text-sm mt-2">Expected on environments without native Python; browser adapters should provide Pyodide integration.</p>
+                  <p className="text-anthropic-light font-poppins text-sm">El comando de Python advierte sobre la falta de python3</p>
+                  <p className="text-sm mt-2">Se espera en entornos sin Python nativo; los adaptadores de navegador deben proporcionar la integración de Pyodide.</p>
                 </div>
                 <div className="rounded-2xl border border-anthropic-light-gray/10 bg-[#141412] p-4">
-                  <p className="text-anthropic-light font-poppins text-sm">Lockfile not visible in UI</p>
-                  <p className="text-sm mt-2">Runtime creates lockfiles in VFS, so the issue is usually file-tree refresh logic in the frontend.</p>
+                  <p className="text-anthropic-light font-poppins text-sm">Lockfile no visible en la UI</p>
+                  <p className="text-sm mt-2">El entorno de ejecución crea los lockfiles en el VFS, por lo que el problema suele ser la lógica de actualización del árbol de archivos en el frontend.</p>
                 </div>
               </div>
               <div className="rounded-2xl border border-anthropic-orange/30 bg-anthropic-orange/10 p-4 text-sm mt-2">
                 <p className="text-anthropic-light font-poppins flex items-center gap-2">
                   <Shield className="w-4 h-4 text-anthropic-orange" />
-                  Stability recommendation
+                  Recomendación de estabilidad
                 </p>
                 <p className="mt-2">
-                  Add an automated template matrix that runs install + start + smoke assertions per runtime to catch regressions before release.
+                  Agrega una matriz automatizada de plantillas que ejecute aserciones de humo (install + start) por cada entorno para atrapar regresiones antes de un lanzamiento.
                 </p>
               </div>
             </SectionCard>
