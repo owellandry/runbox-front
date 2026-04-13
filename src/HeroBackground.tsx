@@ -5,6 +5,11 @@ const HeroBackground: React.FC = () => {
   const renderRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
+    // Suppress p5 VERSION warning
+    if (!(window as any).p5) {
+      (window as any).p5 = p5;
+    }
+    
     let myP5: p5;
 
     const sketch = (p: p5) => {
