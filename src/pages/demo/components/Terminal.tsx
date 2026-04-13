@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal as TerminalIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { RunboxLog } from '../../../components/RunboxLog';
 
 interface TerminalProps {
   showTerminal: boolean;
@@ -46,11 +45,6 @@ export const Terminal: React.FC<TerminalProps> = ({
             ref={terminalDivRef} onScroll={handleTerminalScroll}
             className="flex-1 p-4 font-mono text-xs text-[#e8e6dc] overflow-y-auto no-scrollbar"
           >
-            {output.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full opacity-30 mt-[-20px] scale-[0.6] sm:scale-[0.8] origin-center">
-                <RunboxLog />
-              </div>
-            )}
             {output.map((line, i) => (
               <p key={i} className={`mb-1.5 ${
                 line.startsWith('$') ? 'text-[#b0aea5]'

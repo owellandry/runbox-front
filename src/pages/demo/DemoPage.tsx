@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as ReactDOM from 'react-dom';
-import * as ReactDOMServer from 'react-dom/server';
 import { AnimatePresence } from 'framer-motion';
 import { RunboxInstance } from 'runboxjs';
 import { useTranslation } from 'react-i18next';
@@ -14,11 +12,7 @@ import { Terminal } from './components/Terminal';
 import { TemplatesSidebar } from './components/TemplatesSidebar';
 import { ConfirmModal } from './components/ConfirmModal';
 import { useFileSystem, type ConfirmRequestOptions } from './hooks/useFileSystem';
-import { dumpEditorConsoleToBrowser } from './tempBrowserConsoleDump';
-
-(globalThis as unknown as Record<string, unknown>).__runbox_react = React;
-(globalThis as unknown as Record<string, unknown>).__runbox_reactdom = ReactDOM;
-(globalThis as unknown as Record<string, unknown>).__runbox_reactdom_server = ReactDOMServer;
+import { RunboxLog } from '../../components/RunboxLog';
 
 type DemoPackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
@@ -288,7 +282,6 @@ const DemoPage: React.FC = () => {
   const [activeView, setActiveView] = useState<'code' | 'preview'>('code');
   const [showTerminal, setShowTerminal] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState<'explorer' | 'templates'>('explorer');
-  const [loadedTemplateName, setLoadedTemplateName] = useState(() => t('demo.templates.items.react_dashboard.name'));
   const [confirmDialog, setConfirmDialog] = useState<ConfirmRequestOptions | null>(null);
 
   const confirmResolverRef = useRef<((confirmed: boolean) => void) | null>(null);
@@ -319,7 +312,6 @@ const DemoPage: React.FC = () => {
   const terminalDivRef = useRef<HTMLDivElement>(null);
   const initDoneRef = useRef(false);
   const runboxRef = useRef<RunboxInstance | null>(null);
-  const lastConsoleDumpKeyRef = useRef<string>('');
 
   useEffect(() => {
     return () => {
@@ -330,24 +322,7 @@ const DemoPage: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (isRunning) return;
-    if (output.length === 0) return;
-
-    const outputText = output.join('\n').trim();
-    if (!outputText) return;
-
-    const dumpKey = `${loadedTemplateName}::${outputText}`;
-    if (lastConsoleDumpKeyRef.current === dumpKey) return;
-    lastConsoleDumpKeyRef.current = dumpKey;
-
-    dumpEditorConsoleToBrowser({
-      templateName: loadedTemplateName,
-      lines: output
-    });
-  }, [isRunning, loadedTemplateName, output]);
-
-  // ── Init WASM ──────────────────────────────────────────────────────────────
+  // â”€â”€ Init WASM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     if (initDoneRef.current) return;
     initDoneRef.current = true;
@@ -361,7 +336,7 @@ const DemoPage: React.FC = () => {
     }
   }, [t]);
 
-  // ── Auto-scroll terminal ───────────────────────────────────────────────────
+  // â”€â”€ Auto-scroll terminal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     if (!terminalDivRef.current) return;
     const el = terminalDivRef.current;
@@ -375,7 +350,7 @@ const DemoPage: React.FC = () => {
     setUserScrolledUp(el.scrollTop + el.clientHeight < el.scrollHeight - 10);
   };
 
-  // ── Run ────────────────────────────────────────────────────────────────────
+  // â”€â”€ Run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleRun = async () => {
     if (!isReady || isRunning) return;
     setIsRunning(true); setUserScrolledUp(false);
@@ -585,15 +560,14 @@ const DemoPage: React.FC = () => {
   const handleReset = async () => {
     const didReset = await fileSystem.handleReset();
     if (!didReset) return;
-
-    setLoadedTemplateName(t('demo.templates.items.react_dashboard.name'));
     setPreviewHtml(''); setServerPort(null);
     setOutput([`$ ${t('demo.output.workspace_reset')}`]);
   };
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="h-screen w-full bg-[#141413] text-[#faf9f5] flex flex-col font-sans overflow-hidden">
+      <RunboxLog />
       <TopBar
         activeView={activeView}
         setActiveView={setActiveView}
@@ -605,7 +579,7 @@ const DemoPage: React.FC = () => {
         isRunning={isRunning}
       />
 
-      {/* ── Main Body ── */}
+      {/* â”€â”€ Main Body â”€â”€ */}
       <div className="flex-1 flex min-h-0 overflow-hidden bg-[#0a0a09]">
         <ActivityBar activeSidebar={activeSidebar} setActiveSidebar={setActiveSidebar} />
 
@@ -622,8 +596,7 @@ const DemoPage: React.FC = () => {
                 tone: 'danger'
               })
             }
-            onSelectTemplate={(templateName, files) => {
-              setLoadedTemplateName(templateName);
+            onSelectTemplate={(_templateName, files) => {
               fileSystem.setFiles(files);
               fileSystem.setActiveFile(Object.keys(files).find(k => !k.endsWith('/')) || '');
               setActiveSidebar('explorer');
@@ -687,4 +660,5 @@ const DemoPage: React.FC = () => {
 };
 
 export default DemoPage;
+
 

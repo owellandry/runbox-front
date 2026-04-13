@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import './i18n'
 import App from './App.tsx'
+import { installExtensionNoiseFilter } from './utils/installExtensionNoiseFilter'
+
+installExtensionNoiseFilter()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
