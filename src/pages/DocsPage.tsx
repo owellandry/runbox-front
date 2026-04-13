@@ -122,7 +122,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
       { label: 'Best fit', value: 'Interactive docs, playgrounds, browser IDEs, coding copilots' },
     ],
     installIntro:
-      'RunboxJS works in standard Vite apps without extra wasm plugin setup. Install and initialize directly.',
+      'RunboxJS needs Vite WASM support enabled (`vite-plugin-wasm` + top-level await). Then install and initialize directly.',
     quickstartIntro:
       'Initialize once with `await init()`, then create isolated environments by instantiating `RunboxInstance`.',
     quickstartTipTitle: 'Production tip',
@@ -147,7 +147,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
     troubleshootingItems: [
       {
         title: 'WASM import fails in Vite',
-        body: 'Clear cache and reinstall dependencies. RunboxJS no longer requires `vite-plugin-wasm`.',
+        body: 'Ensure `vite-plugin-wasm` and `vite-plugin-top-level-await` are enabled, put WASM plugin first, and exclude `runboxjs` from optimizeDeps.',
       },
       {
         title: 'Modules not found after install',
@@ -290,7 +290,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
       { label: 'Mejor uso', value: 'Docs interactivas, playgrounds, IDEs en navegador, copilotos de codigo' },
     ],
     installIntro:
-      'RunboxJS funciona en apps Vite estandar sin configuracion extra de plugins wasm. Instala e inicializa directo.',
+      'RunboxJS requiere habilitar soporte WASM en Vite (`vite-plugin-wasm` + top-level await). Luego instala e inicializa directo.',
     quickstartIntro:
       'Inicializa una vez con `await init()` y luego crea entornos aislados con `RunboxInstance`.',
     quickstartTipTitle: 'Tip para produccion',
@@ -315,7 +315,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
     troubleshootingItems: [
       {
         title: 'Falla importacion WASM en Vite',
-        body: 'Limpia cache y reinstala dependencias. RunboxJS ya no requiere `vite-plugin-wasm`.',
+        body: 'Asegura `vite-plugin-wasm` y `vite-plugin-top-level-await`, coloca el plugin WASM primero y excluye `runboxjs` en optimizeDeps.',
       },
       {
         title: 'Modulos no encontrados despues de instalar',

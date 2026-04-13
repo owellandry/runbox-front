@@ -66,7 +66,7 @@
     },
     "quickstart": {
       "title": "Inicio Rápido",
-      "desc": "Crea un RunboxInstance, escribe archivos y ejecuta comandos. El módulo WebAssembly se inicializa automáticamente al importar:"
+      "desc": "Crea un RunboxInstance, escribe archivos y ejecuta comandos. Inicializa el módulo WebAssembly con `await init()` antes de crear cualquier instancia:"
     },
     "advanced": {
       "title": "Avanzado: Terminal Interactiva",

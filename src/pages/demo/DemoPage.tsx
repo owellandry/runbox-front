@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { RunboxInstance } from 'runboxjs';
+import initRunboxWasm, { RunboxInstance } from 'runboxjs';
 import { useTranslation } from 'react-i18next';
 
 import { TopBar } from './components/TopBar';
@@ -55,6 +55,17 @@ interface PyodideRuntime {
 }
 
 let pyodideRuntimePromise: Promise<PyodideRuntime> | null = null;
+let runboxWasmInitPromise: Promise<unknown> | null = null;
+
+async function ensureRunboxWasmReady(): Promise<void> {
+  if (!runboxWasmInitPromise) {
+    runboxWasmInitPromise = initRunboxWasm().catch((error) => {
+      runboxWasmInitPromise = null;
+      throw error;
+    });
+  }
+  await runboxWasmInitPromise;
+}
 
 function detectPackageManager(files: Record<string, string>, hint?: DemoPackageManager): DemoPackageManager {
   if (hint) return hint;
@@ -325,14 +336,27 @@ const DemoPage: React.FC = () => {
   useEffect(() => {
     if (initDoneRef.current) return;
     initDoneRef.current = true;
-    try {
-      const instance = new RunboxInstance();
-      runboxRef.current = instance;
-      setIsReady(true);
-      setOutput(prev => [...prev, t('demo.output.ready')]);
-    } catch (err) {
-      setOutput(prev => [...prev, `[${t('demo.output.error_tag')}] ${t('demo.output.wasm_error')}: ${(err as Error).message}`]);
-    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureRunboxWasmReady();
+        if (cancelled) return;
+
+        const instance = new RunboxInstance();
+        runboxRef.current = instance;
+        setIsReady(true);
+        setOutput(prev => [...prev, t('demo.output.ready')]);
+      } catch (err) {
+        if (cancelled) return;
+        setIsReady(false);
+        setOutput(prev => [...prev, `[${t('demo.output.error_tag')}] ${t('demo.output.wasm_error')}: ${(err as Error).message}`]);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [t]);
 
   // â”€â”€ Auto-scroll terminal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
