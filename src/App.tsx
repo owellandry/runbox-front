@@ -1,14 +1,18 @@
-import { useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useState, Suspense, lazy, useEffect } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Terminal, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
 import HeroBackground from './HeroBackground';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import DocsPage from './pages/DocsPage';
-import DemoPage from './pages/demo';
-import PrivacyPage from './pages/PrivacyPage';
-import TermsPage from './pages/TermsPage';
+import LoadingScreen from './components/LoadingScreen';
+import RouteTransition from './components/RouteTransition';
+
+// Lazy loaded pages
+const DocsPage = lazy(() => import('./pages/DocsPage'));
+const DemoPage = lazy(() => import('./pages/demo'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
 
 const HomePage = () => {
   const { scrollYProgress } = useScroll();
@@ -213,19 +217,23 @@ export default function App() {
   const isDemoRoute = location.pathname === '/demo';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500 selection:text-white font-sans flex flex-col">
+    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-anthropic-orange/50 selection:text-white font-sans flex flex-col">
       {!isDemoRoute && <Navbar />}
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/doc" element={<DocsPage />} />
-          <Route path="/docs" element={<DocsPage />} />
-          <Route path="/demo" element={<DemoPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-        </Routes>
-      </main>
-      {!isDemoRoute && <Footer />}
+      <RouteTransition>
+        <main className="flex-1 flex flex-col">
+          <Suspense fallback={<LoadingScreen />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/doc" element={<DocsPage />} />
+              <Route path="/docs" element={<DocsPage />} />
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+            </Routes>
+          </Suspense>
+        </main>
+        {!isDemoRoute && <Footer />}
+      </RouteTransition>
     </div>
   );
 }
