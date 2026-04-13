@@ -9,15 +9,14 @@ const HeroBackground: React.FC = () => {
     (p5 as unknown as { disableFriendlyErrors?: boolean }).disableFriendlyErrors = true;
 
     // Suppress p5 VERSION warning
-    const win = window as unknown as Record<string, unknown>;
-    if (!win.p5) {
-      win.p5 = p5;
+    if (!(window as any).p5) {
+      (window as any).p5 = p5;
     }
     
     let myP5: p5;
 
     const sketch = (p: p5) => {
-      const particles: Particle[] = [];
+      let particles: any[] = [];
       const numParticles = 800; // Increased for richer flow
       const noiseScale = 0.003;
       const zOffsetSpeed = 0.0005;

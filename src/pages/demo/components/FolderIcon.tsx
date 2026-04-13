@@ -6,7 +6,7 @@ interface FolderIconProps {
   className?: string;
 }
 
-export const FolderIconComponent = ({ folderName, className }: FolderIconProps) => {
+export const FolderIconComponent = ({ folderName, isExpanded: _isExpanded, className }: FolderIconProps) => {
   const name = folderName.toLowerCase();
   
   if (name === 'components') return <Layout className={className} fill="currentColor" fillOpacity={0.2} />;
