@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Terminal, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
 import HeroBackground from './HeroBackground';
@@ -9,12 +9,11 @@ import LoadingScreen from './components/LoadingScreen';
 import RouteTransition from './components/RouteTransition';
 import BrandLogo from './components/BrandLogo';
 import { RunboxLog } from './components/RunboxLog';
-import DemoPage from './pages/demo';
-
 import { useTranslation } from 'react-i18next';
 
 // Lazy loaded pages
 const DocsPage = lazy(() => import('./pages/DocsPage'));
+const DemoPage = lazy(() => import('./pages/demo'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 

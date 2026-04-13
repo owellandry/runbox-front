@@ -4,8 +4,13 @@ import { FileIcon } from './FileIcon';
 import { FolderIconComponent } from './FolderIcon';
 import { useTranslation } from 'react-i18next';
 
+export interface FileTreeNode {
+  __isFile?: boolean;
+  path?: string;
+  [key: string]: FileTreeNode | boolean | string | undefined;
+}
+
 interface ExplorerProps {
-  files: Record<string, string>;
   activeFile: string;
   setActiveFile: (path: string) => void;
   creatingFile: boolean;
@@ -27,11 +32,11 @@ interface ExplorerProps {
   startRename: (path: string, e: React.MouseEvent) => void;
   handleRenameFile: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   toggleFolder: (folderPath: string, e: React.MouseEvent) => void;
-  getFileTree: () => any;
+  getFileTree: () => Record<string, FileTreeNode>;
+  [key: string]: unknown;
 }
 
 export const Explorer: React.FC<ExplorerProps> = ({
-  files: _files,
   activeFile,
   setActiveFile,
   creatingFile,
@@ -57,19 +62,22 @@ export const Explorer: React.FC<ExplorerProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const renderFileTree = (node: any, currentPath: string = '', level: number = 0) => {
+  const renderFileTree = (node: FileTreeNode, currentPath: string = '', level: number = 0) => {
     return Object.keys(node).sort((a, b) => {
-      const aIsFile = node[a].__isFile;
-      const bIsFile = node[b].__isFile;
+      const aChild = node[a] as FileTreeNode | undefined;
+      const bChild = node[b] as FileTreeNode | undefined;
+      const aIsFile = aChild?.__isFile;
+      const bIsFile = bChild?.__isFile;
       if (aIsFile && !bIsFile) return 1;
       if (!aIsFile && bIsFile) return -1;
       return a.localeCompare(b);
     }).map(key => {
-      if (key === '__isFile') return null;
+      if (key === '__isFile' || key === 'path') return null;
       
-      const child = node[key];
+      const child = node[key] as FileTreeNode;
+      if (!child || typeof child !== 'object') return null;
       const isFile = child.__isFile;
-      const fullPath = isFile ? child.path : `${currentPath}/${key}`;
+      const fullPath = isFile ? (child.path ?? `${currentPath}/${key}`) : `${currentPath}/${key}`;
       const folderKey = isFile ? null : fullPath;
       const isExpanded = folderKey ? expandedFolders[folderKey] : false;
       const isRenaming = renamingFile === fullPath || renamingFile === `${fullPath}/`;
@@ -95,7 +103,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
               </div>
             ) : (
               <div 
-                onClick={(e) => isFile ? setActiveFile(fullPath) : toggleFolder(folderKey!, e)}
+                onClick={(e) => isFile ? setActiveFile(fullPath!) : toggleFolder(folderKey!, e)}
                 className={`flex items-center w-full py-1.5 cursor-pointer text-xs font-mono transition-colors ${
                   activeFile === fullPath 
                     ? 'bg-[#0a0a09] text-[#faf9f5] border-l-2 border-[#6a9bcc]' 
@@ -118,10 +126,10 @@ export const Explorer: React.FC<ExplorerProps> = ({
                 )}
                 
                 <div className="hidden group-hover:flex items-center gap-1 shrink-0 pr-2">
-                  <button onClick={(e) => startRename(isFile ? fullPath : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-[#faf9f5]">
+                  <button onClick={(e) => startRename(isFile ? fullPath! : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-[#faf9f5]">
                     <Edit2 className="w-3 h-3" />
                   </button>
-                  <button onClick={(e) => handleDeleteFile(isFile ? fullPath : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-red-400">
+                  <button onClick={(e) => handleDeleteFile(isFile ? fullPath! : `${fullPath}/`, e)} className="text-[#b0aea5] hover:text-red-400">
                     <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
@@ -131,7 +139,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
           
           {!isFile && isExpanded && (
             <div className="w-full">
-              {renderFileTree(child, fullPath, level + 1)}
+              {renderFileTree(child as FileTreeNode, fullPath, level + 1)}
             </div>
           )}
         </div>
