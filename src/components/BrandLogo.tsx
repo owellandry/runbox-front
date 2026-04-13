@@ -15,8 +15,8 @@ const BrandLogo: React.FC<BrandLogoProps> = ({ className = '' }) => {
         maskRepeat: 'no-repeat',
         WebkitMaskPosition: 'center',
         maskPosition: 'center',
-        WebkitMaskSize: 'contain',
-        maskSize: 'contain',
+        WebkitMaskSize: '150%',
+        maskSize: '150%',
       }}
       aria-hidden="true"
     />
