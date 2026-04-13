@@ -7,12 +7,13 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
 import RouteTransition from './components/RouteTransition';
+import BrandLogo from './components/BrandLogo';
+import DemoPage from './pages/demo';
 
 import { useTranslation } from 'react-i18next';
 
 // Lazy loaded pages
 const DocsPage = lazy(() => import('./pages/DocsPage'));
-const DemoPage = lazy(() => import('./pages/demo'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 
@@ -45,7 +46,10 @@ const HomePage = () => {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="text-[12vw] leading-[0.85] font-poppins font-medium tracking-tighter mb-8 text-anthropic-light"
           >
-            Runboxjs.
+            <span className="inline-flex items-center gap-4">
+              <BrandLogo className="w-[9vw] h-[9vw] min-w-[54px] min-h-[54px] max-w-[96px] max-h-[96px]" />
+              <span>Runboxjs.</span>
+            </span>
           </motion.h1>
           
           <motion.div
@@ -216,7 +220,7 @@ console.<code className="text-anthropic-blue">log</code>(JSON.<code className="t
 
 export default function App() {
   const location = useLocation();
-  const isDemoRoute = location.pathname === '/demo';
+  const isDemoRoute = location.pathname.startsWith('/demo');
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-anthropic-orange/50 selection:text-white font-sans flex flex-col">

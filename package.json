@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deployd": "bun run build && bunx wrangler pages deploy dist --project-name runbox-front --branch master",
     "lint": "eslint .",
     "preview": "vite preview"
   },

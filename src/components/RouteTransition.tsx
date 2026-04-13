@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import LoadingScreen from './LoadingScreen';
 
 interface RouteTransitionProps {
@@ -10,38 +9,28 @@ interface RouteTransitionProps {
 
 const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
   const location = useLocation();
-  const { i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
-  const previousPathRef = useRef(location.pathname);
-  const previousLangRef = useRef(i18n.language);
+  const hasMountedRef = useRef(false);
 
   useEffect(() => {
-    // Initial mount loading removal
-    const initialTimer = setTimeout(() => {
+    setIsLoading(true);
+    const isInitial = !hasMountedRef.current;
+    hasMountedRef.current = true;
+
+    const hideTimer = setTimeout(() => {
       setIsLoading(false);
-    }, 1200);
+    }, isInitial ? 900 : 450);
 
-    return () => clearTimeout(initialTimer);
-  }, []);
+    // Safety net to prevent any chance of an infinite loader.
+    const guardTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
 
-  useEffect(() => {
-    const routeChanged = previousPathRef.current !== location.pathname;
-    const langChanged = previousLangRef.current !== i18n.language;
-    
-    previousPathRef.current = location.pathname;
-    previousLangRef.current = i18n.language;
-
-    // Trigger loading only if route changed or language changed (excluding initial render since that is handled above)
-    if (routeChanged || langChanged) {
-      setIsLoading(true);
-
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, routeChanged ? 650 : 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, i18n.language]);
+    return () => {
+      clearTimeout(hideTimer);
+      clearTimeout(guardTimer);
+    };
+  }, [location.key]);
 
   return (
     <>

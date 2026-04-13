@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Globe, ChevronDown, Check } from 'lucide-react';
+import { Globe, ChevronDown, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import BrandLogo from './BrandLogo';
 
 const Footer: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -37,7 +38,7 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
         <div className="col-span-1 md:col-span-2 flex flex-col gap-6">
           <Link to="/" className="flex items-center gap-2 text-2xl font-poppins font-medium tracking-tight text-anthropic-light w-fit hover:opacity-80 transition-opacity">
-            <Box className="w-6 h-6 text-anthropic-orange" />
+            <BrandLogo className="w-6 h-6 shrink-0" />
             <span>Runboxjs</span>
           </Link>
           <p className="text-anthropic-mid-gray font-lora max-w-sm leading-relaxed">
