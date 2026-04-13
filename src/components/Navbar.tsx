@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
           <span>Runboxjs</span>
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm font-poppins font-medium text-anthropic-light-gray">
-          <Link to="/doc" className="hover:text-anthropic-light transition-colors">DocumentaciÃ³n</Link>
+          <Link to="/doc" className="hover:text-anthropic-light transition-colors">Documentación</Link>
           <Link to="/demo" className="hover:text-anthropic-light transition-colors">Demo</Link>
           <a href="https://github.com/owellandry/runbox-front" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-anthropic-light transition-colors bg-anthropic-light/5 hover:bg-anthropic-light/10 px-4 py-2 rounded-full border border-anthropic-light-gray/5">
             <GithubIcon className="w-4 h-4" />
