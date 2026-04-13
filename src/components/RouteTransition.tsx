@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import LoadingScreen from './LoadingScreen';
@@ -10,30 +10,20 @@ interface RouteTransitionProps {
 const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPath, setCurrentPath] = useState(location.pathname);
+  const previousPathRef = useRef(location.pathname);
 
   useEffect(() => {
-    // Show loader on initial mount
-    const initialTimer = setTimeout(() => {
+    const routeChanged = previousPathRef.current !== location.pathname;
+    previousPathRef.current = location.pathname;
+
+    setIsLoading(true);
+
+    const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1200); // slightly longer for initial load
+    }, routeChanged ? 650 : 1000);
 
-    return () => clearTimeout(initialTimer);
-  }, []);
-
-  useEffect(() => {
-    if (location.pathname !== currentPath) {
-      setIsLoading(true);
-      setCurrentPath(location.pathname);
-      
-      // Delay to show the beautiful loading animation
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 800);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, currentPath]);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   return (
     <>

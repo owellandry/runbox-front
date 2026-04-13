@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 interface DemoTemplate {
   id: string;
-  name: string;
-  description: string;
+  nameKey: string;
+  descriptionKey: string;
   icon: React.ReactNode;
   files: Record<string, string>;
 }
@@ -14,15 +14,15 @@ interface DemoTemplate {
 export const templates: DemoTemplate[] = [
   {
     id: 'react-dashboard',
-    name: 'React Dashboard',
-    description: 'Aplicación React con rutas (SSR), componentes reutilizables y dependencias npm.',
+    nameKey: 'demo.templates.items.react_dashboard.name',
+    descriptionKey: 'demo.templates.items.react_dashboard.description',
     icon: <SiReact className="text-[#61dafb] w-5 h-5" />,
     files: defaultFiles
   },
   {
     id: 'vanilla-js',
-    name: 'App Vanilla JS',
-    description: 'Aplicación HTTP sencilla ejecutada por bun y módulos locales.',
+    nameKey: 'demo.templates.items.vanilla_js.name',
+    descriptionKey: 'demo.templates.items.vanilla_js.description',
     icon: <SiJavascript className="text-[#f0db4f] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -52,8 +52,8 @@ server.listen(3000, () => console.log('Servidor corriendo en el puerto 3000'));`
   },
   {
     id: 'typescript-api',
-    name: 'API TypeScript',
-    description: 'Servidor TypeScript compatible con Node ejecutado con el shim de Bun en Runbox.',
+    nameKey: 'demo.templates.items.typescript_api.name',
+    descriptionKey: 'demo.templates.items.typescript_api.description',
     icon: <SiTypescript className="text-[#3178c6] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -103,8 +103,8 @@ server.listen(4173, () => {
   },
   {
     id: 'python-data-lab',
-    name: 'Laboratorio Datos Python',
-    description: 'Demuestra ejecución con python y pip install/list/freeze.',
+    nameKey: 'demo.templates.items.python_data_lab.name',
+    descriptionKey: 'demo.templates.items.python_data_lab.description',
     icon: <SiPython className="text-[#3776ab] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -144,8 +144,8 @@ matplotlib==3.9.0`
   },
   {
     id: 'git-workflow',
-    name: 'Flujo de Trabajo Git',
-    description: 'Ejecuta comandos como init/branch/commit/merge antes de iniciar la app.',
+    nameKey: 'demo.templates.items.git_workflow.name',
+    descriptionKey: 'demo.templates.items.git_workflow.description',
     icon: <SiGit className="text-[#f1502f] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -191,8 +191,8 @@ server.listen(3800, () => console.log('App con flujo de Git corriendo en http://
   },
   {
     id: 'pnpm-showcase',
-    name: 'Demostración pnpm',
-    description: 'Usa pnpm install/list/audit y expone datos con dependencias.',
+    nameKey: 'demo.templates.items.pnpm_showcase.name',
+    descriptionKey: 'demo.templates.items.pnpm_showcase.description',
     icon: <SiPnpm className="text-[#f69220] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -230,8 +230,8 @@ server.listen(3550, () => console.log('pnpm showcase corriendo en http://localho
   },
   {
     id: 'yarn-showcase',
-    name: 'Demostración Yarn',
-    description: 'Ejecuta yarn install/outdated e inicia una pequeña página SSR.',
+    nameKey: 'demo.templates.items.yarn_showcase.name',
+    descriptionKey: 'demo.templates.items.yarn_showcase.description',
     icon: <SiYarn className="text-[#2c8ebb] w-5 h-5" />,
     files: {
       '/package.json': `{
@@ -290,19 +290,20 @@ export const TemplatesSidebar: React.FC<TemplatesSidebarProps> = ({ onSelectTemp
           <div
             key={tpl.id}
             onClick={async () => {
-              const confirmLoad = await onConfirmTemplateLoad(tpl.name);
+              const templateName = t(tpl.nameKey);
+              const confirmLoad = await onConfirmTemplateLoad(templateName);
               if (confirmLoad) {
-                onSelectTemplate(tpl.name, tpl.files);
+                onSelectTemplate(templateName, tpl.files);
               }
             }}
             className="p-3 rounded-lg border border-[#b0aea5]/10 bg-[#1e1e1d] hover:border-[#d97757]/50 hover:bg-[#1e1e1d]/80 transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-2 mb-1.5">
               <div className="flex items-center justify-center w-6 h-6">{tpl.icon}</div>
-              <span className="text-sm font-medium text-[#faf9f5] group-hover:text-[#d97757] transition-colors">{tpl.name}</span>
+              <span className="text-sm font-medium text-[#faf9f5] group-hover:text-[#d97757] transition-colors">{t(tpl.nameKey)}</span>
             </div>
             <p className="text-xs text-[#b0aea5] leading-relaxed">
-              {tpl.description}
+              {t(tpl.descriptionKey)}
             </p>
           </div>
         ))}

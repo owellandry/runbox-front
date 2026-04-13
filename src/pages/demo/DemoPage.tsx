@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import * as ReactDOMServer from 'react-dom/server';
 import { AnimatePresence } from 'framer-motion';
 import { RunboxInstance } from 'runboxjs';
+import { useTranslation } from 'react-i18next';
 
 import { TopBar } from './components/TopBar';
 import { ActivityBar } from './components/ActivityBar';
@@ -275,7 +276,8 @@ runpy.run_path(__runbox_script_path, run_name="__main__")
 }
 
 const DemoPage: React.FC = () => {
-  const [output, setOutput] = useState<string[]>(['$ Iniciando Sandbox WASM de Runboxjs...']);
+  const { t } = useTranslation();
+  const [output, setOutput] = useState<string[]>(() => [`$ ${t('demo.output.init')}`]);
   const [isRunning, setIsRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
@@ -286,7 +288,7 @@ const DemoPage: React.FC = () => {
   const [activeView, setActiveView] = useState<'code' | 'preview'>('code');
   const [showTerminal, setShowTerminal] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState<'explorer' | 'templates'>('explorer');
-  const [loadedTemplateName, setLoadedTemplateName] = useState('React Dashboard');
+  const [loadedTemplateName, setLoadedTemplateName] = useState(() => t('demo.templates.items.react_dashboard.name'));
   const [confirmDialog, setConfirmDialog] = useState<ConfirmRequestOptions | null>(null);
 
   const confirmResolverRef = useRef<((confirmed: boolean) => void) | null>(null);
@@ -353,11 +355,11 @@ const DemoPage: React.FC = () => {
       const instance = new RunboxInstance();
       runboxRef.current = instance;
       setIsReady(true);
-      setOutput(prev => [...prev, '[ÉXITO] Sandbox Listo. Módulo WebAssembly cargado.']);
+      setOutput(prev => [...prev, t('demo.output.ready')]);
     } catch (err) {
-      setOutput(prev => [...prev, `[ERROR] Error cargando WASM: ${(err as Error).message}`]);
+      setOutput(prev => [...prev, `[${t('demo.output.error_tag')}] ${t('demo.output.wasm_error')}: ${(err as Error).message}`]);
     }
-  }, []);
+  }, [t]);
 
   // ── Auto-scroll terminal ───────────────────────────────────────────────────
   useEffect(() => {
@@ -432,7 +434,7 @@ const DemoPage: React.FC = () => {
         }
         const stderr = result.stderr?.trim();
         if (stderr) {
-          setOutput((prev) => [...prev, `[ERROR] ${stderr}`]);
+          setOutput((prev) => [...prev, `[${t('demo.output.error_tag')}] ${stderr}`]);
         }
       };
 
@@ -460,16 +462,16 @@ const DemoPage: React.FC = () => {
               setOutput((prev) => [...prev, `  x ${pkg.name}: ${(e as Error).message}`]);
             }
           }
-          setOutput((prev) => [...prev, `  añadidos ${needed.length} paquetes`]);
+          setOutput((prev) => [...prev, `  ${t('demo.output.packages_added', { count: needed.length })}`]);
         } else {
-          setOutput((prev) => [...prev, '  actualizado']);
+          setOutput((prev) => [...prev, `  ${t('demo.output.updated')}`]);
         }
 
         const generatedLock = buildGeneratedLockfile(packageManager, packageJson, resolvedVersions);
         if (generatedLock) {
           activeRunbox.write_file(generatedLock.path, encoder.encode(generatedLock.content));
           fileSystem.setFiles((prev) => ({ ...prev, [generatedLock.path]: generatedLock.content }));
-          setOutput((prev) => [...prev, `  generado ${generatedLock.path}`]);
+          setOutput((prev) => [...prev, `  ${t('demo.output.generated')} ${generatedLock.path}`]);
         }
 
         syncGeneratedLockfiles();
@@ -481,7 +483,7 @@ const DemoPage: React.FC = () => {
         appendExecOutput(preRunResult);
         syncGeneratedLockfiles();
         if (preRunResult.exit_code !== 0) {
-          setOutput((prev) => [...prev, `[ERROR] El proceso salió con el código ${preRunResult.exit_code}`]);
+          setOutput((prev) => [...prev, `[${t('demo.output.error_tag')}] ${t('demo.output.process_exit', { code: preRunResult.exit_code })}`]);
           setIsRunning(false);
           return;
         }
@@ -502,7 +504,7 @@ const DemoPage: React.FC = () => {
       syncGeneratedLockfiles();
 
       if (execResult.exit_code !== 0) {
-        setOutput((prev) => [...prev, `[ERROR] El proceso salió con el código ${execResult.exit_code}`]);
+        setOutput((prev) => [...prev, `[${t('demo.output.error_tag')}] ${t('demo.output.process_exit', { code: execResult.exit_code })}`]);
         setIsRunning(false);
         return;
       }
@@ -516,14 +518,14 @@ const DemoPage: React.FC = () => {
         setPreviewHtml(injectNavScript(resp.body || ''));
         setHistoryStack(['/']);
         setHistoryIndex(0);
-        setOutput((prev) => [...prev, 'Servidor listo - navega usando el navegador de arriba']);
+        setOutput((prev) => [...prev, t('demo.output.server_ready')]);
         setActiveView('preview');
       } else {
         setShowTerminal(true);
-        setPreviewHtml('<div style="padding:20px;text-align:center;color:#666"><p>Revisa la salida de la terminal</p></div>');
+        setPreviewHtml(`<div style="padding:20px;text-align:center;color:#666"><p>${t('demo.output.check_terminal')}</p></div>`);
       }
     } catch (err) {
-      setOutput((prev) => [...prev, `[ERROR] ${(err as Error).message}`]);
+      setOutput((prev) => [...prev, `[${t('demo.output.error_tag')}] ${(err as Error).message}`]);
     }
     setIsRunning(false);
   };
@@ -584,9 +586,9 @@ const DemoPage: React.FC = () => {
     const didReset = await fileSystem.handleReset();
     if (!didReset) return;
 
-    setLoadedTemplateName('React Dashboard');
+    setLoadedTemplateName(t('demo.templates.items.react_dashboard.name'));
     setPreviewHtml(''); setServerPort(null);
-    setOutput(['$ Espacio de trabajo reiniciado a la plantilla por defecto.']);
+    setOutput([`$ ${t('demo.output.workspace_reset')}`]);
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -613,10 +615,10 @@ const DemoPage: React.FC = () => {
           <TemplatesSidebar 
             onConfirmTemplateLoad={(templateName) =>
               requestConfirm({
-                title: `¿Cargar ${templateName}?`,
-                message: 'Se perderán los cambios actuales.',
-                confirmLabel: 'Cargar plantilla',
-                cancelLabel: 'Cancelar',
+                title: t('demo.confirm.load_title', { template: templateName }),
+                message: t('demo.confirm.load_message'),
+                confirmLabel: t('demo.confirm.load_confirm'),
+                cancelLabel: t('demo.confirm.load_cancel'),
                 tone: 'danger'
               })
             }
@@ -674,8 +676,8 @@ const DemoPage: React.FC = () => {
         isOpen={!!confirmDialog}
         title={confirmDialog?.title ?? ''}
         message={confirmDialog?.message ?? ''}
-        confirmLabel={confirmDialog?.confirmLabel ?? 'Confirmar'}
-        cancelLabel={confirmDialog?.cancelLabel ?? 'Cancelar'}
+        confirmLabel={confirmDialog?.confirmLabel ?? t('demo.confirm.default_confirm')}
+        cancelLabel={confirmDialog?.cancelLabel ?? t('demo.confirm.default_cancel')}
         tone={confirmDialog?.tone ?? 'default'}
         onCancel={() => closeConfirm(false)}
         onConfirm={() => closeConfirm(true)}

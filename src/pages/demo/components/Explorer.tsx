@@ -165,7 +165,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
               onChange={e => setNewFileName(e.target.value)}
               onKeyDown={handleCreateFile}
               onBlur={() => setCreatingFile(false)}
-              placeholder="archivo.js"
+              placeholder={t('demo.explorer.file_placeholder')}
               className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#6a9bcc] px-1 py-0.5 outline-none"
             />
           </div>
@@ -180,7 +180,7 @@ export const Explorer: React.FC<ExplorerProps> = ({
               onChange={e => setNewFolderName(e.target.value)}
               onKeyDown={handleCreateFolder}
               onBlur={() => setCreatingFolder(false)}
-              placeholder="nombre_carpeta"
+              placeholder={t('demo.explorer.folder_placeholder')}
               className="w-full bg-[#0a0a09] text-xs font-mono text-[#faf9f5] border border-[#d97757] px-1 py-0.5 outline-none"
             />
           </div>

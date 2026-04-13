@@ -220,8 +220,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-anthropic-orange/50 selection:text-white font-sans flex flex-col">
-      {!isDemoRoute && <Navbar />}
       <RouteTransition>
+        {!isDemoRoute && <Navbar />}
         <main className="flex-1 flex flex-col">
           <Suspense fallback={<LoadingScreen />}>
             <Routes>

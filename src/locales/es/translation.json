@@ -101,16 +101,80 @@
     "explorer": {
       "title": "Explorador",
       "new_file": "Nuevo Archivo",
-      "new_folder": "Nueva Carpeta"
+      "new_folder": "Nueva Carpeta",
+      "file_placeholder": "archivo.js",
+      "folder_placeholder": "nombre_carpeta"
     },
     "terminal": {
+      "title": "Terminal",
       "clear": "Limpiar"
+    },
+    "output": {
+      "error_tag": "ERROR",
+      "init": "Iniciando sandbox WASM de Runboxjs...",
+      "ready": "[EXITO] Sandbox listo. Modulo WebAssembly cargado.",
+      "wasm_error": "Error cargando WASM",
+      "packages_added": "anadidos {{count}} paquetes",
+      "updated": "actualizado",
+      "generated": "generado",
+      "process_exit": "El proceso salio con el codigo {{code}}",
+      "server_ready": "Servidor listo - navega usando la barra de arriba",
+      "check_terminal": "Revisa la salida de la terminal",
+      "workspace_reset": "Espacio de trabajo reiniciado a la plantilla por defecto.",
+      "terminal_cleared": "Terminal limpiada."
+    },
+    "confirm": {
+      "load_title": "¿Cargar {{template}}?",
+      "load_message": "Se perderan los cambios actuales.",
+      "load_confirm": "Cargar plantilla",
+      "load_cancel": "Cancelar",
+      "delete_folder": "Eliminar Carpeta",
+      "delete_file": "Eliminar Archivo",
+      "delete_message": "Esta accion no se puede deshacer.",
+      "delete_confirm": "Eliminar",
+      "delete_cancel": "Cancelar",
+      "reset_title": "Reiniciar Espacio de Trabajo",
+      "reset_message": "Se perderan todos los cambios locales.",
+      "reset_confirm": "Reiniciar",
+      "reset_cancel": "Cancelar",
+      "default_confirm": "Confirmar",
+      "default_cancel": "Cancelar"
     },
     "editor": {
       "empty": "Selecciona o crea un archivo para editar"
     },
     "templates": {
-      "title": "Plantillas"
+      "title": "Plantillas",
+      "items": {
+        "react_dashboard": {
+          "name": "Dashboard React",
+          "description": "Aplicacion React con rutas (SSR), componentes reutilizables y dependencias npm."
+        },
+        "vanilla_js": {
+          "name": "App Vanilla JS",
+          "description": "Aplicacion HTTP sencilla ejecutada por bun y modulos locales."
+        },
+        "typescript_api": {
+          "name": "API TypeScript",
+          "description": "Servidor TypeScript compatible con Node ejecutado con el shim de Bun en Runbox."
+        },
+        "python_data_lab": {
+          "name": "Laboratorio de Datos Python",
+          "description": "Demuestra ejecucion con python y pip install/list/freeze."
+        },
+        "git_workflow": {
+          "name": "Flujo de Trabajo Git",
+          "description": "Ejecuta comandos como init/branch/commit/merge antes de iniciar la app."
+        },
+        "pnpm_showcase": {
+          "name": "Demostracion pnpm",
+          "description": "Usa pnpm install/list/audit y expone datos con dependencias."
+        },
+        "yarn_showcase": {
+          "name": "Demostracion Yarn",
+          "description": "Ejecuta yarn install/outdated e inicia una pagina SSR pequena."
+        }
+      }
     }
   }
 }

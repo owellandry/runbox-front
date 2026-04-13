@@ -3,6 +3,7 @@ import { Terminal as TerminalIcon, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import BrandLogo from '../../../components/BrandLogo';
 
 interface TopBarProps {
   activeView: 'code' | 'preview';
@@ -30,8 +31,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <header className="flex justify-between items-center px-4 py-3 border-b border-[#b0aea5]/10 shrink-0 bg-[#141413]">
       <Link to="/" className="flex items-center gap-2 w-1/3 cursor-pointer hover:opacity-80 transition-opacity">
-        <TerminalIcon className="w-5 h-5 text-[#d97757]" />
-        <h1 className="text-lg font-poppins font-medium tracking-tight">RunBox IDE</h1>
+        <BrandLogo className="w-5 h-5 shrink-0" />
+        <h1 className="text-lg font-poppins font-medium tracking-tight text-[#faf9f5]">Runbox IDE</h1>
       </Link>
 
       <div className="flex items-center justify-center w-1/3">
@@ -70,7 +71,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           onClick={() => setShowTerminal(v => !v)}
           className={`text-xs font-poppins flex items-center gap-1 transition-colors cursor-pointer ${showTerminal ? 'text-[#faf9f5]' : 'text-[#b0aea5] hover:text-[#faf9f5]'}`}
         >
-          <TerminalIcon className="w-4 h-4" /> Terminal
+          <TerminalIcon className="w-4 h-4" /> {t('demo.terminal.title')}
         </button>
         <button
           onClick={handleReset}

@@ -35,9 +35,9 @@ export const Terminal: React.FC<TerminalProps> = ({
           <div className="flex items-center justify-between px-4 py-2 border-b border-[#b0aea5]/10 bg-[#1e1e1d]">
             <div className="flex items-center gap-2">
               <TerminalIcon className="w-3.5 h-3.5 text-[#b0aea5]" />
-              <span className="text-xs font-mono text-[#b0aea5] uppercase tracking-wider">Terminal</span>
+              <span className="text-xs font-mono text-[#b0aea5] uppercase tracking-wider">{t('demo.terminal.title')}</span>
             </div>
-            <button onClick={() => setOutput(['$ Terminal limpiada.'])} className="text-xs font-mono text-[#b0aea5] hover:text-[#faf9f5] transition-colors">
+            <button onClick={() => setOutput([`$ ${t('demo.output.terminal_cleared')}`])} className="text-xs font-mono text-[#b0aea5] hover:text-[#faf9f5] transition-colors">
               {t('demo.terminal.clear')}
             </button>
           </div>

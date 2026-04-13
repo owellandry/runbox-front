@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LOCAL_STORAGE_KEY, defaultFiles } from '../constants/defaultFiles';
+import { useTranslation } from 'react-i18next';
 
 export type ConfirmTone = 'default' | 'danger';
 
@@ -14,6 +15,8 @@ export interface ConfirmRequestOptions {
 export type ConfirmRequestHandler = (options: ConfirmRequestOptions) => Promise<boolean>;
 
 export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
+  const { t } = useTranslation();
+
   const [files, setFiles] = useState<Record<string, string>>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -90,10 +93,10 @@ export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
 
     const isFolder = path.endsWith('/');
     const confirmDelete = await requestConfirm({
-      title: isFolder ? 'Eliminar Carpeta' : 'Eliminar Archivo',
-      message: `${path}\nEsta acción no se puede deshacer.`,
-      confirmLabel: 'Eliminar',
-      cancelLabel: 'Cancelar',
+      title: isFolder ? t('demo.confirm.delete_folder') : t('demo.confirm.delete_file'),
+      message: `${path}\n${t('demo.confirm.delete_message')}`,
+      confirmLabel: t('demo.confirm.delete_confirm'),
+      cancelLabel: t('demo.confirm.delete_cancel'),
       tone: 'danger'
     });
 
@@ -187,10 +190,10 @@ export function useFileSystem(requestConfirm: ConfirmRequestHandler) {
 
   const handleReset = async () => {
     const confirmReset = await requestConfirm({
-      title: 'Reiniciar Espacio de Trabajo',
-      message: 'Se perderán todos los cambios locales.',
-      confirmLabel: 'Reiniciar',
-      cancelLabel: 'Cancelar',
+      title: t('demo.confirm.reset_title'),
+      message: t('demo.confirm.reset_message'),
+      confirmLabel: t('demo.confirm.reset_confirm'),
+      cancelLabel: t('demo.confirm.reset_cancel'),
       tone: 'danger'
     });
 

@@ -1,62 +1,91 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import BrandLogo from './BrandLogo';
 
 const LoadingScreen: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.25 }}
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#141413] backdrop-blur-sm"
     >
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="flex flex-col items-center"
       >
-        <div className="relative flex items-center justify-center w-24 h-24 mb-8">
-          {/* Animated rings */}
+        <div className="relative flex items-center justify-center w-28 h-28 mb-8">
           <motion.div
-            className="absolute inset-0 rounded-full border-t-2 border-r-2 border-[#d97757] opacity-80"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 rounded-full bg-[#d97757]/15 blur-xl"
+            animate={{ scale: [0.95, 1.1, 0.95], opacity: [0.35, 0.7, 0.35] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute inset-2 rounded-full border-b-2 border-l-2 border-[#6a9bcc] opacity-60"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-1 rounded-full border border-[#d97757]/40"
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute inset-4 rounded-full border-t-2 border-l-2 border-[#788c5d] opacity-40"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-          />
-          
-          <Terminal className="w-8 h-8 text-[#faf9f5] relative z-10" />
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative z-10"
+          >
+            <BrandLogo className="w-14 h-14" />
+          </motion.div>
         </div>
-        
+
         <motion.h2
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-2xl font-poppins font-medium tracking-tight text-[#faf9f5] mb-2"
+          transition={{ delay: 0.1, duration: 0.35 }}
+          className="text-2xl font-poppins font-medium tracking-tight text-[#faf9f5] mb-3"
         >
-          RunboxJS
+          Runboxjs
         </motion.h2>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.35 }}
+          className="flex items-center gap-2 mb-3"
+        >
+          {[0, 1, 2].map((dot) => (
+            <motion.span
+              key={dot}
+              className="w-1.5 h-1.5 rounded-full bg-[#d97757]"
+              animate={{ y: [0, -5, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 0.9, repeat: Infinity, delay: dot * 0.12, ease: 'easeInOut' }}
+            />
+          ))}
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="text-[#b0aea5] font-lora text-sm animate-pulse"
+          transition={{ delay: 0.25, duration: 0.35 }}
+          className="text-[#b0aea5] font-lora text-sm"
         >
           {t('loading.text')}
         </motion.p>
+
+        <motion.div
+          className="mt-5 h-0.5 w-44 bg-[#1e1e1d] rounded-full overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.3 }}
+        >
+          <motion.span
+            className="block h-full w-1/3 rounded-full bg-[#d97757]"
+            animate={{ x: ['-120%', '260%'] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
       </motion.div>
     </motion.div>
   );

@@ -101,16 +101,80 @@
     "explorer": {
       "title": "Explorer",
       "new_file": "New File",
-      "new_folder": "New Folder"
+      "new_folder": "New Folder",
+      "file_placeholder": "file.js",
+      "folder_placeholder": "folder_name"
     },
     "terminal": {
+      "title": "Terminal",
       "clear": "Clear"
+    },
+    "output": {
+      "error_tag": "ERROR",
+      "init": "Starting Runboxjs WASM sandbox...",
+      "ready": "[SUCCESS] Sandbox ready. WebAssembly module loaded.",
+      "wasm_error": "Error loading WASM",
+      "packages_added": "added {{count}} packages",
+      "updated": "up to date",
+      "generated": "generated",
+      "process_exit": "Process exited with code {{code}}",
+      "server_ready": "Server ready - navigate with the browser bar above",
+      "check_terminal": "Check terminal output",
+      "workspace_reset": "Workspace reset to the default template.",
+      "terminal_cleared": "Terminal cleared."
+    },
+    "confirm": {
+      "load_title": "Load {{template}}?",
+      "load_message": "Current changes will be lost.",
+      "load_confirm": "Load template",
+      "load_cancel": "Cancel",
+      "delete_folder": "Delete Folder",
+      "delete_file": "Delete File",
+      "delete_message": "This action cannot be undone.",
+      "delete_confirm": "Delete",
+      "delete_cancel": "Cancel",
+      "reset_title": "Reset Workspace",
+      "reset_message": "All local changes will be lost.",
+      "reset_confirm": "Reset",
+      "reset_cancel": "Cancel",
+      "default_confirm": "Confirm",
+      "default_cancel": "Cancel"
     },
     "editor": {
       "empty": "Select or create a file to edit"
     },
     "templates": {
-      "title": "Templates"
+      "title": "Templates",
+      "items": {
+        "react_dashboard": {
+          "name": "React Dashboard",
+          "description": "React app with routes (SSR), reusable components, and npm dependencies."
+        },
+        "vanilla_js": {
+          "name": "Vanilla JS App",
+          "description": "Simple HTTP app executed by bun with local modules."
+        },
+        "typescript_api": {
+          "name": "TypeScript API",
+          "description": "Node-compatible TypeScript server executed with Bun shim in Runbox."
+        },
+        "python_data_lab": {
+          "name": "Python Data Lab",
+          "description": "Demonstrates execution with python and pip install/list/freeze."
+        },
+        "git_workflow": {
+          "name": "Git Workflow",
+          "description": "Runs init/branch/commit/merge commands before starting the app."
+        },
+        "pnpm_showcase": {
+          "name": "pnpm Showcase",
+          "description": "Uses pnpm install/list/audit and exposes data with dependencies."
+        },
+        "yarn_showcase": {
+          "name": "Yarn Showcase",
+          "description": "Runs yarn install/outdated and starts a small SSR page."
+        }
+      }
     }
   }
 }
