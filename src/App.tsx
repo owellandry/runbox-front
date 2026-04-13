@@ -88,7 +88,7 @@ const HomePage = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[800px] h-[500px] hidden lg:block z-10"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[12%] w-[620px] h-[390px] hidden lg:block z-10"
         >
           <div className="w-full h-full rounded-2xl border border-anthropic-light-gray/10 bg-anthropic-dark/70 backdrop-blur-2xl flex flex-col overflow-hidden shadow-2xl">
             <div className="h-12 border-b border-anthropic-light-gray/10 flex items-center px-4 gap-2 bg-anthropic-dark/50">

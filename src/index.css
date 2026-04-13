@@ -32,6 +32,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Hide all scrollbars globally while preserving scroll behavior */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
 ::selection {
   background-color: var(--accent-secondary);
   color: var(--color-anthropic-dark);
