@@ -28,7 +28,7 @@ export const RunboxLog: React.FC<RunboxLogProps> = ({ onceKey = '__runboxjs_brow
 
     console.log('%c' + ASCII_LOGO, asciiStyle);
     console.log('%cRunboxJS ready in browser console.', 'color: #d97757; font-weight: 600');
-    console.warn(
+    console.log(
       '%cSecurity notice:%c never paste code in this console unless you fully trust and understand it.',
       'color: #d97757; font-weight: 700',
       'color: #faf9f5; font-weight: 500'

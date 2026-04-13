@@ -83,4 +83,13 @@ export function installExtensionNoiseFilter(): void {
     if (matchesKnownConsoleNoise(text)) return;
     originalWarn(...args);
   };
+
+  const originalLog = console.log.bind(console);
+  console.log = (...args: unknown[]) => {
+    const text = args.map((arg) => String(arg)).join(' ');
+    if (matchesKnownConsoleNoise(text)) return;
+    originalLog(...args);
+  };
 }
+
+installExtensionNoiseFilter();

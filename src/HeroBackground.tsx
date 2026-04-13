@@ -5,6 +5,9 @@ const HeroBackground: React.FC = () => {
   const renderRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
+    // Prevent noisy false-positive constant warnings in bundled builds.
+    (p5 as unknown as { disableFriendlyErrors?: boolean }).disableFriendlyErrors = true;
+
     // Suppress p5 VERSION warning
     if (!(window as any).p5) {
       (window as any).p5 = p5;
