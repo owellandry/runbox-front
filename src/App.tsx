@@ -1,5 +1,5 @@
-import { useState, Suspense, lazy, useEffect } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useState, Suspense, lazy } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Terminal, Zap, Globe, ArrowRight, Copy, Check } from 'lucide-react';
 import HeroBackground from './HeroBackground';
 import { Routes, Route, useLocation } from 'react-router-dom';
