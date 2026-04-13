@@ -16,13 +16,22 @@ const RouteTransition: React.FC<RouteTransitionProps> = ({ children }) => {
   const previousLangRef = useRef(i18n.language);
 
   useEffect(() => {
+    // Initial mount loading removal
+    const initialTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1200);
+
+    return () => clearTimeout(initialTimer);
+  }, []);
+
+  useEffect(() => {
     const routeChanged = previousPathRef.current !== location.pathname;
     const langChanged = previousLangRef.current !== i18n.language;
     
     previousPathRef.current = location.pathname;
     previousLangRef.current = i18n.language;
 
-    // Trigger loading only if route changed or language changed
+    // Trigger loading only if route changed or language changed (excluding initial render since that is handled above)
     if (routeChanged || langChanged) {
       setIsLoading(true);
 
