@@ -48,7 +48,7 @@ const HomePage = () => {
             className="max-w-xl backdrop-blur-sm bg-anthropic-dark/30 p-6 rounded-3xl border border-anthropic-light-gray/10"
           >
             <p className="text-xl md:text-2xl text-anthropic-light-gray/90 font-lora font-light mb-10 leading-snug">
-              Ejecuta Node.js directamente en el navegador. Entornos instantáneos, sin configuración. Arranca una aplicación full-stack dentro del navegador con rendimiento nativo.
+              Ejecuta Node.js directamente en el navegador. Entornos instantÃ¡neos, sin configuraciÃ³n. Arranca una aplicaciÃ³n full-stack dentro del navegador con rendimiento nativo.
             </p>
             
             <div className="flex flex-wrap items-center gap-6">
@@ -108,8 +108,8 @@ const HomePage = () => {
               className="flex flex-col gap-4"
             >
               <Zap className="w-8 h-8 text-anthropic-orange" />
-              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Inicio Instantáneo</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Los entornos se inician en milisegundos. Sin contenedores que provisionar, ni imágenes que descargar.</p>
+              <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Inicio InstantÃ¡neo</h3>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Los entornos se inician en milisegundos. Sin contenedores que provisionar, ni imÃ¡genes que descargar.</p>
             </motion.div>
 
             <motion.div 
@@ -121,7 +121,7 @@ const HomePage = () => {
             >
               <Terminal className="w-8 h-8 text-anthropic-blue" />
               <h3 className="text-2xl font-poppins font-medium text-anthropic-light">API Completa de Node</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Ejecuta Express, Vite, Next.js y más. Un entorno de ejecución de Node.js totalmente compatible dentro de la pestaña de tu navegador.</p>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Ejecuta Express, Vite, Next.js y mÃ¡s. Un entorno de ejecuciÃ³n de Node.js totalmente compatible dentro de la pestaÃ±a de tu navegador.</p>
             </motion.div>
 
             <motion.div 
@@ -133,7 +133,7 @@ const HomePage = () => {
             >
               <Globe className="w-8 h-8 text-anthropic-green" />
               <h3 className="text-2xl font-poppins font-medium text-anthropic-light">Local Primero</h3>
-              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Trabaja sin conexión. El procesamiento se mantiene local. Seguro por diseño sin requerir dependencias de backend.</p>
+              <p className="text-anthropic-mid-gray font-lora leading-relaxed text-lg">Trabaja sin conexiÃ³n. El procesamiento se mantiene local. Seguro por diseÃ±o sin requerir dependencias de backend.</p>
             </motion.div>
 
           </div>
@@ -149,7 +149,7 @@ const HomePage = () => {
               Docs interactivos.
             </h2>
             <p className="text-lg text-anthropic-mid-gray font-lora leading-relaxed max-w-md">
-              Integra Runboxjs en tu plataforma para proporcionar ejemplos de código interactivos, tutoriales o entornos de desarrollo completos. Simplemente funciona.
+              Integra Runboxjs en tu plataforma para proporcionar ejemplos de cÃ³digo interactivos, tutoriales o entornos de desarrollo completos. Simplemente funciona.
             </p>
             <ul className="flex flex-col gap-6 text-anthropic-light-gray font-lora">
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
@@ -158,7 +158,7 @@ const HomePage = () => {
               </li>
               <li className="flex items-center gap-4 border-b border-anthropic-light-gray/10 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-blue"></span>
-                Ejecuta comandos de shell de forma programática
+                Ejecuta comandos de shell de forma programÃ¡tica
               </li>
               <li className="flex items-center gap-4 pb-6">
                 <span className="w-2 h-2 rounded-full bg-anthropic-green"></span>
@@ -198,10 +198,10 @@ console.<code className="text-anthropic-blue">log</code>(JSON.<code className="t
           Empieza a construir.
         </h2>
         <p className="text-xl font-lora text-anthropic-mid-gray max-w-lg mb-12 leading-relaxed">
-          Añade Runboxjs a tu proyecto y experimenta el poder de los entornos Node.js en el navegador.
+          AÃ±ade Runboxjs a tu proyecto y experimenta el poder de los entornos Node.js en el navegador.
         </p>
-        <a href="#" className="bg-anthropic-orange text-anthropic-dark px-10 py-5 rounded-full font-poppins font-medium text-lg hover:bg-[#c76547] hover:scale-105 transition-all shadow-xl">
-          Lee la Documentación
+        <a href="/doc" className="bg-anthropic-orange text-anthropic-dark px-10 py-5 rounded-full font-poppins font-medium text-lg hover:bg-[#c76547] hover:scale-105 transition-all shadow-xl">
+          Lee la DocumentaciÃ³n
         </a>
       </section>
     </>
@@ -218,6 +218,7 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/doc" element={<DocsPage />} />
           <Route path="/docs" element={<DocsPage />} />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
