@@ -5,6 +5,8 @@ export const defaultFiles: Record<string, string> = {
   "name": "acme-dashboard",
   "version": "1.0.0",
   "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "dayjs": "^1.11.10",
     "react-icons": "^5.4.0"
   },
