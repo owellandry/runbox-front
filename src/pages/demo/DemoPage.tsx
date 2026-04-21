@@ -447,6 +447,10 @@ const DemoPage: React.FC = () => {
         setOutput((prev) => [...prev, `$ ${packageManager} install`]);
         const needed: Array<{ name: string; version: string }> = JSON.parse(activeRunbox.npm_packages_needed());
         const resolvedVersions: Record<string, string> = {};
+        
+        // DEBUG: Log packages that need to be downloaded
+        console.log('[DEBUG] Packages needed:', needed);
+        
         if (needed.length > 0) {
           for (const pkg of needed) {
             setOutput((prev) => [...prev, `  -> ${pkg.name}@${pkg.version}`]);
@@ -454,7 +458,9 @@ const DemoPage: React.FC = () => {
               const meta = await fetch(`https://registry.npmjs.org/${pkg.name}/${pkg.version}`).then(r => r.json());
               resolvedVersions[pkg.name] = meta.version ?? normalizeVersionSpec(pkg.version);
               const tarball = await fetch(meta.dist.tarball).then(r => r.arrayBuffer());
+              console.log(`[DEBUG] Downloaded ${pkg.name}: ${tarball.byteLength} bytes`);
               const result = JSON.parse(activeRunbox.npm_process_tarball(pkg.name, pkg.version, new Uint8Array(tarball)));
+              console.log(`[DEBUG] Process tarball result for ${pkg.name}:`, result);
               if (!result.ok) setOutput((prev) => [...prev, `  x ${pkg.name}: ${result.error}`]);
             } catch (e) {
               resolvedVersions[pkg.name] = normalizeVersionSpec(pkg.version);
