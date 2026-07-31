@@ -255,6 +255,9 @@ async function runPythonScriptWithPyodide(
   try {
     runtime.globals.set('__runbox_script_path', targetScript);
     await runtime.runPythonAsync(`
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=PendingDeprecationWarning)
 import runpy
 import sys
 workspace = "/workspace"
