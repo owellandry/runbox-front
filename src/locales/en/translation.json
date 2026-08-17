@@ -76,7 +76,7 @@
       "title": "Overview",
       "desc": "RunboxJS is a WebAssembly-first runtime that lets you execute project workflows directly in-browser: files, commands, terminal streams, package installs, git flows, and assistant tool calls.",
       "t1": "Core package",
-      "d1": "`runboxjs` (WASM + JS bindings)",
+      "d1": "`@runboxjs/runboxjs` (WASM + JS bindings)",
       "t2": "Execution model",
       "d2": "Virtual filesystem + runtime dispatch by command target",
       "t3": "Output contract",

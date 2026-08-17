@@ -30,7 +30,7 @@ const server = http.createServer((req, res) => {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Sede Acme</title>
-  <style>*,*::before,*::after{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif}a{text-decoration:none}</style>
+  <style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0;background:#0f0f11;color-scheme:dark}body{font-family:system-ui,sans-serif}a{text-decoration:none}</style>
 </head>
 <body>\${html}</body>
 </html>\`);

@@ -13,7 +13,7 @@ export default defineConfig({
     tailwindcss()
   ],
   optimizeDeps: {
-    exclude: ['runboxjs']
+    exclude: ['@runboxjs/runboxjs']
   },
   build: {
     target: 'esnext',

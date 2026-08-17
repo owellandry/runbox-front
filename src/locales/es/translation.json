@@ -76,7 +76,7 @@
       "title": "Descripción General",
       "desc": "RunboxJS es un entorno de ejecución orientado a WebAssembly que te permite ejecutar flujos de trabajo de proyectos directamente en el navegador: archivos, comandos, flujos de terminal, instalaciones de paquetes, flujos git y llamadas a herramientas de asistentes.",
       "t1": "Paquete principal",
-      "d1": "`runboxjs` (WASM + enlaces JS)",
+      "d1": "`@runboxjs/runboxjs` (WASM + enlaces JS)",
       "t2": "Modelo de ejecución",
       "d2": "Sistema de archivos virtual + despacho de ejecución por objetivo de comando",
       "t3": "Contrato de salida",

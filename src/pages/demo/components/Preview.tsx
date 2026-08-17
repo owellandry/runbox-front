@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Globe, ArrowLeft, ArrowRight, RotateCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -80,16 +80,11 @@ export const Preview: React.FC<PreviewProps> = ({
         >{t('demo.preview.go')}</button>
       </div>
 
-      {/* Iframe */}
-      <div className="flex-1 overflow-y-auto bg-white">
+      {/* Double-buffered iframe: keep the current page visible until the next
+          srcDoc document has painted, so route changes do not flash white. */}
+      <div className="relative flex-1 min-h-0 bg-[#0f0f11]">
         {serverPort ? (
-          <iframe
-            key={previewHtml}
-            srcDoc={previewHtml}
-            title="preview"
-            className="w-full h-full border-none"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
-          />
+          <BufferedPreviewFrame html={previewHtml} />
         ) : (
           <div className="h-full flex items-center justify-center bg-[#0a0a09] text-[#b0aea5] font-poppins text-sm text-center p-6">
             <div className="max-w-md">
@@ -103,5 +98,50 @@ export const Preview: React.FC<PreviewProps> = ({
         )}
       </div>
     </motion.div>
+  );
+};
+
+const IFRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-modals';
+const iframeClass = 'absolute inset-0 w-full h-full border-none bg-[#0f0f11]';
+
+const BufferedPreviewFrame: React.FC<{ html: string }> = ({ html }) => {
+  const [pages, setPages] = useState<[string, string]>(['', '']);
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    if (!html) return;
+    setPages((prev) => {
+      if (prev[active] === html) return prev;
+      const slot = 1 - active;
+      if (prev[slot] === html) return prev;
+      const next: [string, string] = [prev[0], prev[1]];
+      next[slot] = html;
+      return next;
+    });
+  }, [html, active]);
+
+  const reveal = (slot: number) => {
+    if (pages[slot] === html) setActive(slot);
+  };
+
+  return (
+    <>
+      <iframe
+        srcDoc={pages[0] || undefined}
+        title="preview-a"
+        className={iframeClass}
+        style={{ opacity: active === 0 ? 1 : 0, pointerEvents: active === 0 ? 'auto' : 'none', colorScheme: 'dark' }}
+        sandbox={IFRAME_SANDBOX}
+        onLoad={() => reveal(0)}
+      />
+      <iframe
+        srcDoc={pages[1] || undefined}
+        title="preview-b"
+        className={iframeClass}
+        style={{ opacity: active === 1 ? 1 : 0, pointerEvents: active === 1 ? 'auto' : 'none', colorScheme: 'dark' }}
+        sandbox={IFRAME_SANDBOX}
+        onLoad={() => reveal(1)}
+      />
+    </>
   );
 };

@@ -71,14 +71,20 @@ type LocaleContent = {
   templateScenarios: TemplateScenario[];
 };
 
-const installCode = `npm install runboxjs`;
+const installCode = `npm install @runboxjs/runboxjs`;
 
-const viteConfigCode = `import init, { RunboxInstance } from 'runboxjs';
+const viteConfigCode = `import { defineConfig } from 'vite';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
 
-await init();
-const runbox = new RunboxInstance();`;
+export default defineConfig({
+  plugins: [wasm(), topLevelAwait()],
+  optimizeDeps: {
+    exclude: ['@runboxjs/runboxjs'],
+  },
+});`;
 
-const quickStartCode = `import init, { RunboxInstance } from 'runboxjs';
+const quickStartCode = `import init, { RunboxInstance } from '@runboxjs/runboxjs';
 
 await init();
 const runbox = new RunboxInstance();
@@ -116,7 +122,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
     overviewIntro:
       'RunboxJS is a WebAssembly-first runtime that executes project workflows directly in the browser: files, commands, terminal streams, package installs, git flows, and assistant tool calls.',
     overviewCards: [
-      { label: 'Core package', value: '`runboxjs` (WASM + JS bindings)' },
+      { label: 'Core package', value: '`@runboxjs/runboxjs` (WASM + JS bindings)' },
       { label: 'Execution model', value: 'Virtual filesystem + command-target runtime dispatch' },
       { label: 'Output contract', value: '`exec()` returns JSON with `stdout`, `stderr`, and `exit_code`' },
       { label: 'Best fit', value: 'Interactive docs, playgrounds, browser IDEs, coding copilots' },
@@ -147,7 +153,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
     troubleshootingItems: [
       {
         title: 'WASM import fails in Vite',
-        body: 'Ensure `vite-plugin-wasm` and `vite-plugin-top-level-await` are enabled, put WASM plugin first, and exclude `runboxjs` from optimizeDeps.',
+        body: 'Ensure `vite-plugin-wasm` and `vite-plugin-top-level-await` are enabled, put WASM plugin first, and exclude `@runboxjs/runboxjs` from optimizeDeps.',
       },
       {
         title: 'Modules not found after install',
@@ -284,7 +290,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
     overviewIntro:
       'RunboxJS es un runtime orientado a WebAssembly que ejecuta flujos de trabajo de proyecto directamente en el navegador: archivos, comandos, terminal, paquetes, flujos git y herramientas de asistente.',
     overviewCards: [
-      { label: 'Paquete principal', value: '`runboxjs` (WASM + bindings JS)' },
+      { label: 'Paquete principal', value: '`@runboxjs/runboxjs` (WASM + bindings JS)' },
       { label: 'Modelo de ejecucion', value: 'Filesystem virtual + despacho por objetivo de comando' },
       { label: 'Contrato de salida', value: '`exec()` devuelve JSON con `stdout`, `stderr` y `exit_code`' },
       { label: 'Mejor uso', value: 'Docs interactivas, playgrounds, IDEs en navegador, copilotos de codigo' },
@@ -315,7 +321,7 @@ const docsByLocale: Record<'en' | 'es', LocaleContent> = {
     troubleshootingItems: [
       {
         title: 'Falla importacion WASM en Vite',
-        body: 'Asegura `vite-plugin-wasm` y `vite-plugin-top-level-await`, coloca el plugin WASM primero y excluye `runboxjs` en optimizeDeps.',
+        body: 'Asegura `vite-plugin-wasm` y `vite-plugin-top-level-await`, coloca el plugin WASM primero y excluye `@runboxjs/runboxjs` en optimizeDeps.',
       },
       {
         title: 'Modulos no encontrados despues de instalar',

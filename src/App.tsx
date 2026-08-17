@@ -26,7 +26,7 @@ const HomePage = () => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('npm install runboxjs');
+    navigator.clipboard.writeText('npm install @runboxjs/runboxjs');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -72,7 +72,7 @@ const HomePage = () => {
                 className="group relative flex items-center gap-3 text-sm font-mono text-anthropic-light-gray px-5 py-4 rounded-xl bg-anthropic-dark/50 border border-anthropic-light-gray/10 shadow-inner hover:bg-anthropic-dark/80 transition-colors cursor-pointer"
                 title={t('home.hero.copy')}
               >
-                <span>npm install runboxjs</span>
+                <span>npm install @runboxjs/runboxjs</span>
                 {copied ? (
                   <Check className="w-4 h-4 text-anthropic-green" />
                 ) : (
@@ -189,7 +189,7 @@ const HomePage = () => {
               <span className="text-xs font-mono text-anthropic-mid-gray">app.js</span>
             </div>
             <pre className="p-8 text-sm md:text-base font-mono text-anthropic-light-gray overflow-x-auto leading-relaxed no-scrollbar selection:bg-anthropic-light-gray/20">
-<code className="text-anthropic-orange">import</code> {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'runboxjs'</code>;
+<code className="text-anthropic-orange">import</code> {'{'} RunboxInstance {'}'} <code className="text-anthropic-orange">from</code> <code className="text-anthropic-green">'@runboxjs/runboxjs'</code>;
 <br/><br/>
 <code className="text-anthropic-blue">const</code> runbox = <code className="text-anthropic-orange">new</code> <code className="text-anthropic-blue">RunboxInstance</code>();
 <br/><br/>

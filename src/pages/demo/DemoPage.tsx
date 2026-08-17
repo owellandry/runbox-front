@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
+import * as ReactRuntime from 'react';
+import * as ReactDOMServer from 'react-dom/server';
 import { AnimatePresence } from 'framer-motion';
-import initRunboxWasm, { RunboxInstance } from 'runboxjs';
+import initRunboxWasm, { RunboxInstance } from '@runboxjs/runboxjs';
 import { useTranslation } from 'react-i18next';
+
+function exposeHostRenderRuntime() {
+  const g = globalThis as typeof globalThis & {
+    __runbox_react?: typeof ReactRuntime;
+    __runbox_reactdom_server?: typeof ReactDOMServer;
+  };
+  g.__runbox_react = ReactRuntime;
+  g.__runbox_reactdom_server = ReactDOMServer;
+}
+
+exposeHostRenderRuntime();
 
 import { TopBar } from './components/TopBar';
 import { ActivityBar } from './components/ActivityBar';
@@ -539,9 +552,18 @@ const DemoPage: React.FC = () => {
   };
   const injectNavScript = (html: string) => {
     const s = `<script>document.addEventListener('click',function(e){const a=e.target&&e.target.closest?e.target.closest('a[href]'):null;if(a){e.preventDefault();window.parent.postMessage({type:'__runbox_navigate',href:a.getAttribute('href')},'*');}});</script>`;
-    if (html.includes('</body>')) return html.replace('</body>', s + '</body>');
-    if (html.includes('</html>')) return html.replace('</html>', s + '</html>');
-    return html + s;
+    const paint = `<style>html,body{background:#0f0f11;color-scheme:dark}</style>`;
+    let next = html;
+    if (next.includes('</head>')) {
+      next = next.replace('</head>', paint + '</head>');
+    } else if (next.includes('<body')) {
+      next = next.replace('<body', paint + '<body');
+    } else {
+      next = paint + next;
+    }
+    if (next.includes('</body>')) return next.replace('</body>', s + '</body>');
+    if (next.includes('</html>')) return next.replace('</html>', s + '</html>');
+    return next + s;
   };
 
   const [historyStack, setHistoryStack] = useState<string[]>([]);
