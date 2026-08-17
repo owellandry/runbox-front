@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@runboxjs/runboxjs": "file:../runbox/pkg",
+    "@runboxjs/runboxjs": "^1.2.1",
     "@tailwindcss/vite": "^4.2.4",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
